@@ -1,0 +1,19 @@
+<%- include('heads/productsHead') %>
+<%- include('nav') %>
+
+<main id="content-wrapper" class="d-flex flex-column align-items-center justify-content-between">
+
+	<h1 class="h1 fw-bold">Welcome to my farmers market! We have:</h1>
+	<div id="productsHome" class="h-auto w-100 d-flex flex-wrap flex-column flex-md-row justify-content-evenly align-items-center">
+
+		<% for( let singleProduct of groceryProductData ) { %>
+			
+			<%- include('prodCardView', {singleProduct}) %>
+		<% } %>
+
+	</div> 
+
+
+</main>
+
+<%- include('foot') %>
