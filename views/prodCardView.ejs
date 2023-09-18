@@ -1,6 +1,6 @@
 		<div class="card singleProduct mb-5" style="width: 18rem;">
-            <% let {name,price,sizeType,qty,category,id} = singleProduct %>
-			<img src="https://images.unsplash.com/photo-1550258987-190a2d41a8ba?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80" class="card-img-top" alt="...">
+            <% let {name,price,sizeType,qty,category,id,imageLink} = singleProduct %>
+			<img src=<%= imageLink %> class="card-img-top" alt="..." >
 			<div class="card-body">
 				<h5 class="card-title"><%=name %></h5>
 				<p class="card-text">for $<%=price %> per <%= sizeType %></p>

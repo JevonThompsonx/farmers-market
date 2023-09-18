@@ -26,16 +26,8 @@ import ejs from 'ejs';
 
 import fileDirName from './scripts/file-dir-name.js'; 
 
-//getUnsplash func
-// import getUnsplash from './scripts/getUnsplash.js'
-// const UNSPLASH_KEY = process.env.UNSPLASH_KEY; 
-
-//     const getUnsplashData = async(search)=> {
-//     const rawData = await getUnsplash(search,UNSPLASH_KEY)
-//     const link = rawData.data.urls.full
-//     return link
-//     }
-//     console.log(getUnsplashData('Furry'));
+// getUnsplash func
+import {addUnsplashImg,updateAllImgs} from './scripts/addUnsplashImage.js';
 
 
 //express setup

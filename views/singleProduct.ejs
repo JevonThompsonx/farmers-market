@@ -2,14 +2,14 @@
 
 <%- include('nav') %>
 
-<% let {name,price,size,sizeType,qty,category,id} = grocerySingleProductData %>
+<% let {name,price,size,sizeType,qty,category,id,imageLink} = grocerySingleProductData %>
 <div id="productDiv" class="vw-100 vh-100 content-wrapper d-flex flex-column align-items-center justify-content-center">
 
 
   <div class="card mb-3" style="max-width:65%;">
   <div class="row g-0">
     <div class="col-md-4">
-      <img src="https://images.unsplash.com/photo-1550258987-190a2d41a8ba?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80" class="img-fluid rounded-start" alt="...">
+      <img src=<%= imageLink %> class="img-fluid rounded-start" alt="...">
     </div>
     <div class="col-md-8">
       <div class="card-body">
