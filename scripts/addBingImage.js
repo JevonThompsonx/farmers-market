@@ -3,20 +3,14 @@ import { configDotenv } from 'dotenv';
 import 'dotenv/config'
 configDotenv({path: '../.env'})
 //unsplash func 
-import getUnsplash from './getUnsplash.js'
+import getBing from './getBing.js'
 //grocerySchema 
 import {groceryProductSchema} from '../models/products.js'
 //mongoose
 import mongoose from 'mongoose'
 //api keys
-const UNSPLASH_KEY = process.env.UNSPLASH_KEY
+const BING_KEY = process.env.BING_KEY
 const API_KEY = process.env.API_KEY
-
-
-// const data = await getUnsplash('bacon');
-
-// console.log(groceryProduct)
-// console.log(groceryProductSchema)
 
 await mongoose.connect(`mongodb+srv://Jevonx:${API_KEY}@cluster0.q4o1wzp.mongodb.net/?retryWrites=true&w=majority`,{dbName:'expressConnect'})
     .then(
@@ -31,9 +25,9 @@ await mongoose.connect(`mongodb+srv://Jevonx:${API_KEY}@cluster0.q4o1wzp.mongodb
 
 const groceryProduct = mongoose.model('groceryProduct',groceryProductSchema);
 
-const addUnsplashImg = async (productName)=>{
-    const unsplashData = await getUnsplash(productName)
-    await groceryProduct.updateOne({name:productName}, {imageLink:unsplashData})
+const addBingImg = async (productName)=>{
+    const bingData = await getBing(productName)
+    await groceryProduct.updateOne({name:productName}, {imageLink:bingData})
     .then(data=>data).catch(err=>err)
     console.log(await groceryProduct.findOne({name:productName}))
 }
@@ -43,8 +37,8 @@ const updateAllImgs = async ()=> {
     for (let individualProduct of allProducts) {
         const linkCheck = individualProduct.imageLink
         if (linkCheck === undefined) {
-            const unsplashLink = await getUnsplash(individualProduct.name)
-            await groceryProduct.updateOne({name:individualProduct.name},{imageLink:unsplashLink})
+            const bingLink = await getBing(individualProduct.name)
+            await groceryProduct.updateOne({name:individualProduct.name},{imageLink:bingLink})
             const testData = await groceryProduct.findOne({name:individualProduct.name})
             console.log('New object is: ')
             console.log(testData)
@@ -56,5 +50,5 @@ const updateAllImgs = async ()=> {
     }
 
 }
-export {addUnsplashImg,updateAllImgs}
+export {addBingImg,updateAllImgs}
 

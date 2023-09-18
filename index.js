@@ -26,9 +26,9 @@ import ejs from 'ejs';
 
 import fileDirName from './scripts/file-dir-name.js'; 
 
-// getUnsplash func
-import {addUnsplashImg,updateAllImgs} from './scripts/addUnsplashImage.js';
-
+// getBing func
+import {addBingImg,updateAllImgs} from './scripts/addBingImage.js';
+addBingImg('oatmilk')
 
 //express setup
 const { __dirname, __filename } = fileDirName(import.meta);
