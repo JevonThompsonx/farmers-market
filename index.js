@@ -7,17 +7,20 @@ const API_KEY = process.env.API_KEY;
 
 //mongoose connection string
 await mongoose.connect(`mongodb+srv://Jevonx:${API_KEY}@cluster0.q4o1wzp.mongodb.net/?retryWrites=true&w=majority`,{dbName:'expressConnect'})
-    .then(
-        ()=> {
-            console.log("Connection succesful");
-        }
-    ).catch((err) => {
-        console.log(`Connection errrorrrr`);
-    }
-    );
+    .then(()=> {console.log("Connection succesful");})
+    .catch((err) => {console.log(`Connection errrorrrr`);});
+
+// const testObject = new groceryProduct({
+//     name: 'gala apple',
+//     price: 2,
+//     size: 1,
+//     sizeType: 'item',
+//     category: 'fruit'
+// })
+
+// testObject.save().then(data=>console.log(data)).catch(err=>console.log(err))
 
 import {groceryProduct,groceryProductSchema} from './models/products.js'
-
 
 import express from 'express';
 const app = express(); //shortcut for executed express
@@ -26,9 +29,8 @@ import ejs from 'ejs';
 
 import fileDirName from './scripts/file-dir-name.js'; 
 
-// getBing func
-import {addBingImg,updateAllImgs} from './scripts/addBingImage.js';
-addBingImg('oatmilk')
+// // getBing func
+// import {addBingImg,updateAllImgs,removeImgs} from './scripts/addBingImage.js';
 
 //express setup
 const { __dirname, __filename } = fileDirName(import.meta);
@@ -38,13 +40,9 @@ app.use(express.static(path.join(__dirname)));
 let port = 8080;
 
 //express ports: 
-app.listen(port, ()=> {
-    console.log(`Listening on port ${port}`);
-});
+app.listen(port, ()=> {console.log(`Listening on port ${port}`);});
 
-app.get('/', (req,res)=> {
-    res.send('Server is twerking')
-});
+app.get('/', (req,res)=> {res.send('Server is twerking')});
 
 app.get('/products',async (req,res)=>{
     const groceryProductData = await groceryProduct.find();
@@ -56,9 +54,8 @@ app.get('/product/:id', async(req,res)=> {
     const grocerySingleProductData = await groceryProduct.findById(id);
     res.render('singleProduct',{grocerySingleProductData, id});
 })
-app.get('/product/new', (req,res)=> {
-    res.render('newProduct');
-})
+app.get('/product/new', (req,res)=> {res.render('newProduct');})
+
 app.get('/product/:id/edit', async(req,res)=> {
     const {id} = req.params;
     const grocerySingleProductData = await groceryProduct.findById(id);
@@ -70,6 +67,4 @@ app.get('/categories/:id', async(req,res)=> {
     res.render('perCategory',{groceryProductData, id});
 })
 
-app.get('*', (req,res)=> {
-    res.send('Everything else');
-});
+app.get('*', (req,res)=> {res.send('Everything else');});

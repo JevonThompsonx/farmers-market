@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 const {Schema} = mongoose;
+import getBing from '../scripts/getBing.js'
+
 
 const groceryProductSchema = new Schema({
     name: {
@@ -19,7 +21,7 @@ const groceryProductSchema = new Schema({
     sizeType: {
         type:String,
         required:true,
-        enum: ['oz', 'fl oz','lb'],
+        enum: ['oz', 'fl oz','lb','item'],
         lowercase:true
     },
     qty: {
@@ -36,12 +38,23 @@ const groceryProductSchema = new Schema({
     },
     imageLink: {
         type: String,
+        required:false,
+    },
+    created: {
+        type:String,
         required:false
     }
 })
 
+groceryProductSchema.pre('save', async function(next) {
+  if (!this.created) this.created = new Date;
+  if (!this.imageLink) this.imageLink = await getBing(this.name);
+  next();
+});
+groceryProductSchema.pre('updateOne', function(next) {
+  if (!this.updated) this.updated = new Date;
+  next();
+});
 const groceryProduct = mongoose.model('groceryProduct',groceryProductSchema)
 
-
-
-export {groceryProduct, groceryProductSchema}; 
+export {groceryProduct,groceryProductSchema}

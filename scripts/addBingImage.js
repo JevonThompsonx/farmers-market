@@ -36,7 +36,7 @@ const updateAllImgs = async ()=> {
     const allProducts = await groceryProduct.find({})
     for (let individualProduct of allProducts) {
         const linkCheck = individualProduct.imageLink
-        if (linkCheck === undefined) {
+        if (linkCheck === undefined || linkCheck === ' ') {
             const bingLink = await getBing(individualProduct.name)
             await groceryProduct.updateOne({name:individualProduct.name},{imageLink:bingLink})
             const testData = await groceryProduct.findOne({name:individualProduct.name})
@@ -50,5 +50,10 @@ const updateAllImgs = async ()=> {
     }
 
 }
-export {addBingImg,updateAllImgs}
+//for development use only
+const removeImgs = async ()=> {
+   await groceryProduct.updateMany({},{imageLink:' '})
+}
+
+export {addBingImg,updateAllImgs,removeImgs}
 
