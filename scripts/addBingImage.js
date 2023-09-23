@@ -48,12 +48,13 @@ const updateAllImgs = async ()=> {
    
         }
     }
-
+    console.log('All product images up to date')
 }
 //for development use only
 const removeImgs = async ()=> {
    await groceryProduct.updateMany({},{imageLink:' '})
 }
-
+// removeImgs();
+// updateAllImgs();
 export {addBingImg,updateAllImgs,removeImgs}
 

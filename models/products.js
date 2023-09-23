@@ -48,7 +48,9 @@ const groceryProductSchema = new Schema({
 
 groceryProductSchema.pre('save', async function(next) {
   if (!this.created) this.created = new Date;
-  if (!this.imageLink) this.imageLink = await getBing(this.name);
+
+  const urlTestVar = await getBing(this.name);
+  if (!this.imageLink) this.imageLink = urlTestVar
   next();
 });
 groceryProductSchema.pre('updateOne', function(next) {

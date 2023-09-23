@@ -67,4 +67,10 @@ app.get('/categories/:id', async(req,res)=> {
     res.render('perCategory',{groceryProductData, id});
 })
 
+app.get('/search/:id',async (req,res)=> {
+    const {id} = req.params;
+    const groceryProductData = await groceryProduct.find({name:`${id}`});
+    res.render('search',{groceryProductData, id});
+})
+
 app.get('*', (req,res)=> {res.send('Everything else');});
