@@ -22,10 +22,12 @@ await mongoose.connect(`mongodb+srv://Jevonx:${API_KEY}@cluster0.q4o1wzp.mongodb
 
 import {groceryProduct,groceryProductSchema} from './models/products.js'
 
-import express from 'express';
+import express, { urlencoded } from 'express';
 const app = express(); //shortcut for executed express
+app.use(express.urlencoded({extended:true}))
 import path from 'path';
 import ejs from 'ejs';
+
 
 import fileDirName from './scripts/file-dir-name.js'; 
 
@@ -56,21 +58,28 @@ app.get('/product/:id', async(req,res)=> {
 })
 app.get('/product/new', (req,res)=> {res.render('newProduct');})
 
-app.get('/product/:id/edit', async(req,res)=> {
-    const {id} = req.params;
-    const grocerySingleProductData = await groceryProduct.findById(id);
-    res.render('singleProductEdit',{grocerySingleProductData, id});
-})
-app.get('/categories/:id', async(req,res)=> {
-    const {id} = req.params;
-    const groceryProductData = await groceryProduct.find({category:`${id}`});
-    res.render('perCategory',{groceryProductData, id});
+// app.get('/product/:id/edit', async(req,res)=> {
+//     const {id} = req.params;
+//     const grocerySingleProductData = await groceryProduct.findById(id);
+//     res.render('singleProductEdit',{grocerySingleProductData, id});
+// })
+app.get('/categories/:category', async(req,res)=> {
+    const {category} = req.params;
+    const groceryProductData = await groceryProduct.find({category:`${category}`});
+    res.render('perCategory',{groceryProductData, category});
 })
 
-app.get('/search/:id',async (req,res)=> {
-    const {id} = req.params;
-    const groceryProductData = await groceryProduct.find({name:`${id}`});
-    res.render('search',{groceryProductData, id});
+
+app.post('/search',async (req,res)=> {
+    const {searchBar} = req.body
+    const rawGroceryProductData = await groceryProduct.find();
+    const groceryProductData = []
+    for (let individualProduct of rawGroceryProductData) {
+        if ((individualProduct.name).includes(searchBar.toLowerCase())) {
+            groceryProductData.push(individualProduct)
+        }
+    }
+    res.render('perCategory',{groceryProductData, id,searchBar});
 })
 
 app.get('*', (req,res)=> {res.send('Everything else');});

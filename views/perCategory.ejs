@@ -3,7 +3,13 @@
 <%- include('nav') %>
 
 <div class="mt-2 content-wrapper d-flex flex-column justify-content-between align-items-center">
-	<h1 class="h1 fw-bold">Welcome to the page for <%= id %></h1>
+				<% if (category) { %>
+	<h1 class="h1 fw-bold">Welcome to the page for <%= category %> </h1>
+				 
+				<% } else { %>
+	<h1 class="h1 fw-bold">Welcome to the page for <%= searchBar %> </h1>
+				 
+				<% } %>
 
 	<div id="productDiv" class="h-auto w-100 d-flex flex-wrap flex-column flex-md-row justify-content-evenly align-items-center">
 		<% for( let singleProduct of groceryProductData ) { %>
