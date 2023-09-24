@@ -53,8 +53,15 @@ const updateAllImgs = async ()=> {
 //for development use only
 const removeImgs = async ()=> {
    await groceryProduct.updateMany({},{imageLink:' '})
+   console.log('images removed')
 }
-// removeImgs();
-// updateAllImgs();
+
+const imageReset = async ()=> {
+await removeImgs();
+await updateAllImgs();
+}
+
+// imageReset();
+
 export {addBingImg,updateAllImgs,removeImgs}
 

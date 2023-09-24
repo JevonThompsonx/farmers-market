@@ -11,8 +11,8 @@ export default async function (search) {
   const result = await axios.get(
      'https://api.bing.microsoft.com/v7.0/images/search',
   {
-    params: {q: search,
-    count: 10},
+    params: {q: `fresh ${search}`,
+    count: 3},
     headers: { 'Ocp-Apim-Subscription-Key': BING_KEY }
   }
   )
