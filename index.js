@@ -79,7 +79,7 @@ app.post('/search',async (req,res)=> {
             groceryProductData.push(individualProduct)
         }
     }
-    res.render('perCategory',{groceryProductData, id,searchBar});
+    res.render('search',{groceryProductData,searchBar});
 })
 
 app.get('*', (req,res)=> {res.send('Everything else');});
