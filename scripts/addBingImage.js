@@ -63,5 +63,5 @@ await updateAllImgs();
 
 // imageReset();
 
-export {addBingImg,updateAllImgs,removeImgs}
+export {addBingImg,updateAllImgs,removeImgs,imageReset}
 

@@ -16,9 +16,11 @@ const groceryProductSchema = new Schema({
     },
     size: {
         type: Number,
-        required:true
+        required:false,
+        default: 1
     },
-    sizeType: {
+
+    unit: {
         type:String,
         required:true,
         enum: ['oz', 'fl oz','lb','item'],
@@ -41,22 +43,31 @@ const groceryProductSchema = new Schema({
         required:false,
     },
     created: {
-        type:String,
+        type:Date,
         required:false
+    },
+    updated: {
+        type:Date,
+        required: false
     }
 })
 
 groceryProductSchema.pre('save', async function(next) {
   if (!this.created) this.created = new Date;
-
   const urlTestVar = await getBing(this.name);
-  if (!this.imageLink) this.imageLink = urlTestVar
+  if (!this.imageLink || this.image != urlTestVar) this.imageLink = urlTestVar
   next();
 });
 groceryProductSchema.pre('updateOne', function(next) {
-  if (!this.updated) this.updated = new Date;
+    this.updated = new Date;
+    next();
+});
+groceryProductSchema.pre('updateOne', async function(next) {
+  const urlTestVar = await getBing(this.name);
+  if (!this.imageLink || this.image != urlTestVar) this.imageLink = urlTestVar
   next();
 });
+
 const groceryProduct = mongoose.model('groceryProduct',groceryProductSchema)
 
 export {groceryProduct,groceryProductSchema}

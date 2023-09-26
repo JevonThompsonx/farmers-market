@@ -1,0 +1,33 @@
+<%- include('./heads/head') %>
+<%- include('nav') %>
+<main id="content-wrapper" class="d-flex justify-content-center align-items-center flex-column vw-100 vh-100" >
+    <% let {name,category,price,unit,qty,id} =grocerySingleProductData %>
+<h1>Editing <i><%= name %></i></h1>
+
+<form class="w-75 d-flex flex-column" action="/editProduct/<%= id %>" method="post">
+    <input class="mb-3" type="text" name="name" placeholder="Current name: <%= name  %>">
+    <input class="mb-3" type="text" name="qty" placeholder="current qty <%= qty %>">
+    <input class="mb-3" type="text" name="price" placeholder="Current price per unit: <%= price  %>">
+    <label for="unit">Select a unit of measurement:</label>
+    <select class="mb-3" id="unit"name="unit">
+         <option>--Please select a unit of measurement. Current: <%= unit %>--</option>
+         <option>oz</option>
+         <option>fl oz</option>
+         <option>lbs</option>
+         <option>item</option>
+    </select>
+    <label for="category">Select a category:</label>
+    <select class="mb-3" id="category"name="category">
+         <option>--Please select a category. Current: <%= category %>--</option>
+         <option>fruit</option>
+         <option>vegetable</option>
+         <option>dairy</option>
+        </select>
+    <input class="btn btn-primary" type="submit" name="submit" value="submit" style="width: 100px;">
+
+</form>
+</main>
+
+
+
+<%- include('foot') %>
