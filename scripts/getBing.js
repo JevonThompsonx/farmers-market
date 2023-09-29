@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { configDotenv } from 'dotenv';
 import 'dotenv/config'
-import https from 'node:https'
 configDotenv({path: '../.env'})
 const BING_KEY = process.env.BING_KEY
 
@@ -11,19 +10,23 @@ export default async function (search) {
   const result = await axios.get(
      'https://api.bing.microsoft.com/v7.0/images/search',
   {
-    params: {q: `fresh ${search}`,
-    count: 3},
+    params: {
+    q: `${search}`,
+    safeSearch: 'Strict',
+    license: 'Public',
+    count: 5
+  },
     headers: { 'Ocp-Apim-Subscription-Key': BING_KEY }
   }
   )
-
+  // return (result.data.value)[0].contentUrl
   let rawData = result.data.value;
   let validLink;
   for (let individualData of rawData) {
 
     await axios.get(individualData.contentUrl) 
-    .then (function () {
-    validLink = individualData.contentUrl
+    .then ( ()=> {
+     validLink = individualData.contentUrl
       }
     )
     .catch(function (error) {

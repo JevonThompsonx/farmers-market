@@ -53,20 +53,19 @@ const groceryProductSchema = new Schema({
 })
 
 groceryProductSchema.pre('save', async function(next) {
-  if (!this.created) this.created = new Date;
+  if (!this.created) {this.created = new Date};
   const urlTestVar = await getBing(this.name);
-  if (!this.imageLink || this.image != urlTestVar) this.imageLink = urlTestVar
+  if (!this.imageLink || this.imageLink != urlTestVar) {this.imageLink = urlTestVar}
+  
   next();
 });
-groceryProductSchema.pre('updateOne', function(next) {
-    this.updated = new Date;
-    next();
-});
-groceryProductSchema.pre('updateOne', async function(next) {
-  const urlTestVar = await getBing(this.name);
-  if (!this.imageLink || this.image != urlTestVar) this.imageLink = urlTestVar
-  next();
-});
+
+// groceryProductSchema.pre('updateOne', async function(next) {
+//     const urlTestVar = await getBing(this.name);
+//     if (!this.imageLink || this.imageLink != urlTestVar) {this.set({imageLink:urlTestVar,updated:new Date})}
+//     console.log(urlTestVar)
+//     next();
+// });
 
 const groceryProduct = mongoose.model('groceryProduct',groceryProductSchema)
 

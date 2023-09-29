@@ -4,7 +4,13 @@
 			<div class="card-body">
 				<h5 class="card-title"><%=name %></h5>
 				<p class="card-text">for $<%=price %> per <%= unit %></p>
-				<p class="card-text">act now! only <%= qty %> left</p>
+				<% if (qty === 0) { %>
+				<p class="card-text">Sorry we're all out. Please check again tomorrow</p>
+				<% } else if (qty > 10 ) { %>
+				<p class="card-text"><%= qty %> <%= unit %> left</p>
+				<% } else { %>
+				<p class="card-text">act now! only <%= qty %> <%= unit %> left</p>
+				<% } %>
 				<a href="/product/<%= id %>" class="btn btn-primary">More info</a>
 				<a href="#" class="btn btn-primary">Add to cart</a>
 

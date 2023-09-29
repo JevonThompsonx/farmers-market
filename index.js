@@ -32,7 +32,7 @@ import ejs from 'ejs';
 import fileDirName from './scripts/file-dir-name.js'; 
 
 // // getBing func
-import {addBingImg,updateAllImgs,removeImgs,imageReset} from './scripts/addBingImage.js';
+import {addBingImg,updateAllImgs,removeImgs,imageReset,getBing} from './scripts/addBingImage.js';
 
 //express setup
 const { __dirname, __filename } = fileDirName(import.meta);
@@ -80,7 +80,7 @@ app.post('/search',async (req,res)=> {
 
 app.get('/reset', async (req,res)=> {
     await imageReset();
-    const groceryProductData = await groceryProduct.find();
+    const groceryProductData = await groceryProduct.find({});
     res.render('products',{groceryProductData});
 })
 
@@ -113,7 +113,9 @@ app.get('/editProduct/:id',async (req,res)=>{
 app.post('/editProduct/:id',async (req,res)=> {
     const {id} = req.params
     const {name:prodName,price:prodPrice,qty:prodQty,unit:prodUnit,category:prodCategory} = req.body
-    await groceryProduct.updateOne({_id:id},{name:prodName,price:prodPrice,qty:prodQty,unit:prodUnit,category:prodCategory})
+    const newImageLink = await getBing(prodName)
+    await groceryProduct.updateOne({_id:id},{name:prodName,price:prodPrice,qty:prodQty,unit:prodUnit,category:prodCategory,imageLink:newImageLink})
+    .then(data=>data).catch(err=>err)
     res.redirect(`/product/${id}`);
 })
 
