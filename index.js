@@ -44,7 +44,9 @@ let port = 8080;
 //express ports: 
 app.listen(port, ()=> {console.log(`Listening on port ${port}`);});
 
-app.get('/', (req,res)=> {res.send('Server is twerking')});
+app.get('/', async (req,res)=> {
+const groceryProductData = await groceryProduct.find();
+    res.render('home',{groceryProductData});});
 
 
 app.get('/products',async (req,res)=>{
@@ -112,9 +114,8 @@ app.get('/editProduct/:id',async (req,res)=>{
 })
 app.post('/editProduct/:id',async (req,res)=> {
     const {id} = req.params
-    const {name:prodName,price:prodPrice,qty:prodQty,unit:prodUnit,category:prodCategory} = req.body
-    const newImageLink = await getBing(prodName)
-    await groceryProduct.updateOne({_id:id},{name:prodName,price:prodPrice,qty:prodQty,unit:prodUnit,category:prodCategory,imageLink:newImageLink})
+    const {price:prodPrice,qty:prodQty} = req.body
+    await groceryProduct.updateOne({_id:id},{price:prodPrice,qty:prodQty})
     .then(data=>data).catch(err=>err)
     res.redirect(`/product/${id}`);
 })
