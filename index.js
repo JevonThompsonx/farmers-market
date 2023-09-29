@@ -51,7 +51,11 @@ const groceryProductData = await groceryProduct.find();
 
 app.get('/products',async (req,res)=>{
     const groceryProductData = await groceryProduct.find();
-    res.render('products',{groceryProductData});
+    const fruitData = await groceryProduct.find({category:'fruit'});
+    const vegetableData = await groceryProduct.find({category:'vegetable'});
+    const dairyData = await groceryProduct.find({category:'dairy'});
+
+    res.render('products',{groceryProductData,fruitData,dairyData,vegetableData});
 })
 
 app.get('/product/:id', async(req,res)=> {
