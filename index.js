@@ -115,7 +115,7 @@ app.get('/editProduct/:id',async (req,res)=>{
 app.post('/editProduct/:id',async (req,res)=> {
     const {id} = req.params
     const {price:prodPrice,qty:prodQty} = req.body
-    await groceryProduct.updateOne({_id:id},{price:prodPrice,qty:prodQty})
+    await groceryProduct.updateOne({_id:id},{price:prodPrice,qty:prodQty},{runValidators:true})
     .then(data=>data).catch(err=>err)
     res.redirect(`/product/${id}`);
 })
