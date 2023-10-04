@@ -1,5 +1,4 @@
 import mongoose from 'mongoose'; 
-const {Schema} = mongoose; //shortcut for Mongoose Schema 
 //for accessing pw safely:
 import 'dotenv/config'; 
 const API_KEY = process.env.API_KEY; 
