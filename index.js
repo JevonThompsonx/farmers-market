@@ -39,10 +39,10 @@ const { __dirname, __filename } = fileDirName(import.meta);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname,'views'));
 app.use(express.static(path.join(__dirname)));
-let port = 8080;
+let PORT = process.env.PORT
 
 //express ports: 
-app.listen(port, ()=> {console.log(`Listening on port ${port}`);});
+app.listen(PORT, ()=> {console.log(`Listening on port ${PORT}`);});
 
 app.get('/', async (req,res)=> {
 const groceryProductData = await groceryProduct.find();
