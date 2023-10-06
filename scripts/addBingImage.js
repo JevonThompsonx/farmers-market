@@ -5,7 +5,7 @@ configDotenv({path: '../.env'})
 //unsplash func 
 import getBing from './getBing.js'
 //grocerySchema 
-import {groceryProductSchema} from '../models/products.js'
+import {groceryProduct} from '../models/products.js'
 //mongoose
 import mongoose from 'mongoose'
 //api keys
@@ -21,9 +21,6 @@ await mongoose.connect(`mongodb+srv://Jevonx:${API_KEY}@cluster0.q4o1wzp.mongodb
         console.log(`Connection errrooorr`);
     }
     );
-
-
-const groceryProduct = mongoose.model('groceryProduct',groceryProductSchema);
 
 const addBingImg = async (productName)=>{
     const bingData = await getBing(productName)

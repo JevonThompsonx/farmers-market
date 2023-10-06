@@ -6,7 +6,7 @@
 				 
 	<h1 class="h1 fw-bold">Welcome to the page for <%= category %> products </h1>
 				 
-	<div id="productDiv" class="h-auto w-100 d-flex flex-wrap flex-column flex-md-row justify-content-evenly align-items-center">
+	<div id="productDiv" class="h-auto w-100 p-5 d-flex flex-wrap flex-column flex-md-row justify-content-evenly align-items-center">
 		<% for( let singleProduct of groceryProductData ) { %>
 		<%- include('prodCardView',{singleProduct}) %>
 		<% } %>

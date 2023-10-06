@@ -51,7 +51,11 @@ const groceryProductData = await groceryProduct.find();
 
 app.get('/products',async (req,res)=>{
     const groceryProductData = await groceryProduct.find();
-    res.render('products',{groceryProductData});
+    const fruitData = await groceryProduct.find({category:'fruit'});
+    const vegetableData = await groceryProduct.find({category:'vegetable'});
+    const dairyData = await groceryProduct.find({category:'dairy'});
+
+    res.render('products',{groceryProductData,fruitData,dairyData,vegetableData});
 })
 
 app.get('/product/:id', async(req,res)=> {
@@ -115,7 +119,7 @@ app.get('/editProduct/:id',async (req,res)=>{
 app.post('/editProduct/:id',async (req,res)=> {
     const {id} = req.params
     const {price:prodPrice,qty:prodQty} = req.body
-    await groceryProduct.updateOne({_id:id},{price:prodPrice,qty:prodQty})
+    await groceryProduct.updateOne({_id:id},{price:prodPrice,qty:prodQty},{runValidators:true})
     .then(data=>data).catch(err=>err)
     res.redirect(`/product/${id}`);
 })
