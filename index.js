@@ -39,13 +39,12 @@ const { __dirname, __filename } = fileDirName(import.meta);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname,'views'));
 app.use(express.static(path.join(__dirname)));
-let port = process.env.port || 8080
-
+let port = process.env.PORT || 8080
 //express ports: 
 app.listen(port, ()=> {console.log(`Listening on port ${port}`);});
 
 app.get('/', async (req,res)=> {
-const gro   ceryProductData = await groceryProduct.find();
+const groceryProductData = await groceryProduct.find();
     res.render('home',{groceryProductData});});
 
 
