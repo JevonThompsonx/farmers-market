@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "test": "echo `Project is working correctly`",
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+
   },
   "keywords": [
     "mongoose",

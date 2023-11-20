@@ -118,8 +118,18 @@ app.get('/editProduct/:id',async (req,res)=>{
 app.post('/editProduct/:id',async (req,res)=> {
     const {id} = req.params
     const {price:prodPrice,qty:prodQty} = req.body
-    await groceryProduct.updateOne({_id:id},{price:prodPrice,qty:prodQty},{runValidators:true})
-    .then(data=>data).catch(err=>err)
+    if (prodPrice !== '' && prodQty !== '') {
+     await groceryProduct.updateOne({_id:id},{price:prodPrice,qty:prodQty},{runValidators:true})
+            .then(data=>data).catch(err=>err)
+    }
+    else if (prodPrice === '' && prodQty !== '') {
+     await groceryProduct.updateOne({_id:id},{qty:prodQty},{runValidators:true})
+            .then(data=>data).catch(err=>err)
+    }
+    else if (prodPrice !== '' && prodQty === '') {
+     await groceryProduct.updateOne({_id:id},{price:prodPrice},{runValidators:true})
+            .then(data=>data).catch(err=>err)
+    }
     res.redirect(`/product/${id}`);
 })
 
