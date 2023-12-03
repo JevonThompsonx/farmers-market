@@ -2,12 +2,10 @@ import mongoose, { Schema } from "mongoose";
 
 //for accessing pw safely:
 import "dotenv/config";
-const API_KEY = process.env.API_KEY;
-
+import { configDotenv } from "dotenv";
+configDotenv({ path: "../.env" });
 //mongoose connection string
 import connectionString from "./utils/connectionString.js";
-
-connectionString();
 
 import { groceryProduct, groceryProductSchema } from "./models/products.js";
 import express, { urlencoded } from "express";
@@ -20,16 +18,17 @@ import {
 	removeImgs,
 	imageReset,
 	getBing,
-} from "./utils/addBingImage.js";
+} from "./seed/addBingImage.js";
 
 import AppError from "./utils/AppError.js";
 //@ts-ignore
 import engine from "ejs-mate";
 
 //express setup
-const { __dirname, __filename } = fileDirName(import.meta),
+const { __dirname } = fileDirName(import.meta),
 	port = process.env.PORT || 8080,
 	app = express(); //shortcut for executed express
+let pageName = "farmersMarket";
 
 app.engine("ejs", engine);
 app.use(express.urlencoded({ extended: true }));
@@ -43,7 +42,7 @@ app.listen(port, () => {
 
 app.get("/", async (req, res) => {
 	const groceryProductData = await groceryProduct.find();
-	res.render("home", { groceryProductData });
+	res.render("home", { groceryProductData, pageName });
 });
 
 app.get("/products", async (req, res) => {
@@ -51,21 +50,26 @@ app.get("/products", async (req, res) => {
 		fruitData = await groceryProduct.find({ category: "fruit" }),
 		vegetableData = await groceryProduct.find({ category: "vegetable" }),
 		dairyData = await groceryProduct.find({ category: "dairy" });
-	res.render("products", {
+	res.render("products/products", {
 		groceryProductData,
 		fruitData,
 		dairyData,
 		vegetableData,
+		pageName: "Products",
 	});
 });
 
 app.get("/product/:id", async (req, res) => {
 	const { id } = req.params,
 		grocerySingleProductData = await groceryProduct.findById(id);
-	res.render("singleProduct", { grocerySingleProductData, id });
+	res.render("products/singleProduct", {
+		grocerySingleProductData,
+		id,
+		pageName: id,
+	});
 });
 app.get("/product/new", (req, res) => {
-	res.render("newProduct");
+	res.render("products/newProduct", { pageName: "New Product" });
 });
 
 app.get("/categories/:category", async (req, res) => {
@@ -73,7 +77,11 @@ app.get("/categories/:category", async (req, res) => {
 		groceryProductData = await groceryProduct.find({
 			category: `${category}`,
 		});
-	res.render("perCategory", { groceryProductData, category });
+	res.render("products/perCategory", {
+		groceryProductData,
+		category,
+		pageName: category,
+	});
 });
 
 app.post("/search", async (req, res) => {
@@ -85,17 +93,20 @@ app.post("/search", async (req, res) => {
 			groceryProductData.push(individualProduct);
 		}
 	}
-	res.render("search", { groceryProductData, searchBar });
+	res.render("products/search", {
+		groceryProductData,
+		searchBar,
+		pageName: `Search: ${searchBar}`,
+	});
 });
 
 app.get("/reset", async (req, res) => {
 	await imageReset();
-	const groceryProductData = await groceryProduct.find({});
-	res.render("products", { groceryProductData });
+	res.redirect("/products");
 });
 
 app.get("/addProduct", (req, res) => {
-	res.render("newProduct");
+	res.render("products/newProduct");
 });
 app.post("/addProduct", async (req, res) => {
 	const {
@@ -115,19 +126,18 @@ app.post("/addProduct", async (req, res) => {
 		id = newProd._id;
 
 	await newProd.save();
-	res.redirect(`/product/${id}`);
+	res.redirect(`products/product/${id}`);
 });
 
-app.get("/editProduct/:id", async (req, res,next) => {
+app.get("/editProduct/:id", async (req, res, next) => {
 	const { id } = req.params,
-        grocerySingleProductData = await groceryProduct.findById(id)
-    if (grocerySingleProductData) {
-        const name = grocerySingleProductData.name;
-    }
-    else { 
-        next(new AppError(404, "Cannot Edit a product that does not exists"))
-    }
-	res.render("editProduct", { grocerySingleProductData, id });
+		grocerySingleProductData = await groceryProduct.findById(id);
+	if (grocerySingleProductData) {
+		const name = grocerySingleProductData.name;
+	} else {
+		next(new AppError(404, "Cannot Edit a product that does not exists"));
+	}
+	res.render("products/editProduct", { grocerySingleProductData, id });
 });
 app.post("/editProduct/:id", async (req, res) => {
 	const { id } = req.params;
@@ -156,9 +166,9 @@ app.post("/editProduct/:id", async (req, res) => {
 			.then((data) => data)
 			.catch((err) => err);
 	}
-	res.redirect(`/product/${id}`);
+	res.redirect(`products/product/${id}`);
 });
 
-app.get("*", (req, res) => {
-	res.send("Everything else");
+app.get("*", (req, res, next) => {
+	next(new AppError(404, "Page not found or does not exists"));
 });

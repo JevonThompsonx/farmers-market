@@ -12,7 +12,7 @@ export default async function (search: String) {
 				q: `${search}`,
 				safeSearch: "Strict",
 				license: "Public",
-				count: 5,
+				count: 10,
 			},
 			headers: { "Ocp-Apim-Subscription-Key": BING_KEY },
 		}
