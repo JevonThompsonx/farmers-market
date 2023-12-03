@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 const {Schema} = mongoose;
-import getBing from '../scripts/getBing.js'
+import getBing from '../utils/getBing.js'
 
 
 const groceryProductSchema = new Schema({

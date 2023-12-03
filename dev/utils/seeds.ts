@@ -15,7 +15,17 @@ await mongoose.connect(`mongodb+srv://Jevonx:${API_KEY}@cluster0.q4o1wzp.mongodb
     );
 
 
-import groceryProduct from '../models/products.js'
+import { groceryProduct } from '../models/products.js'
+
+// const testObject = new groceryProduct({
+//     name: 'gala apple',
+//     price: 2,
+//     size: 1,
+//     sizeType: 'item',
+//     category: 'fruit'
+// })
+
+// testObject.save().then(data=>console.log(data)).catch(err=>console.log(err))
 
 
 groceryProduct.insertMany([{

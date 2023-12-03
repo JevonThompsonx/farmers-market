@@ -22,7 +22,7 @@ await mongoose.connect(`mongodb+srv://Jevonx:${API_KEY}@cluster0.q4o1wzp.mongodb
     }
     );
 
-const addBingImg = async (productName)=>{
+const addBingImg = async (productName:String)=>{
     const bingData = await getBing(productName)
     await groceryProduct.updateOne({name:productName}, {imageLink:bingData})
     .then(data=>data).catch(err=>err)
