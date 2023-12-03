@@ -23,16 +23,19 @@ import {
 } from "./utils/addBingImage.js";
 
 import AppError from "./utils/AppError.js";
+//@ts-ignore
+import engine from "ejs-mate";
 
 //express setup
 const { __dirname, __filename } = fileDirName(import.meta),
 	port = process.env.PORT || 8080,
 	app = express(); //shortcut for executed express
 
+app.engine("ejs", engine);
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname)));
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "../views"));
-app.use(express.static(path.join(__dirname)));
 //express ports:
 app.listen(port, () => {
 	console.log(`Listening on port ${port}`);
