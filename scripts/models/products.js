@@ -1,5 +1,4 @@
-import mongoose from "mongoose";
-const { Schema } = mongoose;
+import mongoose, { Schema } from "mongoose";
 import getBing from "../seed/getBing.js";
 const groceryProductSchema = new Schema({
     name: {

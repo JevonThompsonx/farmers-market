@@ -1,5 +1,9 @@
 import mongoose, { Schema } from "mongoose";
 
+import express, { urlencoded } from "express";
+import path from "path";
+import fileDirName from "./utils/file-dir-name.js";
+
 //for accessing pw safely:
 import "dotenv/config";
 import { configDotenv } from "dotenv";
@@ -7,10 +11,12 @@ configDotenv({ path: "../.env" });
 //mongoose connection string
 import connectionString from "./utils/connectionString.js";
 await connectionString();
-import { groceryProduct, groceryProductSchema } from "./models/products.js";
-import express, { urlencoded } from "express";
-import path from "path";
-import fileDirName from "./utils/file-dir-name.js";
+import {
+	groceryProduct,
+	groceryProductSchema,
+	farm,
+	farmSchema,
+} from "./models/index.js";
 // getBing func
 import {
 	addBingImg,
@@ -86,7 +92,9 @@ app.get("/categories/:category", async (req, res) => {
 
 app.post("/search", async (req, res) => {
 	const { searchBar } = req.body,
-		groceryProductData = await groceryProduct.find({ name: { $in: {searchBar} } });
+		groceryProductData = await groceryProduct.find({
+			name: { $in: { searchBar } },
+		});
 	res.render("products/search", {
 		groceryProductData,
 		searchBar,

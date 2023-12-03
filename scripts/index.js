@@ -1,12 +1,12 @@
+import express from "express";
+import path from "path";
+import fileDirName from "./utils/file-dir-name.js";
 import "dotenv/config";
 import { configDotenv } from "dotenv";
 configDotenv({ path: "../.env" });
 import connectionString from "./utils/connectionString.js";
 await connectionString();
-import { groceryProduct } from "./models/products.js";
-import express from "express";
-import path from "path";
-import fileDirName from "./utils/file-dir-name.js";
+import { groceryProduct, } from "./models/index.js";
 import { imageReset, } from "./seed/addBingImage.js";
 import AppError from "./utils/AppError.js";
 import engine from "ejs-mate";
@@ -56,7 +56,9 @@ app.get("/categories/:category", async (req, res) => {
     });
 });
 app.post("/search", async (req, res) => {
-    const { searchBar } = req.body, groceryProductData = await groceryProduct.find({ name: { $in: { searchBar } } });
+    const { searchBar } = req.body, groceryProductData = await groceryProduct.find({
+        name: { $in: { searchBar } },
+    });
     res.render("products/search", {
         groceryProductData,
         searchBar,
