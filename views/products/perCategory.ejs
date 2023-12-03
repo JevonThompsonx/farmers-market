@@ -1,21 +1,15 @@
-<%- include('heads/catHead.ejs') %>
-
-<%- include('nav') %>
+<% layout('layouts/boilerplate') %>
 
 <div class="mt-2 content-wrapper d-flex flex-column justify-content-between align-items-center">
 				 
-	<h1 class="h1 fw-bold">Welcome to the page for <%= category %> products </h1>
+	<h1 class="h1 fw-bold"> <%= category %> products </h1>
 				 
 	<div id="productDiv" class="h-auto w-100 p-5 d-flex flex-wrap flex-column flex-md-row justify-content-evenly align-items-center">
 		<% for( let singleProduct of groceryProductData ) { %>
-		<%- include('prodCardView',{singleProduct}) %>
+		<%- include('../partials/prodCardView',{singleProduct}) %>
 		<% } %>
 	</div>
 
 
 </div>
 
-
-
-
-<%- include('foot') %>

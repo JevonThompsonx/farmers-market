@@ -1,38 +1,35 @@
-<%- include('heads/productsHead') %>
-<%- include('nav') %>
+<% layout('layouts/boilerplate') %>
 
 <main id="content-wrapper" class="d-flex flex-column align-items-center justify-content-evenly">
-	
-		<h2 class="fw-bold h2 mt-5" >Fruits </h2>
-	<div  class="h-auto w-100 p-5 d-flex flex-wrap flex-column flex-md-row justify-content-evenly align-items-center">
-		<% for( let singleProduct of fruitData ) { %>
-			
-			<%- include('prodCardView', {singleProduct}) %>
-		<% } %>
-	</div> 
-			<h2 class="fw-bold h2" >Vegetables</h2>
 
-	<div  class="h-auto w-100 p-5 d-flex flex-wrap flex-column flex-md-row justify-content-evenly align-items-center">
+	<h2 class="fw-bold h2 mt-5">Fruits </h2>
+	<div class="h-auto w-100 p-5 d-flex flex-wrap flex-column flex-md-row justify-content-evenly align-items-center">
+		<% for( let singleProduct of fruitData ) { %>
+
+		<%- include('../partials/prodCardView', {singleProduct}) %>
+		<% } %>
+	</div>
+	<h2 class="fw-bold h2">Vegetables</h2>
+
+	<div class="h-auto w-100 p-5 d-flex flex-wrap flex-column flex-md-row justify-content-evenly align-items-center">
 
 
 		<% for( let singleProduct of vegetableData ) { %>
-			
-			<%- include('prodCardView', {singleProduct}) %>
-		<% } %>
-	</div> 
-			<h2 class="fw-bold h2" >Dairy</h2>
 
-	<div  class="h-auto w-100 p-5 d-flex flex-wrap flex-column flex-md-row justify-content-evenly align-items-center">
+		<%- include('../partials/prodCardView', {singleProduct}) %>
+		<% } %>
+	</div>
+	<h2 class="fw-bold h2">Dairy</h2>
+
+	<div class="h-auto w-100 p-5 d-flex flex-wrap flex-column flex-md-row justify-content-evenly align-items-center">
 
 
 		<% for( let singleProduct of dairyData ) { %>
-			
-			<%- include('prodCardView', {singleProduct}) %>
+
+		<%- include('../partials/prodCardView', {singleProduct}) %>
 		<% } %>
 
-	</div> 
+	</div>
 
 
 </main>
-
-<%- include('foot') %>

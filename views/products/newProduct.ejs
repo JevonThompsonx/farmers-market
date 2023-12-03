@@ -1,5 +1,4 @@
-<%- include('./heads/head') %>
-<%- include('nav') %>
+<% layout('layouts/boilerplate') %>
 <main id="content-wrapper" class="d-flex justify-content-center align-items-center flex-column vw-100 vh-100" >
 <h1>Add a product</h1>
 <form class="w-75 d-flex flex-column" action="/addProduct" method="post">
@@ -27,5 +26,3 @@
 </main>
 
 
-
-<%- include('foot') %>
