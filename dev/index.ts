@@ -6,7 +6,7 @@ import { configDotenv } from "dotenv";
 configDotenv({ path: "../.env" });
 //mongoose connection string
 import connectionString from "./utils/connectionString.js";
-
+await connectionString();
 import { groceryProduct, groceryProductSchema } from "./models/products.js";
 import express, { urlencoded } from "express";
 import path from "path";
@@ -86,13 +86,7 @@ app.get("/categories/:category", async (req, res) => {
 
 app.post("/search", async (req, res) => {
 	const { searchBar } = req.body,
-		rawGroceryProductData = await groceryProduct.find(),
-		groceryProductData = [];
-	for (let individualProduct of rawGroceryProductData) {
-		if (individualProduct.name.includes(searchBar.toLowerCase())) {
-			groceryProductData.push(individualProduct);
-		}
-	}
+		groceryProductData = await groceryProduct.find({ name: { $in: {searchBar} } });
 	res.render("products/search", {
 		groceryProductData,
 		searchBar,
