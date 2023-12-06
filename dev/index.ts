@@ -1,6 +1,7 @@
+//Database & routing
 import mongoose, { Schema } from "mongoose";
-
 import express, { urlencoded } from "express";
+//files
 import path from "path";
 import fileDirName from "./utils/file-dir-name.js";
 
@@ -8,9 +9,11 @@ import fileDirName from "./utils/file-dir-name.js";
 import "dotenv/config";
 import { configDotenv } from "dotenv";
 configDotenv({ path: "../.env" });
+
 //mongoose connection string
 import connectionString from "./utils/connectionString.js";
 await connectionString();
+//schema, products and farm data
 import {
 	groceryProduct,
 	groceryProductSchema,
@@ -25,18 +28,31 @@ import {
 	imageReset,
 	getBing,
 } from "./seed/addBingImage.js";
-
+//custom error
 import AppError from "./utils/AppError.js";
 //@ts-ignore
 import engine from "ejs-mate";
 
+import {
+	_503_server_down,
+	_404,
+	_404_product,
+	_404_product_edit,
+	_404_cat,
+	_404_farm,
+	_500_server,
+	_400_user,
+} from "./errorCodes/index.js";
 //express setup
 const { __dirname } = fileDirName(import.meta),
 	port = process.env.PORT || 8080,
 	app = express(); //shortcut for executed express
-let pageName = "farmersMarket";
 
+//default pageName
+let pageName = "farmersMarket";
+//layout
 app.engine("ejs", engine);
+//express set up
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 app.set("view engine", "ejs");
@@ -46,131 +62,187 @@ app.listen(port, () => {
 	console.log(`Listening on port ${port}`);
 });
 
-app.get("/", async (req, res) => {
-	const groceryProductData = await groceryProduct.find();
-	res.render("home", { groceryProductData, pageName });
+//home
+app.get("/", async (req, res, next) => {
+	try {
+		const groceryProductData = await groceryProduct.find();
+		res.render("home", { groceryProductData, pageName });
+	} catch {
+		next(new AppError(500, _503_server_down));
+	}
 });
+//all products view
+app.get("/products", async (req, res, next) => {
+	try {
+		const groceryProductData = await groceryProduct.find(),
+			fruitData = groceryProductData.map((data) => {
+				console.log(data.category);
+				return data;
+			}),
+			vegetableData = await groceryProduct.find({
+				category: "vegetable",
+			}),
+			dairyData = await groceryProduct.find({ category: "dairy" });
 
-app.get("/products", async (req, res) => {
-	const groceryProductData = await groceryProduct.find(),
-		fruitData = await groceryProduct.find({ category: "fruit" }),
-		vegetableData = await groceryProduct.find({ category: "vegetable" }),
-		dairyData = await groceryProduct.find({ category: "dairy" });
-	res.render("products/products", {
-		groceryProductData,
-		fruitData,
-		dairyData,
-		vegetableData,
-		pageName: "Products",
-	});
-});
-
-app.get("/product/:id", async (req, res) => {
-	const { id } = req.params,
-		grocerySingleProductData = await groceryProduct.findById(id);
-	res.render("products/singleProduct", {
-		grocerySingleProductData,
-		id,
-		pageName: id,
-	});
-});
-app.get("/product/new", (req, res) => {
-	res.render("products/newProduct", { pageName: "New Product" });
-});
-
-app.get("/categories/:category", async (req, res) => {
-	const { category } = req.params,
-		groceryProductData = await groceryProduct.find({
-			category: `${category}`,
+		res.render("products/products", {
+			groceryProductData,
+			fruitData,
+			dairyData,
+			vegetableData,
+			pageName: "Products",
 		});
-	res.render("products/perCategory", {
-		groceryProductData,
-		category,
-		pageName: category,
-	});
+	} catch {
+		next(new AppError(500, _500_server));
+	}
 });
-
-app.post("/search", async (req, res) => {
-	const { searchBar } = req.body,
-		groceryProductData = await groceryProduct.find({
-			name: { $in: { searchBar } },
+//single product view
+app.get("/product/:id", async (req, res, next) => {
+	try {
+		const { id } = req.params,
+			grocerySingleProductData = await groceryProduct.findById(id);
+		res.render("products/singleProduct", {
+			grocerySingleProductData,
+			id,
+			pageName: id,
 		});
-	res.render("products/search", {
-		groceryProductData,
-		searchBar,
-		pageName: `Search: ${searchBar}`,
-	});
+	} catch {
+		next(new AppError(404, _404_product));
+	}
+});
+// get route for new product
+app.get("/addProduct", (req, res, next) => {
+	try {
+		res.render("products/newProduct", { pageName: "New Product" });
+	} catch {
+		next(new AppError(503, _503_server_down));
+	}
+});
+// post route for new product
+app.post("/addProduct", async (req, res, next) => {
+	try {
+		const {
+				name: prodName,
+				price: prodPrice,
+				qty: prodQty,
+				unit: prodUnit,
+				category: newCategory,
+			} = req.body,
+			newProd = new groceryProduct({
+				name: prodName,
+				price: prodPrice,
+				qty: prodQty,
+				unit: prodUnit,
+				category: newCategory,
+			}),
+			id = newProd._id;
+
+		await newProd.save();
+		res.redirect(`products/product/${id}`);
+	} catch {
+		next(new AppError(400, _400_user));
+	}
 });
 
-app.get("/reset", async (req, res) => {
-	await imageReset();
-	res.redirect("/products");
+// category view of products
+app.get("/categories/:category", async (req, res, next) => {
+	try {
+		const { category } = req.params,
+			groceryProductData = await groceryProduct.find({
+				category: `${category}`,
+			});
+		res.render("products/perCategory", {
+			groceryProductData,
+			category,
+			pageName: category,
+		});
+	} catch {
+		next(new AppError(404, _404_cat));
+	}
 });
 
-app.get("/addProduct", (req, res) => {
-	res.render("products/newProduct");
-});
-app.post("/addProduct", async (req, res) => {
-	const {
-			name: prodName,
-			price: prodPrice,
-			qty: prodQty,
-			unit: prodUnit,
-			category: newCategory,
-		} = req.body,
-		newProd = new groceryProduct({
-			name: prodName,
-			price: prodPrice,
-			qty: prodQty,
-			unit: prodUnit,
-			category: newCategory,
-		}),
-		id = newProd._id;
+// searched view of products
+app.post("/search", async (req, res, next) => {
+	try {
+		const { searchBar } = req.body,
+			groceryProductData = await groceryProduct.find({
+				name: { $in: { searchBar } },
+			});
+		res.render("products/search", {
+			groceryProductData,
+			searchBar,
+			pageName: `Search: ${searchBar}`,
+		});
+	}
+	catch { 
+	next(new AppError(500, _500_server));
 
-	await newProd.save();
-	res.redirect(`products/product/${id}`);
+	}
 });
 
+//deleting and seeding mongo database
+app.get("/reset", async (req, res, next) => {
+	try {
+		await imageReset();
+		res.redirect("/products");
+	} catch {
+		next(new AppError(500, _500_server));
+	}
+});
+
+//editing product route
 app.get("/editProduct/:id", async (req, res, next) => {
-	const { id } = req.params,
-		grocerySingleProductData = await groceryProduct.findById(id);
-	if (grocerySingleProductData) {
-		const name = grocerySingleProductData.name;
-	} else {
-		next(new AppError(404, "Cannot Edit a product that does not exists"));
+	try {
+			const { id } = req.params,
+				grocerySingleProductData = await groceryProduct.findById(id);
+			
+			res.render("products/editProduct", {
+				grocerySingleProductData,
+				id,
+				pageName: `Edit | ${grocerySingleProductData?.name}` || `Edit `
+			});
+
+	 }
+	catch { 
+		next (new AppError(404,_404_product_edit))
 	}
-	res.render("products/editProduct", { grocerySingleProductData, id });
 });
-app.post("/editProduct/:id", async (req, res) => {
-	const { id } = req.params;
-	const { price: prodPrice, qty: prodQty } = req.body;
-	if (prodPrice !== "" && prodQty !== "") {
-		await groceryProduct
-			.updateOne(
-				{ _id: id },
-				{ price: prodPrice, qty: prodQty },
-				{ runValidators: true }
-			)
-			.then((data) => data)
-			.catch((err) => err);
-	} else if (prodPrice === "" && prodQty !== "") {
-		await groceryProduct
-			.updateOne({ _id: id }, { qty: prodQty }, { runValidators: true })
-			.then((data) => data)
-			.catch((err) => err);
-	} else if (prodPrice !== "" && prodQty === "") {
-		await groceryProduct
-			.updateOne(
-				{ _id: id },
-				{ price: prodPrice },
-				{ runValidators: true }
-			)
-			.then((data) => data)
-			.catch((err) => err);
+// posting editing product route
+app.post("/editProduct/:id", async (req, res, next) => {
+	try {
+		const { id } = req.params,
+		 { price: prodPrice, qty: prodQty } = req.body;
+		if (prodPrice !== "" && prodQty !== "") {
+			await groceryProduct
+				.updateOne(
+					{ _id: id },
+					{ price: prodPrice, qty: prodQty },
+				)
+				.then((data) => data)
+				.catch((err) => err);
+		} else if (prodPrice === "" && prodQty !== "") {
+			await groceryProduct
+				.updateOne({ _id: id }, { qty: prodQty }, { runValidators: true })
+				.then((data) => data)
+				.catch((err) => err);
+		} else if (prodPrice !== "" && prodQty === "") {
+			await groceryProduct
+				.updateOne(
+					{ _id: id },
+					{ price: prodPrice },
+					{ runValidators: true }
+				)
+				.then((data) => data)
+				.catch((err) => err);
+		}
+		res.redirect(`/product/${id}`);
+
 	}
-	res.redirect(`products/product/${id}`);
+	catch { 
+		next (new AppError(400,_400_user))
+	}
 });
 
+// Unknown pages error route
 app.get("*", (req, res, next) => {
-	next(new AppError(404, "Page not found or does not exists"));
+	next(new AppError(404, _404));
 });
