@@ -16,7 +16,7 @@ const { __dirname } = fileDirName(import.meta), port = process.env.PORT || 8080,
 let pageName = "farmersMarket";
 app.engine("ejs", engine);
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname)));
+app.use(express.static(path.join(__dirname, "../")));
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "../views"));
 app.listen(port, () => {
@@ -157,4 +157,25 @@ app.post("/editProduct/:id", joiProductEditValidation, async (req, res, next) =>
 });
 app.get("*", (req, res, next) => {
     next(new AppError(404, _404));
+});
+let _500_serverErrorImage = "/images/undraw_fixing_bugs.svg", _400_ErrorImage = "/images/undraw_location_search.svg", _404_engineerErrorImage = "/images/undraw_qa_engineers.svg", _503_serverErrorImage = "/images/undraw_server_down.svg";
+app.use((err, req, res, next) => {
+    const { status = 500, message = "Something went wrong" } = err;
+    let link, linkText, imageSource;
+    if (status === 400 || status === 404) {
+        (link = "/"), (linkText = "Home"), (imageSource = _400_ErrorImage);
+    }
+    else {
+        (link = "/contact"),
+            (linkText = "Contact me"),
+            (imageSource = _503_serverErrorImage);
+    }
+    res.render("error", {
+        pageName: `${status} Error`,
+        status,
+        link,
+        linkText,
+        message,
+        imageSource,
+    });
 });
