@@ -32,14 +32,12 @@ app.get("/", async (req, res, next) => {
 });
 app.get("/products", async (req, res, next) => {
     try {
-        const groceryProductData = await groceryProduct.find(), fruitData = groceryProductData.map((data) => {
-            console.log(data.category);
-            return data;
-        }), vegetableData = await groceryProduct.find({
-            category: "vegetable",
-        }), dairyData = await groceryProduct.find({ category: "dairy" });
+        const fruitData = await groceryProduct
+            .where("category")
+            .equals("fruit").lean(), vegetableData = await groceryProduct
+            .where("category")
+            .equals("vegetable"), dairyData = await groceryProduct.where("category").equals("dairy");
         res.render("products/products", {
-            groceryProductData,
             fruitData,
             dairyData,
             vegetableData,
@@ -52,11 +50,11 @@ app.get("/products", async (req, res, next) => {
 });
 app.get("/product/:id", async (req, res, next) => {
     try {
-        const { id } = req.params, grocerySingleProductData = await groceryProduct.findById(id);
+        const { id } = req.params, grocerySingleProductData = await groceryProduct.findById(id), pageName = `${grocerySingleProductData?.category} | ${grocerySingleProductData?.name}`;
         res.render("products/singleProduct", {
             grocerySingleProductData,
             id,
-            pageName: id,
+            pageName,
         });
     }
     catch {
@@ -132,7 +130,7 @@ app.get("/editProduct/:id", async (req, res, next) => {
         res.render("products/editProduct", {
             grocerySingleProductData,
             id,
-            pageName: `Edit | ${grocerySingleProductData?.name}` || `Edit `
+            pageName: `Edit | ${grocerySingleProductData?.name}` || `Edit `,
         });
     }
     catch {

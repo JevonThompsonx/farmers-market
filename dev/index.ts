@@ -74,18 +74,14 @@ app.get("/", async (req, res, next) => {
 //all products view
 app.get("/products", async (req, res, next) => {
 	try {
-		const groceryProductData = await groceryProduct.find(),
-			fruitData = groceryProductData.map((data) => {
-				console.log(data.category);
-				return data;
-			}),
-			vegetableData = await groceryProduct.find({
-				category: "vegetable",
-			}),
-			dairyData = await groceryProduct.find({ category: "dairy" });
-
+		const fruitData = await groceryProduct
+				.where("category")
+				.equals("fruit").lean(),
+			vegetableData = await groceryProduct
+				.where("category")
+				.equals("vegetable"),
+			dairyData = await groceryProduct.where("category").equals("dairy");
 		res.render("products/products", {
-			groceryProductData,
 			fruitData,
 			dairyData,
 			vegetableData,
@@ -99,11 +95,12 @@ app.get("/products", async (req, res, next) => {
 app.get("/product/:id", async (req, res, next) => {
 	try {
 		const { id } = req.params,
-			grocerySingleProductData = await groceryProduct.findById(id);
+			grocerySingleProductData = await groceryProduct.findById(id),
+			pageName = `${grocerySingleProductData?.category} | ${grocerySingleProductData?.name}`;
 		res.render("products/singleProduct", {
 			grocerySingleProductData,
 			id,
-			pageName: id,
+			pageName,
 		});
 	} catch {
 		next(new AppError(404, _404_product));
@@ -172,10 +169,8 @@ app.post("/search", async (req, res, next) => {
 			searchBar,
 			pageName: `Search: ${searchBar}`,
 		});
-	}
-	catch { 
-	next(new AppError(500, _500_server));
-
+	} catch {
+		next(new AppError(500, _500_server));
 	}
 });
 
@@ -192,36 +187,35 @@ app.get("/reset", async (req, res, next) => {
 //editing product route
 app.get("/editProduct/:id", async (req, res, next) => {
 	try {
-			const { id } = req.params,
-				grocerySingleProductData = await groceryProduct.findById(id);
-			
-			res.render("products/editProduct", {
-				grocerySingleProductData,
-				id,
-				pageName: `Edit | ${grocerySingleProductData?.name}` || `Edit `
-			});
+		const { id } = req.params,
+			grocerySingleProductData = await groceryProduct.findById(id);
 
-	 }
-	catch { 
-		next (new AppError(404,_404_product_edit))
+		res.render("products/editProduct", {
+			grocerySingleProductData,
+			id,
+			pageName: `Edit | ${grocerySingleProductData?.name}` || `Edit `,
+		});
+	} catch {
+		next(new AppError(404, _404_product_edit));
 	}
 });
 // posting editing product route
 app.post("/editProduct/:id", async (req, res, next) => {
 	try {
 		const { id } = req.params,
-		 { price: prodPrice, qty: prodQty } = req.body;
+			{ price: prodPrice, qty: prodQty } = req.body;
 		if (prodPrice !== "" && prodQty !== "") {
 			await groceryProduct
-				.updateOne(
-					{ _id: id },
-					{ price: prodPrice, qty: prodQty },
-				)
+				.updateOne({ _id: id }, { price: prodPrice, qty: prodQty })
 				.then((data) => data)
 				.catch((err) => err);
 		} else if (prodPrice === "" && prodQty !== "") {
 			await groceryProduct
-				.updateOne({ _id: id }, { qty: prodQty }, { runValidators: true })
+				.updateOne(
+					{ _id: id },
+					{ qty: prodQty },
+					{ runValidators: true }
+				)
 				.then((data) => data)
 				.catch((err) => err);
 		} else if (prodPrice !== "" && prodQty === "") {
@@ -235,10 +229,8 @@ app.post("/editProduct/:id", async (req, res, next) => {
 				.catch((err) => err);
 		}
 		res.redirect(`/product/${id}`);
-
-	}
-	catch { 
-		next (new AppError(400,_400_user))
+	} catch {
+		next(new AppError(400, _400_user));
 	}
 });
 
