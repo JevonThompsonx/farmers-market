@@ -43,6 +43,13 @@ import {
 	_500_server,
 	_400_user,
 } from "./errorCodes/index.js";
+
+import {
+	joiFarmCreationValiation,joiFarmEditValiation,
+	joiProductEditValidation,
+	joiProductCreationValidation,
+} from "./utils/middleware/index.js";
+
 //express setup
 const { __dirname } = fileDirName(import.meta),
 	port = process.env.PORT || 8080,
@@ -76,7 +83,7 @@ app.get("/products", async (req, res, next) => {
 	try {
 		const fruitData = await groceryProduct
 				.where("category")
-				.equals("fruit").lean(),
+				.equals("fruit"),
 			vegetableData = await groceryProduct
 				.where("category")
 				.equals("vegetable"),
@@ -109,13 +116,13 @@ app.get("/product/:id", async (req, res, next) => {
 // get route for new product
 app.get("/addProduct", (req, res, next) => {
 	try {
-		res.render("products/newProduct", { pageName: "New Product" });
+		res.render("products/addProduct", { pageName: "New Product" });
 	} catch {
 		next(new AppError(503, _503_server_down));
 	}
 });
 // post route for new product
-app.post("/addProduct", async (req, res, next) => {
+app.post("/addProduct", joiProductCreationValidation, async (req, res, next) => {
 	try {
 		const {
 				name: prodName,
@@ -123,6 +130,7 @@ app.post("/addProduct", async (req, res, next) => {
 				qty: prodQty,
 				unit: prodUnit,
 				category: newCategory,
+				size: newSize,
 			} = req.body,
 			newProd = new groceryProduct({
 				name: prodName,
@@ -130,11 +138,12 @@ app.post("/addProduct", async (req, res, next) => {
 				qty: prodQty,
 				unit: prodUnit,
 				category: newCategory,
+				size: newSize || 1,
 			}),
 			id = newProd._id;
 
 		await newProd.save();
-		res.redirect(`products/product/${id}`);
+		res.redirect(`/product/${id}`);
 	} catch {
 		next(new AppError(400, _400_user));
 	}
@@ -200,39 +209,30 @@ app.get("/editProduct/:id", async (req, res, next) => {
 	}
 });
 // posting editing product route
-app.post("/editProduct/:id", async (req, res, next) => {
-	try {
-		const { id } = req.params,
-			{ price: prodPrice, qty: prodQty } = req.body;
-		if (prodPrice !== "" && prodQty !== "") {
-			await groceryProduct
-				.updateOne({ _id: id }, { price: prodPrice, qty: prodQty })
-				.then((data) => data)
-				.catch((err) => err);
-		} else if (prodPrice === "" && prodQty !== "") {
+app.post(
+	"/editProduct/:id",
+	joiProductEditValidation,
+	async (req, res, next) => {
+		try {
+			const { id } = req.params,
+				{ price: prodPrice, qty: prodQty } = req.body,
+				currentProduct = await groceryProduct.findById(id);
 			await groceryProduct
 				.updateOne(
 					{ _id: id },
-					{ qty: prodQty },
-					{ runValidators: true }
+					{
+						price: prodPrice || currentProduct?.price,
+						qty: prodQty || currentProduct?.qty,
+					}
 				)
 				.then((data) => data)
 				.catch((err) => err);
-		} else if (prodPrice !== "" && prodQty === "") {
-			await groceryProduct
-				.updateOne(
-					{ _id: id },
-					{ price: prodPrice },
-					{ runValidators: true }
-				)
-				.then((data) => data)
-				.catch((err) => err);
+			res.redirect(`/product/${id}`);
+		} catch {
+			next(new AppError(400, _400_user));
 		}
-		res.redirect(`/product/${id}`);
-	} catch {
-		next(new AppError(400, _400_user));
 	}
-});
+);
 
 // Unknown pages error route
 app.get("*", (req, res, next) => {
