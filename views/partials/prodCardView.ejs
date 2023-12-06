@@ -1,9 +1,17 @@
 		<div class="card singleProduct mb-5" style="width: 18rem;">
-            <% let {name,price,unit,qty,category,id,imageLink} = singleProduct %>
-			 <img src="<%= imageLink %>" class="card-img-top" alt="An image of <%= name %>">
+			<% let {name,price,unit,qty,category,id,imageLink} = singleProduct %>
+			<img src="<%= imageLink %>" class="card-img-top" alt="An image of <%= name %>">
 			<div class="card-body">
 				<h5 class="card-title"><%=name %></h5>
-				<p class="card-text">for $<%=price %> per <%= unit %></p>
+				<p class="card-text">$<%=price %> per
+					<% try { %>
+					<%= size %> <%= unit %></p>
+
+				<% } catch { %>
+				per 1 <%= unit %></p>
+
+				<% } %>
+
 				<% if (qty === 0) { %>
 				<p class="card-text">Sorry we're all out. Please check again tomorrow</p>
 				<% } else if (qty > 10 ) { %>
@@ -16,4 +24,3 @@
 
 			</div>
 		</div>
-            

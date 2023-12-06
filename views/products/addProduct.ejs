@@ -2,19 +2,20 @@
 <main id="content-wrapper" class="d-flex justify-content-center align-items-center flex-column vw-100 vh-100" >
 <h1>Add a product</h1>
 <form class="w-75 d-flex flex-column" action="/addProduct" method="post">
-    <input class="mb-3" type="text" name="name" placeholder="product name" required= "true">
-    <input class="mb-3" type="text" name="qty" placeholder="qty" required= "true">
-    <input class="mb-3" type="text" name="price" placeholder="price per unit" required= "true">
+    <input class="mb-3 p-1" type="text" name="name" placeholder="Product name" required= "true">
+    <input class="mb-3 p-1" type="text" name="qty" placeholder="Qty" required= "true">
+    <input class="mb-3 p-1" type="text" name="price" placeholder="Price per unit" required= "true">
     <label for="unit">Select a unit of measurement:</label>
-    <select class="mb-3" id="unit"name="unit" required="true">
+    <select class="mb-3 p-1" id="unit"name="unit" required="true">
          <option>--Please select a unit of measurement--</option>
          <option>oz</option>
          <option>fl oz</option>
          <option>lbs</option>
          <option>item</option>
     </select>
+        <input class="mb-3 p-1" type="text" name="size" placeholder="Sold by how many units? Default: 1">
     <label for="category">Select a category:</label>
-    <select class="mb-3" id="category"name="category" required="true">
+    <select class="mb-3 p-1" id="category"name="category" required="true">
          <option>--Please select a category--</option>
          <option>fruit</option>
          <option>vegetable</option>

@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import getBing from "../seed/getBing.js";
+import Joi from "joi";
 const groceryProductSchema = new Schema({
     name: {
         type: String,
@@ -46,6 +47,14 @@ const groceryProductSchema = new Schema({
         type: Date,
         required: false,
     },
+}), joiProductSchema = Joi.object({
+    name: Joi.string(),
+    price: Joi.number(),
+    size: Joi.number(),
+    unit: Joi.string().valid("oz", "fl oz", "lb", "item"),
+    category: Joi.string().valid("fruit", "vegetable", "dairy"),
+    imageLink: Joi.string(),
+    qty: Joi.number(),
 });
 groceryProductSchema.pre("save", async function (next) {
     if (!this.created) {
@@ -58,4 +67,4 @@ groceryProductSchema.pre("save", async function (next) {
     next();
 });
 const groceryProduct = mongoose.model("groceryProduct", groceryProductSchema);
-export { groceryProduct, groceryProductSchema };
+export { groceryProduct, groceryProductSchema, joiProductSchema };
