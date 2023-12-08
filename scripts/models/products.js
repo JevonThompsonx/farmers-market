@@ -20,7 +20,7 @@ const groceryProductSchema = new Schema({
     unit: {
         type: String,
         required: true,
-        enum: ["oz", "fl oz", "lb", "item"],
+        enum: ["oz", "fl oz", "lbs", "item"],
         lowercase: true,
     },
     qty: {
@@ -51,7 +51,7 @@ const groceryProductSchema = new Schema({
     name: Joi.string(),
     price: Joi.number(),
     size: Joi.number(),
-    unit: Joi.string().valid("oz", "fl oz", "lb", "item"),
+    unit: Joi.string().valid("oz", "fl oz", "lbs", "item"),
     category: Joi.string().valid("fruit", "vegetable", "dairy"),
     imageLink: Joi.string(),
     qty: Joi.number(),
