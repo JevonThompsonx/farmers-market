@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import getBing from "../seed/getBing.js";
+import getBing from "../seed/utils/getBing.js";
 import Joi from "joi";
 
 const groceryProductSchema = new Schema({

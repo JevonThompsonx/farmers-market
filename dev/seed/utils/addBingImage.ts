@@ -1,13 +1,13 @@
 //dotenv config
 import { configDotenv } from "dotenv";
 import "dotenv/config";
-configDotenv({ path: "../.env" });
+configDotenv({ path: "../../.env" });
 //unsplash func
 import getBing from "./getBing.js";
 //grocerySchema
-import { groceryProduct } from "../models/products.js";
+import { groceryProduct } from "../../models/products.js";
 
-import seedConnectionString from "./seedConnectionString.js";
+import seedConnectionString from "../seedConnectionString.js";
 
 const addBingImg = async (productName: String) => {
 	const bingData = await getBing(productName);

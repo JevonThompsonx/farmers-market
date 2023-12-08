@@ -8,7 +8,7 @@ const farmSchema = new Schema({
     },
 }), joiFarmSchema = Joi.object({
     name: Joi.string().required(),
-    description: Joi.string()
+    description: Joi.string(),
 });
 const farm = model("farm", farmSchema);
 export { farmSchema, farm, joiFarmSchema };
