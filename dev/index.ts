@@ -3,13 +3,12 @@ import mongoose, { Schema } from "mongoose";
 import express, { urlencoded, Response, Request, NextFunction } from "express";
 //files
 import path from "path";
-import fileDirName from "./utils/file-dir-name.js";
+import { AppError, fileDirName, capitalize } from "./utils/index.js";
 
 //for accessing pw safely:
 import "dotenv/config";
 import { configDotenv } from "dotenv";
 configDotenv({ path: "../.env" });
-
 //mongoose connection string
 import connectionString from "./utils/connectionString.js";
 await connectionString();
@@ -29,7 +28,6 @@ import {
 	getBing,
 } from "./seed/addBingImage.js";
 //custom error
-import AppError from "./utils/AppError.js";
 //@ts-ignore
 import engine from "ejs-mate";
 
@@ -94,6 +92,7 @@ app.get("/products", async (req, res, next) => {
 			dairyData,
 			vegetableData,
 			pageName: "Products",
+			capitalize
 		});
 	} catch {
 		next(new AppError(500, _500_server));
@@ -104,11 +103,11 @@ app.get("/product/:id", async (req, res, next) => {
 	try {
 		const { id } = req.params,
 			grocerySingleProductData = await groceryProduct.findById(id),
-			pageName = `${grocerySingleProductData?.category} | ${grocerySingleProductData?.name}`;
+			pageName = grocerySingleProductData?.name;
 		res.render("products/singleProduct", {
 			grocerySingleProductData,
 			id,
-			pageName,
+			pageName,capitalize
 		});
 	} catch {
 		next(new AppError(404, _404_product));
@@ -137,7 +136,7 @@ app.post(
 					size: newSize,
 				} = req.body,
 				newProd = new groceryProduct({
-					name: prodName,
+					name: capitalize(prodName),
 					price: prodPrice,
 					qty: prodQty,
 					unit: prodUnit,
@@ -164,7 +163,7 @@ app.get("/categories/:category", async (req, res, next) => {
 		res.render("products/perCategory", {
 			groceryProductData,
 			category,
-			pageName: category,
+			pageName: category,capitalize
 		});
 	} catch {
 		next(new AppError(404, _404_cat));
@@ -207,7 +206,7 @@ app.get("/editProduct/:id", async (req, res, next) => {
 		res.render("products/editProduct", {
 			grocerySingleProductData,
 			id,
-			pageName: `Edit | ${grocerySingleProductData?.name}` || `Edit `,
+			pageName: `Edit | ${grocerySingleProductData?.name}` || `Edit `,capitalize
 		});
 	} catch {
 		next(new AppError(404, _404_product_edit));

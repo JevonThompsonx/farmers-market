@@ -2,7 +2,7 @@
 			<% let {name,price,unit,qty,category,id,imageLink} = singleProduct %>
 			<img src="<%= imageLink %>" class="card-img-top" alt="An image of <%= name %>">
 			<div class="card-body">
-				<h5 class="card-title"><%=name %></h5>
+				<h5 class="card-title"><%=capitalize(name) %></h5>
 				<p class="card-text">$<%=price %> per
 					<% try { %>
 					<%= size %> <%= unit %></p>

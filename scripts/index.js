@@ -1,6 +1,6 @@
 import express from "express";
 import path from "path";
-import fileDirName from "./utils/file-dir-name.js";
+import { AppError, fileDirName, capitalize } from "./utils/index.js";
 import "dotenv/config";
 import { configDotenv } from "dotenv";
 configDotenv({ path: "../.env" });
@@ -8,7 +8,6 @@ import connectionString from "./utils/connectionString.js";
 await connectionString();
 import { groceryProduct, } from "./models/index.js";
 import { imageReset, } from "./seed/addBingImage.js";
-import AppError from "./utils/AppError.js";
 import engine from "ejs-mate";
 import { _503_server_down, _404, _404_product, _404_product_edit, _404_cat, _500_server, _400_user, } from "./errorCodes/index.js";
 import { joiProductEditValidation, joiProductCreationValidation, } from "./utils/middleware/index.js";
@@ -43,6 +42,7 @@ app.get("/products", async (req, res, next) => {
             dairyData,
             vegetableData,
             pageName: "Products",
+            capitalize
         });
     }
     catch {
@@ -51,11 +51,11 @@ app.get("/products", async (req, res, next) => {
 });
 app.get("/product/:id", async (req, res, next) => {
     try {
-        const { id } = req.params, grocerySingleProductData = await groceryProduct.findById(id), pageName = `${grocerySingleProductData?.category} | ${grocerySingleProductData?.name}`;
+        const { id } = req.params, grocerySingleProductData = await groceryProduct.findById(id), pageName = grocerySingleProductData?.name;
         res.render("products/singleProduct", {
             grocerySingleProductData,
             id,
-            pageName,
+            pageName, capitalize
         });
     }
     catch {
@@ -73,7 +73,7 @@ app.get("/addProduct", (req, res, next) => {
 app.post("/addProduct", joiProductCreationValidation, async (req, res, next) => {
     try {
         const { name: prodName, price: prodPrice, qty: prodQty, unit: prodUnit, category: newCategory, size: newSize, } = req.body, newProd = new groceryProduct({
-            name: prodName,
+            name: capitalize(prodName),
             price: prodPrice,
             qty: prodQty,
             unit: prodUnit,
@@ -95,7 +95,7 @@ app.get("/categories/:category", async (req, res, next) => {
         res.render("products/perCategory", {
             groceryProductData,
             category,
-            pageName: category,
+            pageName: category, capitalize
         });
     }
     catch {
@@ -132,7 +132,7 @@ app.get("/editProduct/:id", async (req, res, next) => {
         res.render("products/editProduct", {
             grocerySingleProductData,
             id,
-            pageName: `Edit | ${grocerySingleProductData?.name}` || `Edit `,
+            pageName: `Edit | ${grocerySingleProductData?.name}` || `Edit `, capitalize
         });
     }
     catch {
