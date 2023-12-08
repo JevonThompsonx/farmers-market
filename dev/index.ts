@@ -26,7 +26,7 @@ import {
 	removeImgs,
 	imageReset,
 	getBing,
-} from "./seed/addBingImage.js";
+} from "./seed/utils/addBingImage.js";
 //custom error
 //@ts-ignore
 import engine from "ejs-mate";
@@ -92,7 +92,7 @@ app.get("/products", async (req, res, next) => {
 			dairyData,
 			vegetableData,
 			pageName: "Products",
-			capitalize
+			capitalize,
 		});
 	} catch {
 		next(new AppError(500, _500_server));
@@ -107,7 +107,8 @@ app.get("/product/:id", async (req, res, next) => {
 		res.render("products/singleProduct", {
 			grocerySingleProductData,
 			id,
-			pageName,capitalize
+			pageName,
+			capitalize,
 		});
 	} catch {
 		next(new AppError(404, _404_product));
@@ -163,7 +164,8 @@ app.get("/categories/:category", async (req, res, next) => {
 		res.render("products/perCategory", {
 			groceryProductData,
 			category,
-			pageName: category,capitalize
+			pageName: category,
+			capitalize,
 		});
 	} catch {
 		next(new AppError(404, _404_cat));
@@ -206,7 +208,8 @@ app.get("/editProduct/:id", async (req, res, next) => {
 		res.render("products/editProduct", {
 			grocerySingleProductData,
 			id,
-			pageName: `Edit | ${grocerySingleProductData?.name}` || `Edit `,capitalize
+			pageName: `Edit | ${grocerySingleProductData?.name}` || `Edit `,
+			capitalize,
 		});
 	} catch {
 		next(new AppError(404, _404_product_edit));
