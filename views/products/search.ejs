@@ -1,5 +1,6 @@
 <% layout('layouts/boilerplate') %>
 
+<<<<<<< Updated upstream
 <div class="mt-2 content-wrapper d-flex flex-column justify-content-between align-items-center p-5">
 				 
 	<h1 class="h1 fw-bold">Welcome to the page for <%= searchBar %> </h1>
@@ -7,9 +8,27 @@
 	<div id="productDiv" class="h-auto w-100 d-flex flex-wrap flex-column flex-md-row justify-content-evenly align-items-center">
 		<% for( let singleProduct of groceryProductData ) { %>
 		<%- include('../partials/prodCardView',{singleProduct,capitalize}) %>
+=======
+<div class="mt-2 content-wrapper d-flex flex-column justify-content-between align-items-center p-5 w-100 h-100 ">
+	<h1 class="h1 fw-bold">Results for <i> <%= capitalize(searchedProduct) %> </i> </h1>
+
+	<div id="productDiv"
+		class="h-auto w-100 d-flex flex-wrap flex-column flex-md-row justify-content-evenly align-items-center">
+		<% if (groceryProductData.length !== 0) { %>
+
+		<% for( let singleProduct of groceryProductData ) { %>
+
+		<%- include('../partials/prodCardView',{singleProduct,capitalize}) %>
+
+>>>>>>> Stashed changes
 		<% } %>
+
+		<% } else { %>
+		<h2 class="mt-5">Nothing found</h2>
+		<% } %>
+
 	</div>
 
 
-</div>
 
+</div>
