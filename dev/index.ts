@@ -187,25 +187,23 @@ app.get("/categories/:category", async (req, res, next) => {
 // searched view of products
 app.post("/search", async (req, res, next) => {
 	try {
-<<<<<<< Updated upstream
-		const { searchBar } = req.body,
-			groceryProductData = await groceryProduct.find({
-				name: { $in: { searchBar } },
-=======
 		const { searchBar } = req.body;
 		const searchedProduct = searchBar.toLowerCase(),
 			unfilteredGroceryProductData = await groceryProduct.find({}),
-			groceryProductData = unfilteredGroceryProductData.filter((data) => {
+			groceryProductData = unfilteredGroceryProductData.filter(
+			data => {
 				if (data.name.includes(searchedProduct)) {
 					return data;
 				} else {
 				}
->>>>>>> Stashed changes
-			});
+			}
+		);
+		
 		res.render("products/search", {
 			groceryProductData,
-			searchBar,
-			pageName: `Search: ${searchBar}`,
+			searchedProduct,
+			pageName: `Search: ${searchedProduct}`,
+			capitalize,
 		});
 	} catch {
 		next(new AppError(500, _500_server));
