@@ -120,25 +120,26 @@ app.get("/categories/:category", async (req, res, next) => {
 });
 app.post("/search", async (req, res, next) => {
     try {
-        const { searchBar } = req.body;
-        const searchedProduct = searchBar.toLowerCase(), unfilteredGroceryProductData = await groceryProduct.find({}), groceryProductData = unfilteredGroceryProductData.filter(data => {
-            if (data.name.includes(searchedProduct)) {
-                return data;
-            }
-            else {
-            }
-        });
-        res.render("products/search", {
-            groceryProductData,
-            searchedProduct,
-            pageName: `Search: ${searchedProduct}`,
-            capitalize,
-        });
+        const { searchBar } = req.body, groceryProductData = await groceryProduct.find({
+            name: { $in: { searchBar } },
+            if(data) { }, : .name.includes(searchedProduct)
+        }), { return: data };
     }
-    catch {
-        next(new AppError(500, _500_server));
+    finally { }
+    {
     }
 });
+res.render("products/search", {
+    groceryProductData,
+    searchedProduct,
+    pageName: `Search: ${searchedProduct}`,
+    capitalize,
+});
+try { }
+catch {
+    next(new AppError(500, _500_server));
+}
+;
 app.get("/reset", async (req, res, next) => {
     try {
         await imageReset();
