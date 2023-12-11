@@ -1,6 +1,6 @@
 <% layout('layouts/boilerplate') %>
 
-<main id="content-wrapper" class="d-flex flex-column align-items-center justify-content-evenly">
+<main id="content-wrapper" class="d-flex flex-column align-items-center justify-content-evenly h-100 w-100">
 
 	<h2 class="fw-bold h2 mt-5">Fruits </h2>
 	<div class="h-auto w-100 p-5 d-flex flex-wrap flex-column flex-md-row justify-content-evenly align-items-center">
@@ -8,6 +8,9 @@
 
 		<%- include('../partials/prodCardView', {singleProduct}) %>
 		<% } %>
+		<a class="btn btn-primary" href="./categories/fruits">
+			More 
+		</a>
 	</div>
 	<h2 class="fw-bold h2">Vegetables</h2>
 
@@ -18,6 +21,9 @@
 
 		<%- include('../partials/prodCardView', {singleProduct}) %>
 		<% } %>
+				<a class="btn btn-primary" href="./categories/vegetable">
+			More 
+		</a>
 	</div>
 	<h2 class="fw-bold h2">Dairy</h2>
 
@@ -28,7 +34,9 @@
 
 		<%- include('../partials/prodCardView', {singleProduct}) %>
 		<% } %>
-
+				<a class="btn btn-primary" href="./categories/dairy">
+			More 
+		</a>
 	</div>
 
 

@@ -80,13 +80,25 @@ app.get("/", async (req, res, next) => {
 //all products view
 app.get("/products", async (req, res, next) => {
 	try {
-		const fruitData = await groceryProduct
-				.where("category")
-				.equals("fruit"),
-			vegetableData = await groceryProduct
-				.where("category")
-				.equals("vegetable"),
-			dairyData = await groceryProduct.where("category").equals("dairy");
+		const groceryProductData = await groceryProduct.find(),
+			fruitData = groceryProductData.filter((data) => {
+				if (data.category === "fruit") {
+					return data;
+				} else {
+				}
+			}),
+			dairyData = groceryProductData.filter((data) => {
+				if (data.category === "dairy") {
+					return data;
+				} else {
+				}
+			}),
+			vegetableData = groceryProductData.filter((data) => {
+				if (data.category === "vegetable") {
+					return data;
+				} else {
+				}
+			});
 		res.render("products/products", {
 			fruitData,
 			dairyData,
@@ -175,9 +187,20 @@ app.get("/categories/:category", async (req, res, next) => {
 // searched view of products
 app.post("/search", async (req, res, next) => {
 	try {
+<<<<<<< Updated upstream
 		const { searchBar } = req.body,
 			groceryProductData = await groceryProduct.find({
 				name: { $in: { searchBar } },
+=======
+		const { searchBar } = req.body;
+		const searchedProduct = searchBar.toLowerCase(),
+			unfilteredGroceryProductData = await groceryProduct.find({}),
+			groceryProductData = unfilteredGroceryProductData.filter((data) => {
+				if (data.name.includes(searchedProduct)) {
+					return data;
+				} else {
+				}
+>>>>>>> Stashed changes
 			});
 		res.render("products/search", {
 			groceryProductData,

@@ -32,11 +32,25 @@ app.get("/", async (req, res, next) => {
 });
 app.get("/products", async (req, res, next) => {
     try {
-        const fruitData = await groceryProduct
-            .where("category")
-            .equals("fruit"), vegetableData = await groceryProduct
-            .where("category")
-            .equals("vegetable"), dairyData = await groceryProduct.where("category").equals("dairy");
+        const groceryProductData = await groceryProduct.find(), fruitData = groceryProductData.filter((data) => {
+            if (data.category === "fruit") {
+                return data;
+            }
+            else {
+            }
+        }), dairyData = groceryProductData.filter((data) => {
+            if (data.category === "dairy") {
+                return data;
+            }
+            else {
+            }
+        }), vegetableData = groceryProductData.filter((data) => {
+            if (data.category === "vegetable") {
+                return data;
+            }
+            else {
+            }
+        });
         res.render("products/products", {
             fruitData,
             dairyData,
