@@ -259,7 +259,37 @@ app.post(
 		}
 	}
 );
+//Farms 
 
+app.get("/farms", async (req, res, next) => {
+	const allFarms = await farm.find()
+	res.render('/farms/all')
+ })
+
+
+app.get("/farms/new", (req, res, next) => {
+	try {
+		res.render("farms/newFarm", { pageName: "New farm" });
+	} catch {
+		next(new AppError(500, _503_server_down));
+	}
+});
+
+app.post("/farms/new", async (req, res, next) => {
+	try {
+		const { name, email, description, city } = req.body,
+			newFarm = new farm({
+				name: name,
+				email: email,
+				description: description,
+				city: city,
+			});
+		console.log(newFarm)
+		res.send(req.body);
+	} catch {
+		next(new AppError(404, _400_user));
+	}
+});
 // Unknown pages error route
 app.get("*", (req, res, next) => {
 	next(new AppError(404, _404));
