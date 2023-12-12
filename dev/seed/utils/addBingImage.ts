@@ -7,7 +7,7 @@ import getBing from "./getBing.js";
 //grocerySchema
 import { groceryProduct } from "../../models/products.js";
 
-import seedConnectionString from "../seedConnectionString.js";
+import seedConnectionString from "./seedConnectionString.js";
 
 const addBingImg = async (productName: String) => {
 	const bingData = await getBing(productName);
