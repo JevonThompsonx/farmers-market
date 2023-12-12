@@ -4,9 +4,9 @@
 <div id="productDiv" class="content-wrapper d-flex flex-column align-items-center justify-content-center p-5 w-100 h-100" >
 
   <div class="card mt-5" style="max-width:90%; height: auto;">
-    <div class="row d-flex flex-md-row flex-column">
-      <div class="col  d-flex justify-content-center align-items-center rounded-start">
-        <img src=<%= imageLink %> class="img-fluid" alt="Image of <%= name %>">
+    <div class="row d-flex flex-md-row flex-column rounded-start">
+      <div class="col d-flex justify-content-center align-items-center rounded-start">
+        <img src=<%= imageLink %> class="img-fluid rounded-start" alt="Image of <%= name %>">
       </div>
       <div class="col">
         <div class="card-body">
@@ -23,8 +23,7 @@
           <p class="card-text"><%= qty %> <%= qty %> left for sale</p>
 
           <% } %>
-          <p>Gpt description here- Prompt: Pretend you are an online saleman. Create a short, kid friendly description
-            of [prodNameHere]</p>
+          <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Sequi rerum sapiente explicabo perspiciatis, incidunt, fugiat maxime dignissimos neque nesciunt quos natus deserunt eius non esse!</p>
 
           <a href="/product/<%= id %>" class="btn btn-primary">Add to cart</a>
           <a href="/editProduct/<%= id %>" class="btn btn-primary">Edit</a>
