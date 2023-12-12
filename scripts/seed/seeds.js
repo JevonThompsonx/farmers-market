@@ -1,46 +1,56 @@
-import 'dotenv/config';
+import "dotenv/config";
 const API_KEY = process.env.API_KEY;
-import { groceryProduct } from '../models/products.js';
-groceryProduct.insertMany([{
-        name: 'Pitted dates',
+import { groceryProduct } from "../models/products.js";
+groceryProduct
+    .insertMany([
+    {
+        name: "Pitted dates",
         price: 15.79,
         size: 1,
-        sizeType: 'lb',
+        sizeType: "lb",
         qty: 20,
-        category: 'fruit'
-    }, {
-        name: 'Black seedless grapes',
+        category: "fruit",
+    },
+    {
+        name: "Black seedless grapes",
         price: 1.68,
         size: 1,
-        sizeType: 'lb',
+        sizeType: "lb",
         qty: 100,
-        category: 'fruit'
-    }, {
-        name: 'Eggplant seed',
+        category: "fruit",
+    },
+    {
+        name: "Eggplant seed",
         price: 7.96,
         size: 1,
-        sizeType: 'oz',
+        sizeType: "oz",
         qty: 10,
-        category: 'vegetable'
-    }, {
-        name: 'American cheese',
-        price: .311,
+        category: "vegetable",
+    },
+    {
+        name: "American cheese",
+        price: 0.311,
         size: 1,
-        sizeType: 'oz',
+        sizeType: "oz",
         qty: 6000,
-        category: 'dairy'
-    }, {
-        name: 'Parmesan cheese',
-        price: .388,
+        category: "dairy",
+    },
+    {
+        name: "Parmesan cheese",
+        price: 0.388,
         size: 1,
-        sizeType: 'oz',
+        sizeType: "oz",
         qty: 5000,
-        category: 'dairy'
-    }, {
-        name: 'Oatmilk',
-        price: .109,
+        category: "dairy",
+    },
+    {
+        name: "Oatmilk",
+        price: 0.109,
         size: 1,
-        sizeType: 'fl oz',
+        sizeType: "fl oz",
         qty: 65000,
-        category: 'dairy'
-    }]).then(data => console.log(data)).catch(err => console.log(err));
+        category: "dairy",
+    },
+])
+    .then((data) => console.log(data))
+    .catch((err) => console.log(err));

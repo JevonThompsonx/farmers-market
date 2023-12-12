@@ -6,7 +6,7 @@ import { configDotenv } from "dotenv";
 configDotenv({ path: "../.env" });
 import connectionString from "./utils/connectionString.js";
 await connectionString();
-import { groceryProduct, } from "./models/index.js";
+import { groceryProduct, farm, } from "./models/index.js";
 import { imageReset, } from "./seed/utils/addBingImage.js";
 import engine from "ejs-mate";
 import { _503_server_down, _404, _404_product, _404_product_edit, _404_cat, _500_server, _400_user, } from "./errorCodes/index.js";
@@ -175,6 +175,33 @@ app.post("/editProduct/:id", joiProductEditValidation, async (req, res, next) =>
     }
     catch {
         next(new AppError(400, _400_user));
+    }
+});
+app.get("/farms", async (req, res, next) => {
+    const allFarms = await farm.find();
+    res.render('/farms/all');
+});
+app.get("/farms/new", (req, res, next) => {
+    try {
+        res.render("farms/newFarm", { pageName: "New farm" });
+    }
+    catch {
+        next(new AppError(500, _503_server_down));
+    }
+});
+app.post("/farms/new", async (req, res, next) => {
+    try {
+        const { name, email, description, city } = req.body, newFarm = new farm({
+            name: name,
+            email: email,
+            description: description,
+            city: city,
+        });
+        console.log(newFarm);
+        res.send(req.body);
+    }
+    catch {
+        next(new AppError(404, _400_user));
     }
 });
 app.get("*", (req, res, next) => {
