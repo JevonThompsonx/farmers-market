@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import getBing from "../seed/utils/getBing.js";
 import Joi from "joi";
-const groceryProductSchema = new Schema({
+const ObjectId = Schema.Types.ObjectId, groceryProductSchema = new Schema({
     name: {
         type: String,
         required: true,
@@ -47,6 +47,10 @@ const groceryProductSchema = new Schema({
         type: Date,
         required: false,
     },
+    farm: {
+        type: ObjectId,
+        ref: 'farms'
+    }
 }), joiProductSchema = Joi.object({
     name: Joi.string(),
     price: Joi.number(),
