@@ -1,0 +1,29 @@
+<% layout('layouts/boilerplate') %>
+
+<main class="vw-100 vh-100 d-flex justify-content-center align-items-center">
+    <form class="h-100 w-75 d-flex flex-column justify-content-evenly align-items-center" action="/farms/new"
+        method="post">
+        <h1>New Farm:</h1>
+        <div class="form-floating mb-3">
+            <input type="text" class="form-control form-control-lg" id="floatingName" placeholder="farm name here"
+                required name="name"> 
+            <label for="floatingName">Name</label>
+        </div>
+        <div class="form-floating">
+            <input type="text" readonly class="form-control-plaintext form-control-lg" id="staticEmail"
+                value="email@example.com" name="email">
+            <label class="form-label " for="staticEmail">Email</label>
+
+        </div>
+
+        <div class="form-floating">
+            <input type="text" class="form-control form-control-lg" id="floatingCity" placeholder="Farm city" name="city">
+            <label for="floatingCity">City</label>
+        </div>
+        <div class="">
+            <label for="exampleFormControlTextarea1" class="form-label">Farm Description</label>
+            <textarea class="form-control form-control-lg" id="exampleFormControlTextarea1" rows="5" name="description"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</main>
