@@ -44,15 +44,16 @@ const ObjectId = Schema.Types.ObjectId,
 		created: {
 			type: Date,
 			required: false,
+			default: new Date(),
 		},
 		updated: {
 			type: Date,
 			required: false,
 		},
 		farm: {
-			type: ObjectId, 
-			ref: 'farms'
-		}
+			type: ObjectId,
+			ref: "farms",
+		},
 	}),
 	joiProductSchema = Joi.object({
 		name: Joi.string(),
@@ -65,12 +66,10 @@ const ObjectId = Schema.Types.ObjectId,
 	});
 
 groceryProductSchema.pre("save", async function (next) {
-	if (!this.created) {
-		this.created = new Date();
-	}
-	const urlTestVar = await getBing(this.name);
-	if (!this.imageLink || this.imageLink != urlTestVar) {
-		this.imageLink = urlTestVar;
+	this.updated = new Date();
+	const newImageLink = await getBing(this.name);
+	if (!this.imageLink || this.imageLink != newImageLink) {
+		this.imageLink = newImageLink;
 	}
 
 	next();
