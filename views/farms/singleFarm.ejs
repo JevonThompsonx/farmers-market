@@ -1,0 +1,30 @@
+<% layout('layouts/boilerplate') %>
+
+<% let {name,description,location,id,imageLink} = SingleFarmData,
+    city = location.city,
+    state = location.state
+%>
+
+<div id="productDiv"
+    class="content-wrapper d-flex flex-column align-items-center justify-content-center p-5 w-100 h-100">
+
+    <div class="card mt-5" style="max-width:90%; height: auto;">
+        <div class="row d-flex flex-md-row flex-column rounded-start">
+            <div class="col d-flex justify-content-center align-items-center rounded-start">
+                <img src=<%= imageLink %> class="img-fluid rounded-start" alt="Image of the <%= name %> farm">
+            </div>
+            <div class="col">
+                <div class="card-body">
+                    <h5 class="card-title"><%= capitalize(name) %></h5>
+                    <p class="card-text"><%= description %></p>
+
+                    <a href="/editFarm/<%= id %>" class="btn btn-primary dev">Edit</a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</div>
