@@ -181,7 +181,9 @@ app.get("/farms", async (req, res, next) => {
     const allFarms = await farm.find();
     res.render('/farms/all');
 });
-app.get("/farms/new", (req, res, next) => {
+app.get("farms/:id", (req, res, next) => {
+});
+app.get("/newFarm", (req, res, next) => {
     try {
         res.render("farms/newFarm", { pageName: "New farm" });
     }
@@ -189,7 +191,7 @@ app.get("/farms/new", (req, res, next) => {
         next(new AppError(500, _503_server_down));
     }
 });
-app.post("/farms/new", async (req, res, next) => {
+app.post("/newFarm", async (req, res, next) => {
     try {
         const { name, email, description, city } = req.body, newFarm = new farm({
             name: name,
