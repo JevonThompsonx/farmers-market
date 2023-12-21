@@ -6,7 +6,7 @@
         <h1>New Farm:</h1>
         <div class="form-floating mb-3">
             <input type="text" class="form-control form-control-lg" id="floatingName" placeholder="farm name here"
-                required name="name"> 
+                required name="name">
             <label for="floatingName">Name</label>
         </div>
         <div class="form-floating">
@@ -15,14 +15,21 @@
             <label class="form-label " for="staticEmail">Email</label>
 
         </div>
-
+        <label class="form-label  fs-4 text" for="">Location:</label>
         <div class="form-floating">
-            <input type="text" class="form-control form-control-lg" id="floatingCity" placeholder="Farm city" name="city">
-            <label for="floatingCity">City</label>
+            <input type="text" class="form-control form-control-lg" id="floatingCity" placeholder="Farm city"
+                name="city">
+            <label class="" for="floatingCity">City</label>
+        </div>
+        <div class="form-floating">
+            <input type="text" class="form-control form-control-lg" id="floatingState" placeholder="Farm state"
+                name="state">
+            <label for="floatingCity">State</label>
         </div>
         <div class="">
             <label for="exampleFormControlTextarea1" class="form-label">Farm Description</label>
-            <textarea class="form-control form-control-lg" id="exampleFormControlTextarea1" rows="5" name="description"></textarea>
+            <textarea class="form-control form-control-lg" id="exampleFormControlTextarea1" rows="5"
+                name="description"></textarea>
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>
