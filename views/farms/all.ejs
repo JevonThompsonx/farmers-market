@@ -1,1 +1,12 @@
 <% layout('layouts/boilerplate') %>
+   <div id="farmDiv"
+    class="content-wrapper d-flex flex-wrap justify-content-evenly p-5 w-100 h-100">
+
+<% for (let farm of allFarms ) { %>
+ 
+<%- include('../partials/farmCardView',{singleFarmData : farm, capitalize}) %>
+
+<% } %>
+
+
+</div>
