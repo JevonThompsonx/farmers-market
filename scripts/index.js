@@ -179,9 +179,15 @@ app.post("/editProduct/:id", joiProductEditValidation, async (req, res, next) =>
 });
 app.get("/farms", async (req, res, next) => {
     const allFarms = await farm.find();
-    res.render('/farms/all');
+    res.render("farms/all", { allFarms, capitalize });
 });
-app.get("farms/:id", (req, res, next) => {
+app.get("/farms/:id", async (req, res, next) => {
+    const { id } = req.params, singleFarmData = await farm.findById(id);
+    res.render("farms/singleFarm", {
+        singleFarmData,
+        capitalize,
+        pageName: `${singleFarmData?.name} farm`,
+    });
 });
 app.get("/newFarm", (req, res, next) => {
     try {
@@ -193,14 +199,18 @@ app.get("/newFarm", (req, res, next) => {
 });
 app.post("/newFarm", async (req, res, next) => {
     try {
-        const { name, email, description, city } = req.body, newFarm = new farm({
+        const { name, email, description, city, state } = req.body, newFarm = new farm({
             name: name,
             email: email,
             description: description,
-            city: city,
+            location: {
+                city: city,
+                state: state,
+            },
         });
-        console.log(newFarm);
-        res.send(req.body);
+        await newFarm.save();
+        const newFarmId = newFarm._id, farmById = await farm.findById(newFarmId);
+        res.redirect(`/farms/${newFarmId}`);
     }
     catch {
         next(new AppError(404, _400_user));
