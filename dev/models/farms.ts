@@ -1,5 +1,5 @@
 import mongoose, { Schema, model } from "mongoose";
-import getBing from "../seed/utils/getBing.js";
+import { unsplash } from "../utils/index.js";
 import Joi from "joi";
 const ObjectId = Schema.Types.ObjectId,
 	farmLocationSchema = new Schema({
@@ -29,7 +29,7 @@ const ObjectId = Schema.Types.ObjectId,
 			],
 		},
 		imageLink: {
-			type: String,
+			type: [String,"Image requires a valid image source"] 
 		},
 		products: [
 			{
@@ -56,7 +56,7 @@ const ObjectId = Schema.Types.ObjectId,
 
 farmSchema.pre("save", async function (next) {
 	this.updated = new Date();
-	const newImageLink = await getBing("Farm");
+	const newImageLink = await unsplash();
 	if (!this.imageLink || this.imageLink != newImageLink) {
 		this.imageLink = newImageLink;
 	}
