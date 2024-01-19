@@ -13,7 +13,7 @@ const joiProductCreationValidation = async (
 		res: Response,
 		next: NextFunction
 	) => {
-		const { name, qty, price, unit, category, imageLink, size } = req.body,
+		const { name, qty, price, unit, category, imageLink, size,farmName} = req.body,
 			validationObject = {
 				name: name,
 				unit: unit,
@@ -21,6 +21,8 @@ const joiProductCreationValidation = async (
 				size: size || 1,
 				qty: qty,
 				price: price,
+				farmName: farmName,
+				imageLink: imageLink
 			},
 			{ error } = joiProductSchema.validate(validationObject);
 

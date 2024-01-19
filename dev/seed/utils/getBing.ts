@@ -21,13 +21,13 @@ export default async function (search: String) {
 	let rawData = result.data.value;
 	let validLink;
 	let linkStatus = false;
-	while (linkStatus === false) { 
+	while (linkStatus === false) {
 		for (let individualData of rawData) {
 			await axios
 				.get(individualData.contentUrl)
 				.then(() => {
 					validLink = individualData.contentUrl;
-					linkStatus = true
+					linkStatus = true;
 				})
 				.catch(function (error) {
 					if (error.response) {

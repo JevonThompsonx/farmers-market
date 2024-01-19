@@ -1,13 +1,15 @@
 import { joiProductSchema, groceryProduct, } from "../../models/index.js";
 import AppError from "../AppError.js";
 const joiProductCreationValidation = async (req, res, next) => {
-    const { name, qty, price, unit, category, imageLink, size } = req.body, validationObject = {
+    const { name, qty, price, unit, category, imageLink, size, farmName } = req.body, validationObject = {
         name: name,
         unit: unit,
         category: category,
         size: size || 1,
         qty: qty,
         price: price,
+        farmName: farmName,
+        imageLink: imageLink
     }, { error } = joiProductSchema.validate(validationObject);
     if (error) {
         const msg = error.details.map((element) => element.message).join(",");

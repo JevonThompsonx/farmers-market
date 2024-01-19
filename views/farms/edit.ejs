@@ -1,0 +1,27 @@
+<% layout('layouts/boilerplate') %>
+<main id="content-wrapper" class="d-flex justify-content-center align-items-center p-5">
+  <% const {name,location,description,email,imageLink,products,created,updated,id} = singleFarmData %>
+
+  <% const {city,state} = location %>
+
+
+
+  <form action="" method="post"></form>
+
+  <form class="card mb-3" action="/editFarm/<%= id %>" method="post">
+    <img src="<%=imageLink %>" class="card-img-top" alt="...">
+    <div class="card-body">
+      <h1 name="farmName" class="card-title"><%= capitalize(name) %></h1>
+      <p class="card-text"> <i><%= city %>, <%= state %></i> </p>
+      <h5>Current description: </h5>
+      <p class="card-text"><%= description %></p>
+
+      <h5>New description: </h5>
+      <textarea class="card-text p-4 overflow-y-scroll w-100 p-2" name="newDescription" rows="5" required="true">
+            </textarea>
+
+      <input class="btn btn-primary card-text" type="submit" name="submit" value="submit" style="width: 100px;">
+  </form>
+  </div>
+
+</main>

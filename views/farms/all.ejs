@@ -1,0 +1,15 @@
+<% layout('layouts/boilerplate') %>
+   <div id="farmDiv"
+    class="content-wrapper d-flex flex-wrap justify-content-evenly align-items-center w-100 h-100">
+
+<% for (let farm of allFarms ) { %>
+ 
+<%- include('../partials/farmCardView',{singleFarmData : farm, capitalize}) %>
+
+<% } %>
+
+<a type="button" class="btn btn-success d-flex justify-content-center align-items-center" href="/farms/new" style="width: 100px;height: 50px;">
+New farm
+</a>
+
+</div>

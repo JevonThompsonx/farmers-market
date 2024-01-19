@@ -1,7 +1,9 @@
 <% layout('layouts/boilerplate') %>
 
-<% let {name,price,size,unit,qty,category,id,imageLink} = grocerySingleProductData %>
-<div id="productDiv" class="content-wrapper d-flex flex-column align-items-center justify-content-center p-5 w-100 h-100" >
+<% let {name,price,size,unit,qty,category,id,imageLink,farm} = singleGroceryProductData
+%>
+<div id="productDiv"
+  class="content-wrapper d-flex flex-column align-items-center justify-content-center p-5 w-100 h-100">
 
   <div class="card mt-5" style="max-width:90%; height: auto;">
     <div class="row d-flex flex-md-row flex-column rounded-start">
@@ -11,19 +13,21 @@
       <div class="col">
         <div class="card-body">
           <h5 class="card-title"><%= capitalize(name) %></h5>
+          <a href="/farms/<%= farm._id %>"><%= farm.name %></a>
           <p class="">Category: <a href="/categories/<%= category %> %>"><%= category %></a> </p>
 
           <p class="card-text">$<%= price %> per <%=size%> <%= unit %></p>
           <% if (qty === 0) { %>
           <p class="card-text">Sorry we're all out. Please check again tomorrow</p>
-            <% } else if (qty <= 5) {  %>
+          <% } else if (qty <= 5) {  %>
           <p class="card-text">Running Low! <%= qty %> left for sale</p>
 
           <% } else { %>
           <p class="card-text"><%= qty %> <%= qty %> left for sale</p>
 
           <% } %>
-          <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Sequi rerum sapiente explicabo perspiciatis, incidunt, fugiat maxime dignissimos neque nesciunt quos natus deserunt eius non esse!</p>
+          <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Sequi rerum sapiente explicabo perspiciatis,
+            incidunt, fugiat maxime dignissimos neque nesciunt quos natus deserunt eius non esse!</p>
 
           <a href="/product/<%= id %>" class="btn btn-primary">Add to cart</a>
           <a href="/editProduct/<%= id %>" class="btn btn-primary">Edit</a>
