@@ -3,15 +3,21 @@ import { Request, Response, NextFunction } from "express";
 import Joi from "joi";
 import AppError from "../AppError.js";
 import { _400_user } from "../../errorCodes/_400_user.js";
+import { checkServerIdentity } from "tls";
 const joiFarmCreationValiation = async (
 		req: Request,
 		res: Response,
 		next: NextFunction
 	) => {
-		const { id } = req.params,
-			data = await farm.findById(id),
+		const { name, description, city, state, email } = req.body,
 			validationObject = {
-				name: data?.name,
+				name: name,
+				description: description,
+				location: {
+					city: city,
+					state: state,
+				},
+				email: email,
 			},
 			{ error } = joiFarmSchema.validate(validationObject);
 		if (error) {
@@ -24,9 +30,9 @@ const joiFarmCreationValiation = async (
 		next: NextFunction
 	) => {
 		const { id } = req.params,
-			data = await farm.findById(id),
+			{ newDescription } = req.body,
 			validationObject = {
-				name: data?.name,
+				description: newDescription,
 			},
 			{ error } = joiFarmSchema.validate(validationObject);
 		if (error) {
@@ -34,4 +40,4 @@ const joiFarmCreationValiation = async (
 		}
 	};
 
-export { joiFarmCreationValiation, joiFarmEditValiation}
+export { joiFarmCreationValiation, joiFarmEditValiation };
