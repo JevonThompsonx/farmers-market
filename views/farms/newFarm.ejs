@@ -1,7 +1,7 @@
 <% layout('layouts/boilerplate') %>
 
 <main class="vw-100 vh-100 d-flex justify-content-center align-items-center">
-    <form class="h-100 w-75 d-flex flex-column justify-content-evenly align-items-center" action="/newFarm"
+    <form class="h-100 w-75 d-flex flex-column justify-content-evenly align-items-center" action="/farms/new"
         method="post">
         <h1>New Farm:</h1>
         <div class="form-floating mb-3">
@@ -10,7 +10,7 @@
             <label for="floatingName">Name</label>
         </div>
         <div class="form-floating">
-            <input type="text" readonly class="form-control-plaintext form-control-lg" id="staticEmail"
+            <input type="text" readonly required class="form-control-plaintext form-control-lg" id="staticEmail"
                 value="email@example.com" name="email">
             <label class="form-label " for="staticEmail">Email</label>
 
