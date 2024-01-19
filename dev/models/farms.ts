@@ -29,7 +29,7 @@ const ObjectId = Schema.Types.ObjectId,
 			],
 		},
 		imageLink: {
-			type: [String,"Image requires a valid image source"] 
+			type: [String, "Image requires a valid image source"],
 		},
 		products: [
 			{
@@ -50,8 +50,12 @@ const ObjectId = Schema.Types.ObjectId,
 	joiFarmSchema = Joi.object({
 		name: Joi.string().required(),
 		description: Joi.string(),
-		city: Joi.string(),
+		location: Joi.object({
+			city: Joi.string(),
+			state: Joi.string(),
+		}),
 		email: Joi.string().required(),
+		farm: Joi.string().required(),
 	});
 
 farmSchema.pre("save", async function (next) {
@@ -60,7 +64,6 @@ farmSchema.pre("save", async function (next) {
 	if (!this.imageLink || this.imageLink != newImageLink) {
 		this.imageLink = newImageLink;
 	}
-
 	next();
 });
 
