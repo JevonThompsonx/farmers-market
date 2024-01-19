@@ -50,16 +50,17 @@ const ObjectId = Schema.Types.ObjectId, groceryProductSchema = new Schema({
     },
     farm: {
         type: ObjectId,
-        ref: "farms",
+        ref: "farm",
     },
 }), joiProductSchema = Joi.object({
-    name: Joi.string(),
-    price: Joi.number(),
-    size: Joi.number(),
+    name: Joi.string().required(),
+    farmName: Joi.string(),
+    price: Joi.number().min(1),
+    size: Joi.number().min(1).max(99),
     unit: Joi.string().valid("oz", "fl oz", "lbs", "item"),
     category: Joi.string().valid("fruit", "vegetable", "dairy"),
     imageLink: Joi.string(),
-    qty: Joi.number(),
+    qty: Joi.number().min(1),
 });
 groceryProductSchema.pre("save", async function (next) {
     this.updated = new Date();
