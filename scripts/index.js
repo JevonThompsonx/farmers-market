@@ -9,8 +9,8 @@ await connectionString();
 import { groceryProduct, farm, } from "./models/index.js";
 import { imageReset, } from "./seed/utils/addBingImage.js";
 import engine from "ejs-mate";
-import { _503_server_down, _404, _404_product, _404_product_edit, _404_cat, _500_server, _400_user, } from "./errorCodes/index.js";
-import { joiProductEditValidation, joiProductCreationValidation, } from "./utils/middleware/index.js";
+import { _503_server_down, _404, _404_product, _404_edit, _404_cat, _500_server, _400_user, } from "./errorCodes/index.js";
+import { joiFarmCreationValiation, joiFarmEditValiation, joiProductEditValidation, joiProductCreationValidation, } from "./utils/middleware/index.js";
 const { __dirname } = fileDirName(import.meta), port = process.env.PORT || 8080, app = express();
 let pageName = "farmersMarket";
 app.engine("ejs", engine);
@@ -32,7 +32,9 @@ app.get("/", async (req, res, next) => {
 });
 app.get("/products", async (req, res, next) => {
     try {
-        const groceryProductData = await groceryProduct.find(), fruitData = groceryProductData.filter((data) => {
+        const groceryProductData = await groceryProduct
+            .find()
+            .populate("farm", "name"), fruitData = groceryProductData.filter((data) => {
             if (data.category === "fruit") {
                 return data;
             }
@@ -63,11 +65,55 @@ app.get("/products", async (req, res, next) => {
         next(new AppError(500, _500_server));
     }
 });
+app.get("/product/new", async (req, res, next) => {
+    try {
+        const allFarms = await farm.find();
+        res.render("products/addProduct", {
+            pageName: "New Product",
+            allFarms,
+        });
+    }
+    catch {
+        next(new AppError(503, _503_server_down));
+    }
+});
+app.post("/product/new", joiProductCreationValidation, async (req, res, next) => {
+    try {
+        const { name: prodName, price: prodPrice, qty: prodQty, unit: prodUnit, category: newCategory, size: newSize, farmName: newFarmName, } = req.body, assignedFarm = await farm.findOne({ name: newFarmName }), newProd = new groceryProduct({
+            name: capitalize(prodName),
+            price: prodPrice,
+            qty: prodQty,
+            unit: prodUnit,
+            category: newCategory,
+            size: newSize || 1,
+            farm: assignedFarm,
+        }), prodId = newProd._id;
+        await newProd.save();
+        res.redirect(`/product/${prodId}`);
+    }
+    catch {
+        next(new AppError(400, _400_user));
+    }
+});
+app.get("/farms/:id/new", async (req, res, next) => {
+    try {
+        const { id } = req.params, selectedFarm = await farm.findById(id);
+        res.render("products/addProduct", {
+            pageName: "New Product",
+            selectedFarm,
+        });
+    }
+    catch {
+        next(new AppError(503, _503_server_down));
+    }
+});
 app.get("/product/:id", async (req, res, next) => {
     try {
-        const { id } = req.params, grocerySingleProductData = await groceryProduct.findById(id), pageName = grocerySingleProductData?.name;
+        const { id } = req.params, singleGroceryProductData = await groceryProduct
+            .findById(id)
+            .populate("farm", "name"), pageName = singleGroceryProductData?.name;
         res.render("products/singleProduct", {
-            grocerySingleProductData,
+            singleGroceryProductData,
             id,
             pageName,
             capitalize,
@@ -77,36 +123,13 @@ app.get("/product/:id", async (req, res, next) => {
         next(new AppError(404, _404_product));
     }
 });
-app.get("/addProduct", (req, res, next) => {
-    try {
-        res.render("products/addProduct", { pageName: "New Product" });
-    }
-    catch {
-        next(new AppError(503, _503_server_down));
-    }
-});
-app.post("/addProduct", joiProductCreationValidation, async (req, res, next) => {
-    try {
-        const { name: prodName, price: prodPrice, qty: prodQty, unit: prodUnit, category: newCategory, size: newSize, } = req.body, newProd = new groceryProduct({
-            name: capitalize(prodName),
-            price: prodPrice,
-            qty: prodQty,
-            unit: prodUnit,
-            category: newCategory,
-            size: newSize || 1,
-        }), id = newProd._id;
-        await newProd.save();
-        res.redirect(`/product/${id}`);
-    }
-    catch {
-        next(new AppError(400, _400_user));
-    }
-});
 app.get("/categories/:category", async (req, res, next) => {
     try {
-        const { category } = req.params, groceryProductData = await groceryProduct.find({
+        const { category } = req.params, groceryProductData = await groceryProduct
+            .find({
             category: `${category}`,
-        });
+        })
+            .populate("farm", "name");
         res.render("products/perCategory", {
             groceryProductData,
             category,
@@ -118,9 +141,28 @@ app.get("/categories/:category", async (req, res, next) => {
         next(new AppError(404, _404_cat));
     }
 });
+app.get("/products/farm/:id", async (req, res, next) => {
+    try {
+        const { id } = req.params, groceryProductData = await groceryProduct
+            .find({
+            farm: { _id: id },
+        })
+            .populate("farm", "name"), farmName = await farm.findById(id).select("name");
+        res.render("products/perFarm", {
+            groceryProductData,
+            pageName: farmName?.name,
+            capitalize,
+        });
+    }
+    catch {
+        next(new AppError(404, _400_user));
+    }
+});
 app.post("/search", async (req, res, next) => {
     try {
-        const { searchBar } = req.body, searchedProduct = searchBar.toLowerCase(), unfilteredGroceryProductData = await groceryProduct.find({}), groceryProductData = unfilteredGroceryProductData.filter((data) => {
+        const { searchBar } = req.body, searchedProduct = searchBar.toLowerCase(), unfilteredGroceryProductData = await groceryProduct
+            .find({})
+            .populate("farm"), groceryProductData = unfilteredGroceryProductData.filter((data) => {
             if (data.name.includes(searchedProduct)) {
                 return data;
             }
@@ -149,16 +191,18 @@ app.get("/reset", async (req, res, next) => {
 });
 app.get("/editProduct/:id", async (req, res, next) => {
     try {
-        const { id } = req.params, grocerySingleProductData = await groceryProduct.findById(id);
-        res.render("products/editProduct", {
-            grocerySingleProductData,
+        const { id } = req.params, singleGroceryProductData = await groceryProduct
+            .findById(id)
+            .populate("farm", "name");
+        res.render("products/edit", {
+            singleGroceryProductData,
             id,
-            pageName: `Edit | ${grocerySingleProductData?.name}` || `Edit `,
+            pageName: `Edit | ${singleGroceryProductData?.name}` || `Edit `,
             capitalize,
         });
     }
     catch {
-        next(new AppError(404, _404_product_edit));
+        next(new AppError(404, _404_edit));
     }
 });
 app.post("/editProduct/:id", joiProductEditValidation, async (req, res, next) => {
@@ -181,15 +225,7 @@ app.get("/farms", async (req, res, next) => {
     const allFarms = await farm.find();
     res.render("farms/all", { allFarms, capitalize });
 });
-app.get("/farms/:id", async (req, res, next) => {
-    const { id } = req.params, singleFarmData = await farm.findById(id);
-    res.render("farms/singleFarm", {
-        singleFarmData,
-        capitalize,
-        pageName: `${singleFarmData?.name} farm`,
-    });
-});
-app.get("/newFarm", (req, res, next) => {
+app.get("/farms/new", (req, res, next) => {
     try {
         res.render("farms/newFarm", { pageName: "New farm" });
     }
@@ -197,7 +233,7 @@ app.get("/newFarm", (req, res, next) => {
         next(new AppError(500, _503_server_down));
     }
 });
-app.post("/newFarm", async (req, res, next) => {
+app.post("/farms/new", joiFarmCreationValiation, async (req, res, next) => {
     try {
         const { name, email, description, city, state } = req.body, newFarm = new farm({
             name: name,
@@ -207,13 +243,50 @@ app.post("/newFarm", async (req, res, next) => {
                 city: city,
                 state: state,
             },
-        });
+        }), newFarmId = newFarm._id, farmById = await farm.findById(newFarmId);
         await newFarm.save();
-        const newFarmId = newFarm._id, farmById = await farm.findById(newFarmId);
         res.redirect(`/farms/${newFarmId}`);
     }
     catch {
         next(new AppError(404, _400_user));
+    }
+});
+app.get("/farms/:id", async (req, res, next) => {
+    try {
+        const { id } = req.params, singleFarmData = await farm.findById(id);
+        res.render("farms/singleFarm", {
+            singleFarmData,
+            capitalize,
+            pageName: `${singleFarmData?.name} farm`,
+        });
+    }
+    catch {
+        next(new AppError(404, _400_user));
+    }
+});
+app.get("/editFarm/:id", async (req, res, next) => {
+    try {
+        const { id } = req.params, singleFarmData = await farm.findById(id);
+        res.render("farms/edit", {
+            singleFarmData,
+            capitalize,
+            pageName: `${singleFarmData?.name} farm edit`,
+        });
+    }
+    catch {
+        next(new AppError(404, _404_edit));
+    }
+});
+app.post("/editFarm/:id", joiFarmEditValiation, async (req, res, next) => {
+    try {
+        const { id } = req.params, singleFarmData = await farm.findById(id);
+        let { newDescription } = req.body;
+        newDescription = newDescription.trim();
+        await farm.updateOne({ _id: id }, { description: newDescription });
+        res.redirect(`/farms/${id}`);
+    }
+    catch {
+        next(new AppError(404, _404_edit));
     }
 });
 app.get("*", (req, res, next) => {
