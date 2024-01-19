@@ -1,20 +1,22 @@
-
 <% const {name,description,location,_id,imageLink} = singleFarmData,
 city = location.city,
 state = location.state,
 id = _id %>
 
-    <div class="card h-auto" style="max-width:20rem;">
-        <img src=<%= imageLink %> class="img-fluid" alt="Image of the <%= name %> farm">
-        <div class=" card-body d-flex flex-column justify-content-evenly">
-            <h2 class="card-title"><%= capitalize(name) %></h2>
-            <h3 class="card-text">Location : </h3>
-            <p class="card-text"><%= city %>, <%= state  %></p>
-            <p class="card-text"><%= description %></p>
-            <a href="/editFarm/<%= id %>" class="btn btn-primary dev">Edit</a>
+<div class="card h-auto" style="max-width:20rem;">
+    <img src=<%= imageLink %> class="img-fluid" alt="Image of the <%= name %> farm">
+    <div class=" card-body d-flex flex-column justify-content-evenly">
+        <h2 class="card-title"><%= capitalize(name) %></h2>
+        <h3 class="card-text">Location : </h3>
+        <p class="card-text"><%= city %>, <%= state  %></p>
+        <p class="card-text"><%= description %></p>
+        <a href="/editFarm/<%= id %>" class="btn btn-outline-info mb-2">Edit</a>
 
-        </div>
+        <a class="btn btn-outline-primary" href="/farms/<%=id%>/new">
+            New <%= name %> product
+        </a>
+        <a class="btn btn-outline-primary" href="/products/farm/<%= id %>">
+           View <%= name %> products
+        </a>
     </div>
-
-
-
+</div>
