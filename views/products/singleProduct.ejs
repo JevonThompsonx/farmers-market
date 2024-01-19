@@ -1,6 +1,7 @@
 <% layout('layouts/boilerplate') %>
 
-<% let {name,price,size,unit,qty,category,id,imageLink} = grocerySingleProductData %>
+<% let {name,price,size,unit,qty,category,id,imageLink,farm} = singleGroceryProductData
+%>
 <div id="productDiv"
   class="content-wrapper d-flex flex-column align-items-center justify-content-center p-5 w-100 h-100">
 
@@ -12,6 +13,7 @@
       <div class="col">
         <div class="card-body">
           <h5 class="card-title"><%= capitalize(name) %></h5>
+          <a href="/farms/<%= farm._id %>"><%= farm.name %></a>
           <p class="">Category: <a href="/categories/<%= category %> %>"><%= category %></a> </p>
 
           <p class="card-text">$<%= price %> per <%=size%> <%= unit %></p>
