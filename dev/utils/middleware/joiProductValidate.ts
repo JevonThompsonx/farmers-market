@@ -1,5 +1,6 @@
 import {
 	joiProductSchema,
+	joiProductEditSchema,
 	groceryProduct,
 	groceryProductSchema,
 } from "../../models/index.js";
@@ -13,7 +14,8 @@ const joiProductCreationValidation = async (
 		res: Response,
 		next: NextFunction
 	) => {
-		const { name, qty, price, unit, category, imageLink, size,farmName} = req.body,
+		const { name, qty, price, unit, category, imageLink, size, farmName } =
+				req.body,
 			validationObject = {
 				name: name,
 				unit: unit,
@@ -22,16 +24,18 @@ const joiProductCreationValidation = async (
 				qty: qty,
 				price: price,
 				farmName: farmName,
-				imageLink: imageLink
+				imageLink: imageLink,
 			},
 			{ error } = joiProductSchema.validate(validationObject);
 
-	if (error) {
-		const msg = error.details.map((element) => element.message).join(",");
-		next(new AppError(400, msg));
-	} else {
-		next();
-	}
+		if (error) {
+			const msg = error.details
+				.map((element) => element.message)
+				.join(",");
+			next(new AppError(400, msg));
+		} else {
+			next();
+		}
 	},
 	joiProductEditValidation = async (
 		req: Request,
@@ -45,13 +49,15 @@ const joiProductCreationValidation = async (
 				qty: qty || data?.qty,
 				price: price || data?.price,
 			},
-			{ error } = joiProductSchema.validate(validationObject);
+			{ error } = joiProductEditSchema.validate(validationObject);
 
-	if (error) {
-		const msg = error.details.map((element) => element.message).join(",");
-		next(new AppError(400, msg));
-	} else {
-		next();
-	}
+		if (error) {
+			const msg = error.details
+				.map((element) => element.message)
+				.join(",");
+			next(new AppError(400, msg));
+		} else {
+			next();
+		}
 	};
 export { joiProductCreationValidation, joiProductEditValidation };
