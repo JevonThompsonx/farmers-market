@@ -112,7 +112,6 @@ app.get("/products", async (req, res, next) => {
 		next(new AppError(500, _500_server));
 	}
 });
-
 // get route for new product
 app.get("/product/new", async (req, res, next) => {
 	try {
@@ -125,8 +124,20 @@ app.get("/product/new", async (req, res, next) => {
 		next(new AppError(503, _503_server_down));
 	}
 });
-
-// post route for new product
+//get new product on farm route
+app.get("/farms/:id/new", async (req, res, next) => {
+	try {
+		const { id } = req.params,
+			selectedFarm = await farm.findById(id);
+		res.render("products/addProduct", {
+			pageName: "New Product",
+			selectedFarm,
+		});
+	} catch {
+		next(new AppError(503, _503_server_down));
+	}
+});
+//post route for new product
 app.post(
 	"/product/new",
 	joiProductCreationValidation,
@@ -160,20 +171,7 @@ app.post(
 		}
 	}
 );
-//get new product on farm route
-app.get("/farms/:id/new", async (req, res, next) => {
-	try {
-		const { id } = req.params,
-			selectedFarm = await farm.findById(id);
-		res.render("products/addProduct", {
-			pageName: "New Product",
-			selectedFarm,
-		});
-	} catch {
-		next(new AppError(503, _503_server_down));
-	}
-});
-//single product view
+//get single product view
 app.get("/product/:id", async (req, res, next) => {
 	try {
 		const { id } = req.params,
@@ -192,8 +190,7 @@ app.get("/product/:id", async (req, res, next) => {
 		next(new AppError(404, _404_product));
 	}
 });
-
-// category view of products
+//get category view of products
 app.get("/categories/:category", async (req, res, next) => {
 	try {
 		const { category } = req.params,
@@ -212,7 +209,7 @@ app.get("/categories/:category", async (req, res, next) => {
 		next(new AppError(404, _404_cat));
 	}
 });
-// get route by farm
+//get route by farm
 app.get("/products/farm/:id", async (req, res, next) => {
 	try {
 		const { id } = req.params,
@@ -231,7 +228,7 @@ app.get("/products/farm/:id", async (req, res, next) => {
 		next(new AppError(404, _400_user));
 	}
 });
-// searched view of products
+//searched view of products
 app.post("/search", async (req, res, next) => {
 	try {
 		const { searchBar } = req.body,
@@ -256,7 +253,6 @@ app.post("/search", async (req, res, next) => {
 		next(new AppError(500, _500_server));
 	}
 });
-
 //deleting and seeding mongo database
 app.get("/reset", async (req, res, next) => {
 	try {
@@ -266,7 +262,6 @@ app.get("/reset", async (req, res, next) => {
 		next(new AppError(500, _500_server));
 	}
 });
-
 //editing product route
 app.get("/editProduct/:id", async (req, res, next) => {
 	try {
@@ -310,7 +305,6 @@ app.post(
 		}
 	}
 );
-//Farms
 //all farms
 app.get("/farms", async (req, res, next) => {
 	const allFarms = await farm.find();
@@ -361,8 +355,7 @@ app.get("/farms/:id", async (req, res, next) => {
 		next(new AppError(404, _400_user));
 	}
 });
-
-//edit single farm
+//get edit single farm
 app.get("/editFarm/:id", async (req, res, next) => {
 	try {
 		const { id } = req.params,
@@ -377,6 +370,7 @@ app.get("/editFarm/:id", async (req, res, next) => {
 		next(new AppError(404, _404_edit));
 	}
 });
+//post edit farm route
 app.post("/editFarm/:id", joiFarmEditValiation, async (req, res, next) => {
 	try {
 		const { id } = req.params,
@@ -389,7 +383,6 @@ app.post("/editFarm/:id", joiFarmEditValiation, async (req, res, next) => {
 		next(new AppError(404, _404_edit));
 	}
 });
-
 // Unknown pages error route
 app.get("*", (req, res, next) => {
 	next(new AppError(404, _404));
