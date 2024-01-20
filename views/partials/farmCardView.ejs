@@ -10,13 +10,15 @@ id = _id %>
         <h3 class="card-text">Location : </h3>
         <p class="card-text"><%= city %>, <%= state  %></p>
         <p class="card-text"><%= description %></p>
-        <a href="/editFarm/<%= id %>" class="btn btn-outline-info mb-1
+        <a href="/farms/<%= id %>" class="btn btn-outline-success mb-1
+        ">View Farm</a>
+        <a href="/editFarm/<%= id %>" class="btn btn-outline-dark mb-1
         ">Edit</a>
 
         <a class="btn btn-outline-primary mb-1" href="/farms/<%=id%>/new">
             New <%= name %> product
         </a>
-        <a class="btn btn-outline-dark mb-1 " href="/products/farm/<%= id %>">
+        <a class="btn btn-outline-success mb-1 " href="/products/farm/<%= id %>">
             View <%= name %> products
         </a>
     </div>
