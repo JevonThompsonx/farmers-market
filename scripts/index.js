@@ -253,9 +253,14 @@ app.post("/farms/new", joiFarmCreationValiation, async (req, res, next) => {
 });
 app.get("/farms/:id", async (req, res, next) => {
     try {
-        const { id } = req.params, singleFarmData = await farm.findById(id);
+        const { id } = req.params, singleFarmData = await farm.findById(id), groceryProductData = await groceryProduct
+            .find({
+            farm: { _id: id },
+        })
+            .populate("farm", "name").limit(3);
         res.render("farms/singleFarm", {
             singleFarmData,
+            groceryProductData,
             capitalize,
             pageName: `${singleFarmData?.name} farm`,
         });
