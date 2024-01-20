@@ -163,7 +163,6 @@ app.post(
 					farm: assignedFarm,
 				}),
 				prodId = newProd._id;
-
 			await newProd.save();
 			res.redirect(`/product/${prodId}`);
 		} catch {
@@ -171,6 +170,7 @@ app.post(
 		}
 	}
 );
+
 //get single product view
 app.get("/product/:id", async (req, res, next) => {
 	try {
@@ -179,7 +179,6 @@ app.get("/product/:id", async (req, res, next) => {
 				.findById(id)
 				.populate("farm", "name"),
 			pageName = singleGroceryProductData?.name;
-
 		res.render("products/singleProduct", {
 			singleGroceryProductData,
 			id,
@@ -253,7 +252,7 @@ app.post("/search", async (req, res, next) => {
 		next(new AppError(500, _500_server));
 	}
 });
-//deleting and seeding mongo database
+//delete and seeding mongo database
 app.get("/reset", async (req, res, next) => {
 	try {
 		await imageReset();
@@ -262,7 +261,7 @@ app.get("/reset", async (req, res, next) => {
 		next(new AppError(500, _500_server));
 	}
 });
-//editing product route
+//edit product route
 app.get("/editProduct/:id", async (req, res, next) => {
 	try {
 		const { id } = req.params,
@@ -280,7 +279,7 @@ app.get("/editProduct/:id", async (req, res, next) => {
 		next(new AppError(404, _404_edit));
 	}
 });
-// posting editing product route
+// post edit product route
 app.post(
 	"/editProduct/:id",
 	joiProductEditValidation,
@@ -349,7 +348,8 @@ app.get("/farms/:id", async (req, res, next) => {
 				.find({
 					farm: { _id: id },
 				})
-				.populate("farm", "name").limit(3);
+				.populate("farm", "name")
+				.limit(3);
 		res.render("farms/singleFarm", {
 			singleFarmData,
 			groceryProductData,

@@ -34,7 +34,7 @@ const ObjectId = Schema.Types.ObjectId,
 		products: [
 			{
 				type: ObjectId,
-				ref: "products",
+				ref: "groceryproduct",
 			},
 		],
 		created: {

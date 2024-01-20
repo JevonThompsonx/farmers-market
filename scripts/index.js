@@ -257,7 +257,8 @@ app.get("/farms/:id", async (req, res, next) => {
             .find({
             farm: { _id: id },
         })
-            .populate("farm", "name").limit(3);
+            .populate("farm", "name")
+            .limit(3);
         res.render("farms/singleFarm", {
             singleFarmData,
             groceryProductData,
