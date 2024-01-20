@@ -32,7 +32,7 @@ const ObjectId = Schema.Types.ObjectId, farmLocationSchema = new Schema({
     products: [
         {
             type: ObjectId,
-            ref: "products",
+            ref: "groceryproduct",
         },
     ],
     created: {
