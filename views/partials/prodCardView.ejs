@@ -1,11 +1,11 @@
 		<div class="card singleProduct mb-5" style="width: 18rem;">
-			
+
 			<% let {name,price,unit,qty,category,id,imageLink,farm} = singleProduct %>
 			<img src="<%= imageLink %>" class="card-img-top" alt="An image of <%= name %>">
 			<div class="card-body">
 				<h4 class="card-title"><%=capitalize(name) %></h4>
 				<a href="/farms/<%= farm._id %>" class="card-title"><%=capitalize(farm.name) %></a>
-				
+
 				<p class="card-text">$<%=price %> per
 					<% try { %>
 					<%= size %> <%= unit %></p>
