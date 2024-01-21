@@ -3,6 +3,7 @@ import {
 	groceryProduct,
 	groceryProductSchema,
 	joiProductSchema,
+	joiProductEditSchema,
 } from "./products.js";
 import { usLocation, usLocationSchema } from "./states.js";
 export {
@@ -12,6 +13,7 @@ export {
 	groceryProductSchema,
 	joiFarmSchema,
 	joiProductSchema,
+	joiProductEditSchema,
 	usLocation,
 	usLocationSchema,
 };

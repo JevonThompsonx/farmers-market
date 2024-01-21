@@ -1,8 +1,48 @@
 <% layout('layouts/boilerplate') %>
+<% const {name,description,location,_id,imageLink} = singleFarmData,
+city = location.city,
+state = location.state,
+id = _id %>
 
-<div id="farmDiv"
-    class="content-wrapper d-flex flex-column align-items-center justify-content-center p-5 w-100 h-100">
+<div id="farmDiv" class="content-wrapper d-flex flex-column align-items-center justify-content-center p-5 w-100 h-100">
 
-<%- include('../partials/farmCardView',{singleFarmData, capitalize}) %>
 
+    <div class="card mb-3" style="max-width: 1000px;">
+        <div class="row g-0">
+            <div class="col-md-4">
+                <img src="<%= imageLink %>" class="img-fluid rounded-start" alt="...">
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h2 class="card-title"><%= capitalize(name) %></h2>
+
+                    <h3 class="card-text">Location : </h3>
+                    <p class="card-text"><%= city %>, <%= state  %></p>
+                    <p class="card-text"><%= description %></p>
+          
+                    <a href="/editFarm/<%= id %>" class="btn btn-outline-primary mb-1
+        ">Edit</a>
+
+                    <a class="btn btn-outline-dark mb-1" href="/farms/<%=id%>/new">
+                        New <%= name %> product
+                    </a>
+                    <a class="btn btn-outline-success mb-1 " href="/products/farm/<%= id %>">
+                        View <%= name %> products
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+<h2><%= capitalize(name) %> Products:</h2>
+<div id="productDiv"
+		class="h-auto w-100 d-flex flex-wrap flex-column flex-md-row justify-content-evenly align-items-center">
+		<% for( let singleProduct of groceryProductData ) { %>
+		<%- include('../partials/prodCardView.ejs',{singleProduct}) %>
+		<% } %>
+        <a class="btn btn-outline-success mb-1 " href="/products/farm/<%= id %>">
+                        more...
+                    </a>
+	</div>
 </div>

@@ -1,4 +1,4 @@
-import { joiProductSchema, groceryProduct, } from "../../models/index.js";
+import { joiProductSchema, joiProductEditSchema, groceryProduct, } from "../../models/index.js";
 import AppError from "../AppError.js";
 const joiProductCreationValidation = async (req, res, next) => {
     const { name, qty, price, unit, category, imageLink, size, farmName } = req.body, validationObject = {
@@ -9,10 +9,12 @@ const joiProductCreationValidation = async (req, res, next) => {
         qty: qty,
         price: price,
         farmName: farmName,
-        imageLink: imageLink
+        imageLink: imageLink,
     }, { error } = joiProductSchema.validate(validationObject);
     if (error) {
-        const msg = error.details.map((element) => element.message).join(",");
+        const msg = error.details
+            .map((element) => element.message)
+            .join(",");
         next(new AppError(400, msg));
     }
     else {
@@ -22,9 +24,11 @@ const joiProductCreationValidation = async (req, res, next) => {
     const { id } = req.params, { qty, price } = req.body, data = await groceryProduct.findById(id), validationObject = {
         qty: qty || data?.qty,
         price: price || data?.price,
-    }, { error } = joiProductSchema.validate(validationObject);
+    }, { error } = joiProductEditSchema.validate(validationObject);
     if (error) {
-        const msg = error.details.map((element) => element.message).join(",");
+        const msg = error.details
+            .map((element) => element.message)
+            .join(",");
         next(new AppError(400, msg));
     }
     else {

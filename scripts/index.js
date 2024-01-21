@@ -77,6 +77,18 @@ app.get("/product/new", async (req, res, next) => {
         next(new AppError(503, _503_server_down));
     }
 });
+app.get("/farms/:id/new", async (req, res, next) => {
+    try {
+        const { id } = req.params, selectedFarm = await farm.findById(id);
+        res.render("products/addProduct", {
+            pageName: "New Product",
+            selectedFarm,
+        });
+    }
+    catch {
+        next(new AppError(503, _503_server_down));
+    }
+});
 app.post("/product/new", joiProductCreationValidation, async (req, res, next) => {
     try {
         const { name: prodName, price: prodPrice, qty: prodQty, unit: prodUnit, category: newCategory, size: newSize, farmName: newFarmName, } = req.body, assignedFarm = await farm.findOne({ name: newFarmName }), newProd = new groceryProduct({
@@ -93,18 +105,6 @@ app.post("/product/new", joiProductCreationValidation, async (req, res, next) =>
     }
     catch {
         next(new AppError(400, _400_user));
-    }
-});
-app.get("/farms/:id/new", async (req, res, next) => {
-    try {
-        const { id } = req.params, selectedFarm = await farm.findById(id);
-        res.render("products/addProduct", {
-            pageName: "New Product",
-            selectedFarm,
-        });
-    }
-    catch {
-        next(new AppError(503, _503_server_down));
     }
 });
 app.get("/product/:id", async (req, res, next) => {
@@ -253,9 +253,15 @@ app.post("/farms/new", joiFarmCreationValiation, async (req, res, next) => {
 });
 app.get("/farms/:id", async (req, res, next) => {
     try {
-        const { id } = req.params, singleFarmData = await farm.findById(id);
+        const { id } = req.params, singleFarmData = await farm.findById(id), groceryProductData = await groceryProduct
+            .find({
+            farm: { _id: id },
+        })
+            .populate("farm", "name")
+            .limit(3);
         res.render("farms/singleFarm", {
             singleFarmData,
+            groceryProductData,
             capitalize,
             pageName: `${singleFarmData?.name} farm`,
         });
