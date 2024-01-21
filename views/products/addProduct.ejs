@@ -1,7 +1,7 @@
 <% layout('layouts/boilerplate') %>
 <main id="content-wrapper" class="d-flex justify-content-center align-items-center flex-column w-100 h-100 p-5">
     <h1>Add a product</h1>
-    <form class="w-75 d-flex flex-column" action="/product/new" method="post">
+    <form class="w-75 d-flex flex-column" action="/products/new" method="post">
         <input class="mb-3 p-1" type="text" name="name" placeholder="Product name" required="true">
         <% try { %>
                 <%allFarms %>
