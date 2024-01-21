@@ -65,7 +65,7 @@ app.get("/products", async (req, res, next) => {
         next(new AppError(500, _500_server));
     }
 });
-app.get("/product/new", async (req, res, next) => {
+app.get("/products/new", async (req, res, next) => {
     try {
         const allFarms = await farm.find();
         res.render("products/addProduct", {
@@ -89,7 +89,7 @@ app.get("/farms/:id/new", async (req, res, next) => {
         next(new AppError(503, _503_server_down));
     }
 });
-app.post("/product/new", joiProductCreationValidation, async (req, res, next) => {
+app.post("/products/new", joiProductCreationValidation, async (req, res, next) => {
     try {
         const { name: prodName, price: prodPrice, qty: prodQty, unit: prodUnit, category: newCategory, size: newSize, farmName: newFarmName, } = req.body, assignedFarm = await farm.findOne({ name: newFarmName }), newProd = new groceryProduct({
             name: capitalize(prodName),
@@ -107,7 +107,7 @@ app.post("/product/new", joiProductCreationValidation, async (req, res, next) =>
         next(new AppError(400, _400_user));
     }
 });
-app.get("/product/:id", async (req, res, next) => {
+app.get("/products/:id", async (req, res, next) => {
     try {
         const { id } = req.params, singleGroceryProductData = await groceryProduct
             .findById(id)
@@ -141,7 +141,7 @@ app.get("/categories/:category", async (req, res, next) => {
         next(new AppError(404, _404_cat));
     }
 });
-app.get("/products/farm/:id", async (req, res, next) => {
+app.get("/products/farms/:id", async (req, res, next) => {
     try {
         const { id } = req.params, groceryProductData = await groceryProduct
             .find({
@@ -189,7 +189,7 @@ app.get("/reset", async (req, res, next) => {
         next(new AppError(500, _500_server));
     }
 });
-app.get("/editProduct/:id", async (req, res, next) => {
+app.get("products/:id/edit", async (req, res, next) => {
     try {
         const { id } = req.params, singleGroceryProductData = await groceryProduct
             .findById(id)
@@ -270,7 +270,7 @@ app.get("/farms/:id", async (req, res, next) => {
         next(new AppError(404, _400_user));
     }
 });
-app.get("/editFarm/:id", async (req, res, next) => {
+app.get("/farms/:id/edit", async (req, res, next) => {
     try {
         const { id } = req.params, singleFarmData = await farm.findById(id);
         res.render("farms/edit", {
@@ -283,13 +283,21 @@ app.get("/editFarm/:id", async (req, res, next) => {
         next(new AppError(404, _404_edit));
     }
 });
-app.post("/editFarm/:id", joiFarmEditValiation, async (req, res, next) => {
+app.post("/farms/:id/edit", joiFarmEditValiation, async (req, res, next) => {
     try {
         const { id } = req.params, singleFarmData = await farm.findById(id);
         let { newDescription } = req.body;
         newDescription = newDescription.trim();
         await farm.updateOne({ _id: id }, { description: newDescription });
         res.redirect(`/farms/${id}`);
+    }
+    catch {
+        next(new AppError(404, _404_edit));
+    }
+});
+app.get("farms/:id/delete", async (req, res, next) => {
+    try {
+        const { id } = req.params, singleFarmData = await farm.findById(id);
     }
     catch {
         next(new AppError(404, _404_edit));

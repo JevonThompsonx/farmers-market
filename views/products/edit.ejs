@@ -3,7 +3,7 @@
     <% let {name,category,price,unit,qty,id,farm} =singleGroceryProductData %>
     <h1>Editing <i><%= capitalize(name) %></i></h1>
 
-    <form class="w-75 d-flex flex-column" action="/editProduct/<%= id %>" method="post">
+    <form class="w-75 d-flex flex-column" action="/farms/<%= id %>/edit" method="post">
         <input class="mb-3 p-1" type="text" name="qty" placeholder="current qty <%= qty %>">
         <input class="mb-3 p-1" type="text" name="price" placeholder="Current price per unit: <%= price  %>">
         <p>farm: <%= farm.name %></p>

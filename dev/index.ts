@@ -113,7 +113,7 @@ app.get("/products", async (req, res, next) => {
 	}
 });
 // get route for new product
-app.get("/product/new", async (req, res, next) => {
+app.get("/products/new", async (req, res, next) => {
 	try {
 		const allFarms = await farm.find();
 		res.render("products/addProduct", {
@@ -139,7 +139,7 @@ app.get("/farms/:id/new", async (req, res, next) => {
 });
 //post route for new product
 app.post(
-	"/product/new",
+	"/products/new",
 	joiProductCreationValidation,
 	async (req, res, next) => {
 		try {
@@ -172,7 +172,7 @@ app.post(
 );
 
 //get single product view
-app.get("/product/:id", async (req, res, next) => {
+app.get("/products/:id", async (req, res, next) => {
 	try {
 		const { id } = req.params,
 			singleGroceryProductData = await groceryProduct
@@ -209,7 +209,7 @@ app.get("/categories/:category", async (req, res, next) => {
 	}
 });
 //get route by farm
-app.get("/products/farm/:id", async (req, res, next) => {
+app.get("/products/farms/:id", async (req, res, next) => {
 	try {
 		const { id } = req.params,
 			groceryProductData = await groceryProduct
@@ -262,7 +262,7 @@ app.get("/reset", async (req, res, next) => {
 	}
 });
 //edit product route
-app.get("/editProduct/:id", async (req, res, next) => {
+app.get("products/:id/edit", async (req, res, next) => {
 	try {
 		const { id } = req.params,
 			singleGroceryProductData = await groceryProduct
@@ -361,7 +361,7 @@ app.get("/farms/:id", async (req, res, next) => {
 	}
 });
 //get edit single farm
-app.get("/editFarm/:id", async (req, res, next) => {
+app.get("/farms/:id/edit", async (req, res, next) => {
 	try {
 		const { id } = req.params,
 			singleFarmData = await farm.findById(id);
@@ -376,7 +376,7 @@ app.get("/editFarm/:id", async (req, res, next) => {
 	}
 });
 //post edit farm route
-app.post("/editFarm/:id", joiFarmEditValiation, async (req, res, next) => {
+app.post("/farms/:id/edit", joiFarmEditValiation, async (req, res, next) => {
 	try {
 		const { id } = req.params,
 			singleFarmData = await farm.findById(id);
@@ -384,6 +384,15 @@ app.post("/editFarm/:id", joiFarmEditValiation, async (req, res, next) => {
 		newDescription = newDescription.trim();
 		await farm.updateOne({ _id: id }, { description: newDescription });
 		res.redirect(`/farms/${id}`);
+	} catch {
+		next(new AppError(404, _404_edit));
+	}
+});
+//delete farm route
+app.get("farms/:id/delete", async (req, res, next) => {
+	try {
+		const { id } = req.params,
+			singleFarmData = await farm.findById(id);
 	} catch {
 		next(new AppError(404, _404_edit));
 	}
