@@ -11,6 +11,7 @@ import { imageReset, } from "./seed/utils/addBingImage.js";
 import engine from "ejs-mate";
 import { _503_server_down, _404, _404_product, _404_edit, _404_cat, _500_server, _400_user, } from "./errorCodes/index.js";
 import { joiFarmCreationValiation, joiFarmEditValiation, joiProductEditValidation, joiProductCreationValidation, } from "./utils/middleware/index.js";
+import { _400_ErrorImage, _503_serverErrorImage, } from "./errorCodes/index.js";
 const { __dirname } = fileDirName(import.meta), port = process.env.PORT || 8080, app = express();
 let pageName = "farmersMarket";
 app.engine("ejs", engine);
@@ -295,9 +296,21 @@ app.post("/farms/:id/edit", joiFarmEditValiation, async (req, res, next) => {
         next(new AppError(404, _404_edit));
     }
 });
-app.get("farms/:id/delete", async (req, res, next) => {
+app.get("/farms/:id/delete", async (req, res, next) => {
     try {
-        const { id } = req.params, singleFarmData = await farm.findById(id);
+        const { id } = req.params;
+        await farm.deleteOne({ _id: id });
+        res.redirect("/farms");
+    }
+    catch {
+        next(new AppError(404, _404_edit));
+    }
+});
+app.get("/products/:id/delete", async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        await groceryProduct.deleteOne({ _id: id });
+        res.redirect("/products");
     }
     catch {
         next(new AppError(404, _404_edit));
@@ -306,7 +319,6 @@ app.get("farms/:id/delete", async (req, res, next) => {
 app.get("*", (req, res, next) => {
     next(new AppError(404, _404));
 });
-let _500_serverErrorImage = "/images/undraw_fixing_bugs.svg", _400_ErrorImage = "/images/undraw_location_search.svg", _404_engineerErrorImage = "/images/undraw_qa_engineers.svg", _503_serverErrorImage = "/images/undraw_server_down.svg";
 app.use((err, req, res, next) => {
     const { status = 500, message = "Something went wrong" } = err;
     let link, linkText, imageSource;

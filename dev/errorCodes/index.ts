@@ -7,6 +7,12 @@ import {
 	_400_user,
 } from "./_400_user.js";
 import { _500_server, _503_server_down } from "./_500_server.js";
+import {
+	_500_serverErrorImage,
+	_400_ErrorImage,
+	_404_engineerErrorImage,
+	_503_serverErrorImage,
+} from "./_error_images.js";
 export {
 	_503_server_down,
 	_400_user,
@@ -16,4 +22,8 @@ export {
 	_404_farm,
 	_500_server,
 	_404_edit,
+	_500_serverErrorImage,
+	_400_ErrorImage,
+	_404_engineerErrorImage,
+	_503_serverErrorImage, 
 };
