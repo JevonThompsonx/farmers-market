@@ -182,7 +182,6 @@ app.get("/products/:id", async (req, res, next) => {
 				.populate(['farm','reviews']),
 			pageName = singleGroceryProductData?.name,
 			singleGroceryProductReviews = singleGroceryProductData?.reviews
-		console.log(singleGroceryProductReviews)
 		res.render("products/singleProduct", {
 			singleGroceryProductData,
 			id,

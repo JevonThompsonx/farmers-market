@@ -1,5 +1,5 @@
 <% layout('layouts/boilerplate') %>
-<% const {name,description,location,_id,imageLink} = singleFarmData,
+<% const {name,description,location,_id,imageLink,reviews} = singleFarmData,
 city = location.city,
 state = location.state,
 id = _id %>
@@ -48,31 +48,6 @@ id = _id %>
                         more...
                     </a>
 	</div>
+
+<%- include('../partials/reviewFarms.ejs',{reviews,id}) %>
 </div>
- <form class="mt-2 d-flex flex-column justify-content-evenly align-items-center" action="products/review/<%=id %>" method="post">
-      <div class="mt-2 d-flex flex-column justify-content-evenly align-items-center">
-        <label class="fs-3" for="rating">⭐ Rating ⭐</label>
-        <div class="d-flex justify-content-evenly align-items-center">
-          <p>1</p>
-          <input type="range" name="rating" id="rating" min="1" max="5" list="markers" step="1">
-          <p>5</p>
-
-        </div>
-        <datalist id="markers">
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-        </datalist>
-      </div> 
-      <div class="d-flex flex-column justify-content-evenly align-items-center">
-
-      <label class="form-label" class="fs-3" for="reviewBody">
-        Review
-      </label>
-      <textarea class="form-control" name="reviewBody" id="" cols="50" rows="10" style="max-width: 80%;">
-
-      </textarea>
-      </div>
-    </form>
