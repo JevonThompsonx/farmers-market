@@ -1,4 +1,4 @@
-import mongoose, { Schema, model } from "mongoose";
+import { Schema, model } from "mongoose";
 import { unsplash } from "../utils/index.js";
 import Joi from "joi";
 const ObjectId = Schema.Types.ObjectId,
@@ -46,17 +46,23 @@ const ObjectId = Schema.Types.ObjectId,
 			type: Date,
 			required: false,
 		},
+		reviews: [
+			{
+				type: ObjectId,
+				ref: "Review",
+			},
+		],
 	}),
 	joiFarmSchema = Joi.object({
 		name: Joi.string().required(),
 		description: Joi.string(),
 		location: Joi.object({
-			city: Joi.string(),
-			state: Joi.string(),
-		}),
+			city: Joi.string().required(),
+			state: Joi.string().required(),
+		}).required(),
 		email: Joi.string().required(),
-		farm: Joi.string().required(),
-	});
+		review: Joi.array(),
+	}).required();
 
 farmSchema.pre("save", async function (next) {
 	this.updated = new Date();

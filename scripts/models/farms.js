@@ -44,16 +44,22 @@ const ObjectId = Schema.Types.ObjectId, farmLocationSchema = new Schema({
         type: Date,
         required: false,
     },
+    reviews: [
+        {
+            type: ObjectId,
+            ref: "Review",
+        },
+    ],
 }), joiFarmSchema = Joi.object({
     name: Joi.string().required(),
     description: Joi.string(),
     location: Joi.object({
-        city: Joi.string(),
-        state: Joi.string(),
-    }),
+        city: Joi.string().required(),
+        state: Joi.string().required(),
+    }).required(),
     email: Joi.string().required(),
-    farm: Joi.string().required(),
-});
+    review: Joi.array(),
+}).required();
 farmSchema.pre("save", async function (next) {
     this.updated = new Date();
     const newImageLink = await unsplash();
