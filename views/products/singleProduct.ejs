@@ -1,44 +1,93 @@
 <% layout('layouts/boilerplate') %>
 
-<% let {name,price,size,unit,qty,category,id,imageLink,farm} = singleGroceryProductData
+<% let {name,price,size,unit,qty,category,id,imageLink,farm,reviews} = singleGroceryProductData
 %>
-<div id="productDiv"
+<div id="productdiv"
   class="content-wrapper d-flex flex-column align-items-center justify-content-center p-5 w-100 h-100">
 
   <div class="card mt-5" style="max-width:90%; height: auto;">
     <div class="row d-flex flex-md-row flex-column rounded-start">
       <div class="col d-flex justify-content-center align-items-center rounded-start">
-        <img src=<%= imageLink %> class="img-fluid rounded-start" alt="Image of <%= name %>">
+        <img src=<%= imageLink %> class="img-fluid rounded-start" alt="image of <%= name %>">
       </div>
       <div class="col">
         <div class="card-body">
           <h5 class="card-title"><%= capitalize(name) %></h5>
           <a href="/farms/<%= farm._id %>"><%= farm.name %></a>
-          <p class="">Category: <a href="/categories/<%= category %> %>"><%= category %></a> </p>
+          <p class="">category: <a href="/categories/<%= category %> %>"><%= category %></a> </p>
 
           <p class="card-text">$<%= price %> per <%=size%> <%= unit %></p>
           <% if (qty === 0) { %>
-          <p class="card-text">Sorry we're all out. Please check again tomorrow</p>
+          <p class="card-text">sorry we're all out. please check again tomorrow</p>
           <% } else if (qty <= 5) {  %>
-          <p class="card-text">Running Low! <%= qty %> left for sale</p>
+          <p class="card-text">running low! <%= qty %> left for sale</p>
 
           <% } else { %>
           <p class="card-text"> <%= qty %> left for sale</p>
 
           <% } %>
-          <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Sequi rerum sapiente explicabo perspiciatis,
+          <p>lorem, ipsum dolor sit amet consectetur adipisicing elit. sequi rerum sapiente explicabo perspiciatis,
             incidunt, fugiat maxime dignissimos neque nesciunt quos natus deserunt eius non esse!</p>
 
-          <a href="/products/<%= id %>" class="btn btn-primary">Add to cart</a>
-          <a href="/editProduct/<%= id %>" class="btn btn-primary">Edit</a>
-          <a href="/products/<%= id %>/delete" class="btn btn-primary">Delete <%= name %></a>
+          <a href="/products/<%= id %>" class="btn btn-primary">add to cart</a>
+          <a href="/editproduct/<%= id %>" class="btn btn-primary">edit</a>
+          <a href="/products/<%= id %>/delete" class="btn btn-primary">delete <%= name %></a>
 
 
         </div>
       </div>
     </div>
+
+
   </div>
 
+<h2 class="mt-5">Reviews:</h2>
+  <% for (let review of reviews ) { %>
+      
+<div class="card mb-4 border border-success" style="min-width: 300px;">
+  <div class="card-header">
+    <a href="/users/id">Username here</a>
+  </div>
+  <div class="card-body">
+    <h5 class="card-title"><%= review.ratingInStars %></h5>
+    <p class="card-text"><%= review.body %></p>
+  </div>
+</div>
+  <% } %>
 
+  <form class="mt-5 d-flex flex-column justify-content-evenly align-items-center bg-success-subtle"
+   action="/products/<%=id%>/review" method="post">
+    <div class="mt-2 d-flex flex-column justify-content-evenly align-items-center">
+      <label class="form-label" for="reviewRating">
+        <h3>⭐ Leave a review ⭐</h3>
+      </label>
+      <div class="d-flex justify-content-evenly align-items-center">
+        <p class="me-2">1</p>
+        <input class="form-range" type="range" name="reviewRating" id="reviewRating" min="1" max="5" list="markers"
+          step="1">
+        <p class="ms-2">5</p>
 
+      </div>
+      <datalist id="markers">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+      </datalist>
+    </div>
+    <div class="d-flex flex-column justify-content-evenly align-items-center">
+
+      <label class="form-label" class="" for="reviewBody">
+        <h4>Review
+        </h4>
+      </label>
+
+      <textarea class="form-control border border-success" name="reviewBody" id="reviewBody" cols="50" rows="10"
+        style="max-width: 80%;">
+
+      </textarea>
+    </div>
+
+    <input class="btn btn-success mt-2" type="submit" value="Submit review">
 </div>
