@@ -1,9 +1,7 @@
 import { joiFarmSchema, farm, farmSchema } from "../../models/index.js";
 import { Request, Response, NextFunction } from "express";
-import Joi from "joi";
 import AppError from "../AppError.js";
 import { _400_user } from "../../errorCodes/_400_user.js";
-import { checkServerIdentity } from "tls";
 const joiFarmCreationValiation = async (
 		req: Request,
 		res: Response,
@@ -20,8 +18,11 @@ const joiFarmCreationValiation = async (
 				email: email,
 			},
 			{ error } = joiFarmSchema.validate(validationObject);
+
 		if (error) {
 			next(new AppError(400, _400_user));
+		} else {
+			next();
 		}
 	},
 	joiFarmEditValiation = async (
@@ -37,6 +38,8 @@ const joiFarmCreationValiation = async (
 			{ error } = joiFarmSchema.validate(validationObject);
 		if (error) {
 			next(new AppError(400, _400_user));
+		} else {
+			next();
 		}
 	};
 
