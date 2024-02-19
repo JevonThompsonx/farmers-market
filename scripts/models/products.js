@@ -52,6 +52,12 @@ const ObjectId = Schema.Types.ObjectId, groceryProductSchema = new Schema({
         type: ObjectId,
         ref: "farm",
     },
+    reviews: [
+        {
+            type: ObjectId,
+            ref: "review",
+        },
+    ],
 }), joiProductSchema = Joi.object({
     name: Joi.string().required(),
     farmName: Joi.string().required(),
@@ -61,6 +67,7 @@ const ObjectId = Schema.Types.ObjectId, groceryProductSchema = new Schema({
     category: Joi.string().valid("fruit", "vegetable", "dairy").required(),
     imageLink: Joi.string(),
     qty: Joi.number().min(1).required(),
+    reviews: Joi.array(),
 }), joiProductEditSchema = Joi.object({
     price: Joi.number().min(1),
     size: Joi.number().min(1).max(99),
@@ -74,4 +81,4 @@ groceryProductSchema.pre("save", async function (next) {
     next();
 });
 const groceryProduct = mongoose.model("groceryProduct", groceryProductSchema);
-export { groceryProduct, groceryProductSchema, joiProductSchema, joiProductEditSchema };
+export { groceryProduct, groceryProductSchema, joiProductSchema, joiProductEditSchema, };
