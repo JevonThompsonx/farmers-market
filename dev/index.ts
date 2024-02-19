@@ -2,6 +2,7 @@
 import mongoose, { Schema } from "mongoose";
 import express, { urlencoded, Response, Request, NextFunction } from "express";
 //files
+
 import path from "path";
 import { AppError, fileDirName, capitalize } from "./utils/index.js";
 
@@ -15,22 +16,16 @@ await connectionString();
 //schema, products and farm data
 import {
 	groceryProduct,
-	groceryProductSchema,
 	farm,
-	farmSchema,
+	review,
+	reviewSchema,
+	joiReviewSchema,
 } from "./models/index.js";
 // getBing func
-import {
-	addBingImg,
-	updateAllImgs,
-	removeImgs,
-	imageReset,
-	getBing,
-} from "./seed/utils/addBingImage.js";
+import { imageReset } from "./seed/utils/addBingImage.js";
 //custom error
 //@ts-ignore
 import engine from "ejs-mate";
-
 import {
 	_503_server_down,
 	_404,
@@ -47,6 +42,7 @@ import {
 	joiFarmEditValiation,
 	joiProductEditValidation,
 	joiProductCreationValidation,
+	joiReviewValidate,
 } from "./utils/middleware/index.js";
 
 import {
@@ -65,7 +61,7 @@ let pageName = "farmersMarket";
 //layout
 app.engine("ejs", engine);
 //express set up
-app.use(express.urlencoded({ extended: true }));
+app.use(urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "../")));
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "../views"));
@@ -88,7 +84,7 @@ app.get("/products", async (req, res, next) => {
 	try {
 		const groceryProductData = await groceryProduct
 				.find()
-				.populate("farm", "name"),
+			.populate( ['farm','reviews'] ),
 			fruitData = groceryProductData.filter((data) => {
 				if (data.category === "fruit") {
 					return data;
@@ -122,7 +118,7 @@ app.get("/products", async (req, res, next) => {
 app.get("/products/new", async (req, res, next) => {
 	try {
 		const allFarms = await farm.find();
-		res.render("products/addProduct", {
+		res.render("products/new", {
 			pageName: "New Product",
 			allFarms,
 		});
@@ -135,7 +131,7 @@ app.get("/farms/:id/new", async (req, res, next) => {
 	try {
 		const { id } = req.params,
 			selectedFarm = await farm.findById(id);
-		res.render("products/addProduct", {
+		res.render("products/new", {
 			pageName: "New Product",
 			selectedFarm,
 		});
@@ -170,7 +166,7 @@ app.post(
 				}),
 				prodId = newProd._id;
 			await newProd.save();
-			res.redirect(`/product/${prodId}`);
+			res.redirect(`/products/${prodId}`);
 		} catch {
 			next(new AppError(400, _400_user));
 		}
@@ -183,8 +179,10 @@ app.get("/products/:id", async (req, res, next) => {
 		const { id } = req.params,
 			singleGroceryProductData = await groceryProduct
 				.findById(id)
-				.populate("farm", "name"),
-			pageName = singleGroceryProductData?.name;
+				.populate(['farm','reviews']),
+			pageName = singleGroceryProductData?.name,
+			singleGroceryProductReviews = singleGroceryProductData?.reviews
+		console.log(singleGroceryProductReviews)
 		res.render("products/singleProduct", {
 			singleGroceryProductData,
 			id,
@@ -203,7 +201,9 @@ app.get("/categories/:category", async (req, res, next) => {
 				.find({
 					category: `${category}`,
 				})
-				.populate("farm", "name");
+				
+			.populate( ['farm','reviews'] )
+
 		res.render("products/perCategory", {
 			groceryProductData,
 			category,
@@ -222,7 +222,7 @@ app.get("/products/farms/:id", async (req, res, next) => {
 				.find({
 					farm: { _id: id },
 				})
-				.populate("farm", "name"),
+							.populate( ['farm','reviews'] ),
 			farmName = await farm.findById(id).select("name");
 		res.render("products/perFarm", {
 			groceryProductData,
@@ -240,7 +240,7 @@ app.post("/search", async (req, res, next) => {
 			searchedProduct = searchBar.toLowerCase(),
 			unfilteredGroceryProductData = await groceryProduct
 				.find({})
-				.populate("farm"),
+				.populate(['farm','reviews']),
 			groceryProductData = unfilteredGroceryProductData.filter((data) => {
 				if (data.name.includes(searchedProduct)) {
 					return data;
@@ -273,7 +273,7 @@ app.get("products/:id/edit", async (req, res, next) => {
 		const { id } = req.params,
 			singleGroceryProductData = await groceryProduct
 				.findById(id)
-				.populate("farm", "name");
+				.populate(['farm']);
 
 		res.render("products/edit", {
 			singleGroceryProductData,
@@ -304,7 +304,7 @@ app.post(
 				)
 				.then((data) => data)
 				.catch((err) => err);
-			res.redirect(`/product/${id}`);
+			res.redirect(`/products/${id}`);
 		} catch {
 			next(new AppError(400, _400_user));
 		}
@@ -318,7 +318,7 @@ app.get("/farms", async (req, res, next) => {
 //get new farm
 app.get("/farms/new", (req, res, next) => {
 	try {
-		res.render("farms/newFarm", { pageName: "New farm" });
+		res.render("farms/new", { pageName: "New farm" });
 	} catch {
 		next(new AppError(500, _503_server_down));
 	}
@@ -326,7 +326,7 @@ app.get("/farms/new", (req, res, next) => {
 //post new farm
 app.post("/farms/new", joiFarmCreationValiation, async (req, res, next) => {
 	try {
-		const { name, email, description, city, state } = req.body,
+		const { name, description, email, city, state } = req.body,
 			newFarm = new farm({
 				name: name,
 				email: email,
@@ -336,8 +336,7 @@ app.post("/farms/new", joiFarmCreationValiation, async (req, res, next) => {
 					state: state,
 				},
 			}),
-			newFarmId = newFarm._id,
-			farmById = await farm.findById(newFarmId);
+			newFarmId = newFarm._id;
 		await newFarm.save();
 
 		res.redirect(`/farms/${newFarmId}`);
@@ -354,7 +353,7 @@ app.get("/farms/:id", async (req, res, next) => {
 				.find({
 					farm: { _id: id },
 				})
-				.populate("farm", "name")
+				.populate(['farm','reviews'])
 				.limit(3);
 		res.render("farms/singleFarm", {
 			singleFarmData,
@@ -384,8 +383,7 @@ app.get("/farms/:id/edit", async (req, res, next) => {
 //post edit farm route
 app.post("/farms/:id/edit", joiFarmEditValiation, async (req, res, next) => {
 	try {
-		const { id } = req.params,
-			singleFarmData = await farm.findById(id);
+		const { id } = req.params;
 		let { newDescription } = req.body;
 		newDescription = newDescription.trim();
 		await farm.updateOne({ _id: id }, { description: newDescription });
@@ -397,7 +395,21 @@ app.post("/farms/:id/edit", joiFarmEditValiation, async (req, res, next) => {
 //delete farm route
 app.get("/farms/:id/delete", async (req, res, next) => {
 	try {
-		const { id } = req.params;
+		const { id } = req.params,
+			allProducts = await groceryProduct.find().populate('farm'),
+			filteredProducts = allProducts.filter((product) => {
+				let parsedProduct = String(product.farm?._id);
+				if (parsedProduct === id) {
+					return product;
+				} else {
+				}
+			});
+		if (filteredProducts.length < 0) {
+			for (let product of filteredProducts) {
+				await groceryProduct.deleteOne({ _id: product._id });
+			}
+		} else {
+		}
 		await farm.deleteOne({ _id: id });
 		res.redirect("/farms");
 	} catch {
@@ -413,6 +425,28 @@ app.get("/products/:id/delete", async (req, res, next) => {
 		next(new AppError(404, _404_edit));
 	}
 });
+
+app.post("/products/:id/review", joiReviewValidate, async (req, res, next) => {
+	try {
+		let { reviewBody, reviewRating } = req.body;
+		reviewBody = reviewBody.trim()
+
+	const { id } = req.params,reviewArray = ['⭐','⭐⭐','⭐⭐⭐','⭐⭐⭐⭐','⭐⭐⭐⭐⭐'],
+		reviewToBeSaved = new review({
+			body: reviewBody,
+			rating: reviewRating,
+			ratingInStars : reviewArray[reviewRating - 1]
+		}),
+		productToBeReviewed = await groceryProduct.findById(id)
+		productToBeReviewed?.reviews.push(reviewToBeSaved._id)
+		await productToBeReviewed?.save()
+		await reviewToBeSaved.save()
+		res.redirect(`/products/${id}`)
+	} catch {
+		next(new AppError(400, _400_user));
+	}
+});
+
 // Unknown pages error route
 app.get("*", (req, res, next) => {
 	next(new AppError(404, _404));
