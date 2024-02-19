@@ -6,6 +6,7 @@ import {
 	joiProductEditSchema,
 } from "./products.js";
 import { usLocation, usLocationSchema } from "./states.js";
+import { review, reviewSchema, joiReviewSchema} from "./reviews.js"
 export {
 	farm,
 	farmSchema,
@@ -15,5 +16,5 @@ export {
 	joiProductSchema,
 	joiProductEditSchema,
 	usLocation,
-	usLocationSchema,
+	usLocationSchema,review, reviewSchema, joiReviewSchema
 };
