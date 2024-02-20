@@ -49,7 +49,7 @@ const ObjectId = Schema.Types.ObjectId,
 		reviews: [
 			{
 				type: ObjectId,
-				ref: "Review",
+				ref: "review",
 			},
 		],
 	}),

@@ -47,7 +47,7 @@ const ObjectId = Schema.Types.ObjectId, farmLocationSchema = new Schema({
     reviews: [
         {
             type: ObjectId,
-            ref: "Review",
+            ref: "review",
         },
     ],
 }), joiFarmSchema = Joi.object({

@@ -84,7 +84,7 @@ app.get("/products", async (req, res, next) => {
 	try {
 		const groceryProductData = await groceryProduct
 				.find()
-			.populate( ['farm','reviews'] ),
+				.populate(["farm", "reviews"]),
 			fruitData = groceryProductData.filter((data) => {
 				if (data.category === "fruit") {
 					return data;
@@ -179,9 +179,9 @@ app.get("/products/:id", async (req, res, next) => {
 		const { id } = req.params,
 			singleGroceryProductData = await groceryProduct
 				.findById(id)
-				.populate(['farm','reviews']),
+				.populate(["farm", "reviews"]),
 			pageName = singleGroceryProductData?.name,
-			singleGroceryProductReviews = singleGroceryProductData?.reviews
+			singleGroceryProductReviews = singleGroceryProductData?.reviews;
 		res.render("products/singleProduct", {
 			singleGroceryProductData,
 			id,
@@ -200,8 +200,8 @@ app.get("/categories/:category", async (req, res, next) => {
 				.find({
 					category: `${category}`,
 				})
-				
-			.populate( ['farm','reviews'] )
+
+				.populate(["farm", "reviews"]);
 
 		res.render("products/perCategory", {
 			groceryProductData,
@@ -221,7 +221,7 @@ app.get("/products/farms/:id", async (req, res, next) => {
 				.find({
 					farm: { _id: id },
 				})
-							.populate( ['farm','reviews'] ),
+				.populate(["farm", "reviews"]),
 			farmName = await farm.findById(id).select("name");
 		res.render("products/perFarm", {
 			groceryProductData,
@@ -239,7 +239,7 @@ app.post("/search", async (req, res, next) => {
 			searchedProduct = searchBar.toLowerCase(),
 			unfilteredGroceryProductData = await groceryProduct
 				.find({})
-				.populate(['farm','reviews']),
+				.populate(["farm", "reviews"]),
 			groceryProductData = unfilteredGroceryProductData.filter((data) => {
 				if (data.name.includes(searchedProduct)) {
 					return data;
@@ -272,7 +272,7 @@ app.get("products/:id/edit", async (req, res, next) => {
 		const { id } = req.params,
 			singleGroceryProductData = await groceryProduct
 				.findById(id)
-				.populate(['farm']);
+				.populate(["farm"]);
 
 		res.render("products/edit", {
 			singleGroceryProductData,
@@ -347,12 +347,11 @@ app.post("/farms/new", joiFarmCreationValiation, async (req, res, next) => {
 app.get("/farms/:id", async (req, res, next) => {
 	try {
 		const { id } = req.params,
-			singleFarmData = await farm.findById(id),
+			singleFarmData = await farm.findById(id).populate('reviews'),
 			groceryProductData = await groceryProduct
 				.find({
 					farm: { _id: id },
 				})
-				.populate(['farm','reviews'])
 				.limit(3);
 		res.render("farms/singleFarm", {
 			singleFarmData,
@@ -395,7 +394,7 @@ app.post("/farms/:id/edit", joiFarmEditValiation, async (req, res, next) => {
 app.get("/farms/:id/delete", async (req, res, next) => {
 	try {
 		const { id } = req.params,
-			allProducts = await groceryProduct.find().populate('farm'),
+			allProducts = await groceryProduct.find().populate("farm"),
 			filteredProducts = allProducts.filter((product) => {
 				let parsedProduct = String(product.farm?._id);
 				if (parsedProduct === id) {
@@ -428,19 +427,41 @@ app.get("/products/:id/delete", async (req, res, next) => {
 app.post("/products/:id/review", joiReviewValidate, async (req, res, next) => {
 	try {
 		let { reviewBody, reviewRating } = req.body;
-		reviewBody = reviewBody.trim()
+		reviewBody = reviewBody.trim();
 
-	const { id } = req.params,reviewArray = ['⭐','⭐⭐','⭐⭐⭐','⭐⭐⭐⭐','⭐⭐⭐⭐⭐'],
-		reviewToBeSaved = new review({
-			body: reviewBody,
-			rating: reviewRating,
-			ratingInStars : reviewArray[reviewRating - 1]
-		}),
-		productToBeReviewed = await groceryProduct.findById(id)
-		productToBeReviewed?.reviews.push(reviewToBeSaved._id)
-		await productToBeReviewed?.save()
-		await reviewToBeSaved.save()
-		res.redirect(`/products/${id}`)
+		const { id } = req.params,
+			reviewArray = ["⭐", "⭐⭐", "⭐⭐⭐", "⭐⭐⭐⭐", "⭐⭐⭐⭐⭐"],
+			reviewToBeSaved = new review({
+				body: reviewBody,
+				rating: reviewRating,
+				ratingInStars: reviewArray[reviewRating - 1],
+			}),
+			productToBeReviewed = await groceryProduct.findById(id);
+		productToBeReviewed?.reviews.push(reviewToBeSaved._id);
+		await productToBeReviewed?.save();
+		await reviewToBeSaved.save();
+		res.redirect(`/products/${id}`);
+	} catch {
+		next(new AppError(400, _400_user));
+	}
+});
+app.post("/farms/:id/review", joiReviewValidate, async (req, res, next) => {
+	try {
+		let { reviewBody, reviewRating } = req.body;
+		reviewBody = reviewBody.trim();
+
+		const { id } = req.params,
+			reviewArray = ["⭐", "⭐⭐", "⭐⭐⭐", "⭐⭐⭐⭐", "⭐⭐⭐⭐⭐"],
+			reviewToBeSaved = new review({
+				body: reviewBody,
+				rating: reviewRating,
+				ratingInStars: reviewArray[reviewRating - 1],
+			}),
+			farmToBeReviewed = await farm.findById(id);
+		farmToBeReviewed?.reviews.push(reviewToBeSaved._id);
+		await farmToBeReviewed?.save();
+		await reviewToBeSaved.save();
+		res.redirect(`/farms/${id}`);
 	} catch {
 		next(new AppError(400, _400_user));
 	}
