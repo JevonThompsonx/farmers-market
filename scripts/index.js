@@ -35,7 +35,7 @@ app.get("/products", async (req, res, next) => {
     try {
         const groceryProductData = await groceryProduct
             .find()
-            .populate(['farm', 'reviews']), fruitData = groceryProductData.filter((data) => {
+            .populate(["farm", "reviews"]), fruitData = groceryProductData.filter((data) => {
             if (data.category === "fruit") {
                 return data;
             }
@@ -112,7 +112,7 @@ app.get("/products/:id", async (req, res, next) => {
     try {
         const { id } = req.params, singleGroceryProductData = await groceryProduct
             .findById(id)
-            .populate(['farm', 'reviews']), pageName = singleGroceryProductData?.name, singleGroceryProductReviews = singleGroceryProductData?.reviews;
+            .populate(["farm", "reviews"]), pageName = singleGroceryProductData?.name, singleGroceryProductReviews = singleGroceryProductData?.reviews;
         res.render("products/singleProduct", {
             singleGroceryProductData,
             id,
@@ -130,7 +130,7 @@ app.get("/categories/:category", async (req, res, next) => {
             .find({
             category: `${category}`,
         })
-            .populate(['farm', 'reviews']);
+            .populate(["farm", "reviews"]);
         res.render("products/perCategory", {
             groceryProductData,
             category,
@@ -148,7 +148,7 @@ app.get("/products/farms/:id", async (req, res, next) => {
             .find({
             farm: { _id: id },
         })
-            .populate(['farm', 'reviews']), farmName = await farm.findById(id).select("name");
+            .populate(["farm", "reviews"]), farmName = await farm.findById(id).select("name");
         res.render("products/perFarm", {
             groceryProductData,
             pageName: farmName?.name,
@@ -163,7 +163,7 @@ app.post("/search", async (req, res, next) => {
     try {
         const { searchBar } = req.body, searchedProduct = searchBar.toLowerCase(), unfilteredGroceryProductData = await groceryProduct
             .find({})
-            .populate(['farm', 'reviews']), groceryProductData = unfilteredGroceryProductData.filter((data) => {
+            .populate(["farm", "reviews"]), groceryProductData = unfilteredGroceryProductData.filter((data) => {
             if (data.name.includes(searchedProduct)) {
                 return data;
             }
@@ -194,7 +194,7 @@ app.get("products/:id/edit", async (req, res, next) => {
     try {
         const { id } = req.params, singleGroceryProductData = await groceryProduct
             .findById(id)
-            .populate(['farm']);
+            .populate(["farm"]);
         res.render("products/edit", {
             singleGroceryProductData,
             id,
@@ -254,11 +254,10 @@ app.post("/farms/new", joiFarmCreationValiation, async (req, res, next) => {
 });
 app.get("/farms/:id", async (req, res, next) => {
     try {
-        const { id } = req.params, singleFarmData = await farm.findById(id), groceryProductData = await groceryProduct
+        const { id } = req.params, singleFarmData = await farm.findById(id).populate('reviews'), groceryProductData = await groceryProduct
             .find({
             farm: { _id: id },
         })
-            .populate(['farm', 'reviews'])
             .limit(3);
         res.render("farms/singleFarm", {
             singleFarmData,
@@ -298,7 +297,7 @@ app.post("/farms/:id/edit", joiFarmEditValiation, async (req, res, next) => {
 });
 app.get("/farms/:id/delete", async (req, res, next) => {
     try {
-        const { id } = req.params, allProducts = await groceryProduct.find().populate('farm'), filteredProducts = allProducts.filter((product) => {
+        const { id } = req.params, allProducts = await groceryProduct.find().populate("farm"), filteredProducts = allProducts.filter((product) => {
             let parsedProduct = String(product.farm?._id);
             if (parsedProduct === id) {
                 return product;
@@ -334,15 +333,33 @@ app.post("/products/:id/review", joiReviewValidate, async (req, res, next) => {
     try {
         let { reviewBody, reviewRating } = req.body;
         reviewBody = reviewBody.trim();
-        const { id } = req.params, reviewArray = ['⭐', '⭐⭐', '⭐⭐⭐', '⭐⭐⭐⭐', '⭐⭐⭐⭐⭐'], reviewToBeSaved = new review({
+        const { id } = req.params, reviewArray = ["⭐", "⭐⭐", "⭐⭐⭐", "⭐⭐⭐⭐", "⭐⭐⭐⭐⭐"], reviewToBeSaved = new review({
             body: reviewBody,
             rating: reviewRating,
-            ratingInStars: reviewArray[reviewRating - 1]
+            ratingInStars: reviewArray[reviewRating - 1],
         }), productToBeReviewed = await groceryProduct.findById(id);
         productToBeReviewed?.reviews.push(reviewToBeSaved._id);
         await productToBeReviewed?.save();
         await reviewToBeSaved.save();
         res.redirect(`/products/${id}`);
+    }
+    catch {
+        next(new AppError(400, _400_user));
+    }
+});
+app.post("/farms/:id/review", joiReviewValidate, async (req, res, next) => {
+    try {
+        let { reviewBody, reviewRating } = req.body;
+        reviewBody = reviewBody.trim();
+        const { id } = req.params, reviewArray = ["⭐", "⭐⭐", "⭐⭐⭐", "⭐⭐⭐⭐", "⭐⭐⭐⭐⭐"], reviewToBeSaved = new review({
+            body: reviewBody,
+            rating: reviewRating,
+            ratingInStars: reviewArray[reviewRating - 1],
+        }), farmToBeReviewed = await farm.findById(id);
+        farmToBeReviewed?.reviews.push(reviewToBeSaved._id);
+        await farmToBeReviewed?.save();
+        await reviewToBeSaved.save();
+        res.redirect(`/farms/${id}`);
     }
     catch {
         next(new AppError(400, _400_user));
