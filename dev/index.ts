@@ -1,5 +1,4 @@
 //Database & routing
-import mongoose, { Schema } from "mongoose";
 import express, { urlencoded, Response, Request, NextFunction } from "express";
 //files
 
@@ -18,8 +17,6 @@ import {
 	groceryProduct,
 	farm,
 	review,
-	reviewSchema,
-	joiReviewSchema,
 } from "./models/index.js";
 // getBing func
 import { imageReset } from "./seed/utils/addBingImage.js";
@@ -105,7 +102,6 @@ app.get("/products", async (req, res, next) => {
 			});
 		res.render("products/products", {
 			fruitData,
-			dairyData,
 			vegetableData,
 			pageName: "Products",
 			capitalize,
@@ -347,7 +343,7 @@ app.post("/farms/new", joiFarmCreationValiation, async (req, res, next) => {
 app.get("/farms/:id", async (req, res, next) => {
 	try {
 		const { id } = req.params,
-			singleFarmData = await farm.findById(id).populate('reviews'),
+			singleFarmData = await farm.findById(id).populate("reviews"),
 			groceryProductData = await groceryProduct
 				.find({
 					farm: { _id: id },
@@ -465,6 +461,27 @@ app.post("/farms/:id/review", joiReviewValidate, async (req, res, next) => {
 	} catch {
 		next(new AppError(400, _400_user));
 	}
+});
+app.get("/products/:productId/review/:reviewId/delete", async (req, res) => {
+	const { productId, reviewId } = req.params,
+		reviewToDelete = await review.findById(reviewId);
+
+	await groceryProduct.updateOne(
+		{ _id: productId },
+		{ $pull: { reviews: {ObjectId : reviewId }  } }
+	);
+	await review.deleteOne({ _id: reviewToDelete });
+	res.redirect(`/products/${productId}`);
+});
+app.get("/farms/:farmId/review/:reviewId/delete", async (req, res) => {
+	const { farmId, reviewId } = req.params,
+		reviewToDelete = await review.findById(reviewId);
+	await farm.updateOne(
+		{ _id: farmId },
+		{ $pull: { reviews: { $oid: reviewToDelete } } }
+	);
+	await review.deleteOne({ _id: reviewToDelete });
+	res.redirect(`/farms/${farmId}`);
 });
 
 // Unknown pages error route
