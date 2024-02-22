@@ -1,6 +1,6 @@
 import Joi from "joi";
 import mongoose, { Schema } from "mongoose";
-const ObjectId = Schema.Types.ObjectId, reviewSchema = new Schema({
+const reviewSchema = new Schema({
     body: {
         type: String,
         required: true
