@@ -1,6 +1,7 @@
 //Database & routing
 import express, { urlencoded, Response, Request, NextFunction } from "express";
 //files
+
 import path from "path";
 import { AppError, fileDirName, capitalize } from "./utils/index.js";
 
@@ -100,6 +101,7 @@ app.get("/products", async (req, res, next) => {
       vegetableData,
       pageName: "Products",
       capitalize,
+      dairyData,
     });
   } catch {
     next(new AppError(500, _500_server));
@@ -419,7 +421,6 @@ app.post("/products/:id/review", joiReviewValidate, async (req, res, next) => {
   try {
     let { reviewBody, reviewRating } = req.body;
     reviewBody = reviewBody.trim();
-
     const { id } = req.params,
       reviewArray = ["⭐", "⭐⭐", "⭐⭐⭐", "⭐⭐⭐⭐", "⭐⭐⭐⭐⭐"],
       reviewToBeSaved = new review({

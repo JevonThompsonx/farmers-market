@@ -6,7 +6,7 @@ import { configDotenv } from "dotenv";
 configDotenv({ path: "../.env" });
 import connectionString from "./utils/connectionString.js";
 await connectionString();
-import { groceryProduct, farm, review, } from "./models/index.js";
+import { groceryProduct, farm, review } from "./models/index.js";
 import { imageReset } from "./seed/utils/addBingImage.js";
 import engine from "ejs-mate";
 import { _503_server_down, _404, _404_product, _404_edit, _404_cat, _500_server, _400_user, } from "./errorCodes/index.js";
@@ -56,10 +56,10 @@ app.get("/products", async (req, res, next) => {
         });
         res.render("products/products", {
             fruitData,
-            dairyData,
             vegetableData,
             pageName: "Products",
             capitalize,
+            dairyData,
         });
     }
     catch {
@@ -365,10 +365,9 @@ app.post("/farms/:id/review", joiReviewValidate, async (req, res, next) => {
         next(new AppError(400, _400_user));
     }
 });
-("/products/<%= id %>/review/<%= review._id %>/delete");
 app.get("/products/:productId/review/:reviewId/delete", async (req, res) => {
     const { productId, reviewId } = req.params, reviewToDelete = await review.findById(reviewId);
-    await groceryProduct.updateOne({ _id: productId }, { $pull: { reviews: reviewToDelete } });
+    await groceryProduct.updateOne({ _id: productId }, { $pull: { reviews: { ObjectId: reviewId } } });
     await review.deleteOne({ _id: reviewToDelete });
     res.redirect(`/products/${productId}`);
 });
