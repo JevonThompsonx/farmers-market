@@ -297,20 +297,23 @@ app.post("/farms/:id/edit", joiFarmEditValiation, async (req, res, next) => {
 });
 app.get("/farms/:id/delete", async (req, res, next) => {
     try {
-        const { id } = req.params, allProducts = await groceryProduct.find().populate("farm"), filteredProducts = allProducts.filter((product) => {
-            let parsedProduct = String(product.farm?._id);
-            if (parsedProduct === id) {
+        const { id } = req.params, allProducts = await groceryProduct.find().populate(["farm"]), farmToDelete = await farm.findById(id), productsAttachedToFarm = allProducts.filter((product) => {
+            let parsedProductId = String(product.farm?._id);
+            if (parsedProductId === id) {
                 return product;
             }
             else {
             }
         });
-        if (filteredProducts.length < 0) {
-            for (let product of filteredProducts) {
+        if (productsAttachedToFarm.length > 0) {
+            for (let product of productsAttachedToFarm) {
                 await groceryProduct.deleteOne({ _id: product._id });
             }
         }
         else {
+        }
+        for (let singleReview in farmToDelete?.reviews) {
+            review.deleteOne({ _id: singleReview });
         }
         await farm.deleteOne({ _id: id });
         res.redirect("/farms");
