@@ -1,4 +1,5 @@
 import { Schema, model } from "mongoose";
+import { ratingSchema } from "./reviews.js";
 import { unsplash } from "../utils/index.js";
 import Joi from "joi";
 const ObjectId = Schema.Types.ObjectId, farmLocationSchema = new Schema({
@@ -50,6 +51,10 @@ const ObjectId = Schema.Types.ObjectId, farmLocationSchema = new Schema({
             ref: "review",
         },
     ],
+    rating: {
+        type: ratingSchema,
+        required: false,
+    },
 }), joiFarmSchema = Joi.object({
     name: Joi.string().required(),
     description: Joi.string(),

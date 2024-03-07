@@ -1,17 +1,16 @@
 import express, { urlencoded } from "express";
 import path from "path";
-import { AppError, fileDirName, capitalize } from "./utils/index.js";
+import { AppError, fileDirName, capitalize, } from "./utils/index.js";
 import "dotenv/config";
 import { configDotenv } from "dotenv";
 configDotenv({ path: "../.env" });
-import connectionString from "./utils/connectionString.js";
-await connectionString();
 import { groceryProduct, farm, review } from "./models/index.js";
 import { imageReset } from "./seed/utils/addBingImage.js";
 import engine from "ejs-mate";
 import { _503_server_down, _404, _404_product, _404_edit, _404_cat, _500_server, _400_user, } from "./errorCodes/index.js";
 import { joiFarmCreationValiation, joiFarmEditValiation, joiProductEditValidation, joiProductCreationValidation, joiReviewValidate, } from "./utils/middleware/index.js";
 import { _400_ErrorImage, _503_serverErrorImage, } from "./errorCodes/index.js";
+import { stars } from "./models/modelData/index.js";
 const { __dirname } = fileDirName(import.meta), port = process.env.PORT || 8080, app = express();
 let pageName = "farmersMarket";
 app.engine("ejs", engine);
@@ -336,10 +335,10 @@ app.post("/products/:id/review", joiReviewValidate, async (req, res, next) => {
     try {
         let { reviewBody, reviewRating } = req.body;
         reviewBody = reviewBody.trim();
-        const { id } = req.params, reviewArray = ["⭐", "⭐⭐", "⭐⭐⭐", "⭐⭐⭐⭐", "⭐⭐⭐⭐⭐"], reviewToBeSaved = new review({
+        const { id } = req.params, reviewToBeSaved = new review({
             body: reviewBody,
-            rating: reviewRating,
-            ratingInStars: reviewArray[reviewRating - 1],
+            ratingInNumbers: reviewRating,
+            ratingInStars: stars[reviewRating - 1],
         }), productToBeReviewed = await groceryProduct.findById(id);
         productToBeReviewed?.reviews.push(reviewToBeSaved._id);
         await productToBeReviewed?.save();
@@ -354,10 +353,10 @@ app.post("/farms/:id/review", joiReviewValidate, async (req, res, next) => {
     try {
         let { reviewBody, reviewRating } = req.body;
         reviewBody = reviewBody.trim();
-        const { id } = req.params, reviewArray = ["⭐", "⭐⭐", "⭐⭐⭐", "⭐⭐⭐⭐", "⭐⭐⭐⭐⭐"], reviewToBeSaved = new review({
+        const { id } = req.params, reviewToBeSaved = new review({
             body: reviewBody,
-            rating: reviewRating,
-            ratingInStars: reviewArray[reviewRating - 1],
+            ratingInNumbers: reviewRating,
+            ratingInStars: stars[reviewRating - 1],
         }), farmToBeReviewed = await farm.findById(id);
         farmToBeReviewed?.reviews.push(reviewToBeSaved._id);
         await farmToBeReviewed?.save();
@@ -370,13 +369,13 @@ app.post("/farms/:id/review", joiReviewValidate, async (req, res, next) => {
 });
 app.get("/products/:productId/review/:reviewId/delete", async (req, res) => {
     const { productId, reviewId } = req.params, reviewToDelete = await review.findById(reviewId);
-    await groceryProduct.updateOne({ _id: productId }, { $pull: { reviews: { ObjectId: reviewId } } });
+    await groceryProduct.updateOne({ _id: productId }, { $pull: { reviews: { _id: reviewId } } });
     await review.deleteOne({ _id: reviewToDelete });
     res.redirect(`/products/${productId}`);
 });
 app.get("/farms/:farmId/review/:reviewId/delete", async (req, res) => {
     const { farmId, reviewId } = req.params, reviewToDelete = await review.findById(reviewId);
-    await farm.updateOne({ _id: farmId }, { $pull: { reviews: { $oid: reviewToDelete } } });
+    await farm.updateOne({ _id: farmId }, { $pull: { reviews: { _id: reviewToDelete } } });
     await review.deleteOne({ _id: reviewToDelete });
     res.redirect(`/farms/${farmId}`);
 });
