@@ -3,7 +3,13 @@ import express, { urlencoded, Response, Request, NextFunction } from "express";
 //files
 
 import path from "path";
-import { AppError, fileDirName, capitalize } from "./utils/index.js";
+import {
+  AppError,
+  fileDirName,
+  capitalize,
+  updateAllProductRatings,
+  updateProductRating,
+} from "./utils/index.js";
 
 //for accessing pw safely:
 import "dotenv/config";
@@ -11,7 +17,6 @@ import { configDotenv } from "dotenv";
 configDotenv({ path: "../.env" });
 //mongoose connection string
 import connectionString from "./utils/connectionString.js";
-await connectionString();
 //schema, products and farm data
 import { groceryProduct, farm, review } from "./models/index.js";
 // getBing func
@@ -44,7 +49,7 @@ import {
   _404_engineerErrorImage,
   _503_serverErrorImage,
 } from "./errorCodes/index.js";
-import stars from "./models/modelData/index.js";
+import { stars } from "./models/modelData/index.js";
 //express setup
 const { __dirname } = fileDirName(import.meta),
   port = process.env.PORT || 8080,
