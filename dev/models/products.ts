@@ -1,19 +1,8 @@
 import mongoose, { Schema } from "mongoose";
+import { ratingSchema } from "./reviews.js";
 import getBing from "../seed/utils/getBing.js";
 import Joi from "joi";
-import { review } from "./index.js";
 const ObjectId = Schema.Types.ObjectId,
-  ratingSchema = new Schema({
-    ratingInNumbers: {
-      type: Number,
-      required: true,
-    },
-    ratingInStars: {
-      type: String,
-      required: true,
-      enum: ["⭐", "⭐⭐", "⭐⭐⭐", "⭐⭐⭐⭐", "⭐⭐⭐⭐⭐"],
-    },
-  }),
   groceryProductSchema = new Schema({
     name: {
       type: String,
@@ -101,13 +90,6 @@ groceryProductSchema.pre("save", async function(next) {
   }
   next();
 });
-
-// groceryProductSchema.pre('updateOne', async function(next) {
-//     const urlTestVar = await getBing(this.name);
-//     if (!this.imageLink || this.imageLink != urlTestVar) {this.set({imageLink:urlTestVar,updated:new Date})}
-//     console.log(urlTestVar)
-//     next();
-// });
 
 const groceryProduct = mongoose.model("groceryProduct", groceryProductSchema);
 
