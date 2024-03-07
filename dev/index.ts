@@ -44,6 +44,7 @@ import {
   _404_engineerErrorImage,
   _503_serverErrorImage,
 } from "./errorCodes/index.js";
+import stars from "./models/modelData/index.js";
 //express setup
 const { __dirname } = fileDirName(import.meta),
   port = process.env.PORT || 8080,
@@ -424,17 +425,15 @@ app.get("/products/:id/delete", async (req, res, next) => {
     next(new AppError(404, _404_edit));
   }
 });
-
 app.post("/products/:id/review", joiReviewValidate, async (req, res, next) => {
   try {
     let { reviewBody, reviewRating } = req.body;
     reviewBody = reviewBody.trim();
     const { id } = req.params,
-      reviewArray = ["⭐", "⭐⭐", "⭐⭐⭐", "⭐⭐⭐⭐", "⭐⭐⭐⭐⭐"],
       reviewToBeSaved = new review({
         body: reviewBody,
-        rating: reviewRating,
-        ratingInStars: reviewArray[reviewRating - 1],
+        ratingInNumbers: reviewRating,
+        ratingInStars: stars[reviewRating - 1],
       }),
       productToBeReviewed = await groceryProduct.findById(id);
     productToBeReviewed?.reviews.push(reviewToBeSaved._id);
@@ -451,11 +450,10 @@ app.post("/farms/:id/review", joiReviewValidate, async (req, res, next) => {
     reviewBody = reviewBody.trim();
 
     const { id } = req.params,
-      reviewArray = ["⭐", "⭐⭐", "⭐⭐⭐", "⭐⭐⭐⭐", "⭐⭐⭐⭐⭐"],
       reviewToBeSaved = new review({
         body: reviewBody,
-        rating: reviewRating,
-        ratingInStars: reviewArray[reviewRating - 1],
+        ratingInNumbers: reviewRating,
+        ratingInStars: stars[reviewRating - 1],
       }),
       farmToBeReviewed = await farm.findById(id);
     farmToBeReviewed?.reviews.push(reviewToBeSaved._id);
@@ -472,7 +470,7 @@ app.get("/products/:productId/review/:reviewId/delete", async (req, res) => {
 
   await groceryProduct.updateOne(
     { _id: productId },
-    { $pull: { reviews: { ObjectId: reviewId } } },
+    { $pull: { reviews: { _id: reviewId } } },
   );
   await review.deleteOne({ _id: reviewToDelete });
   res.redirect(`/products/${productId}`);
@@ -482,7 +480,7 @@ app.get("/farms/:farmId/review/:reviewId/delete", async (req, res) => {
     reviewToDelete = await review.findById(reviewId);
   await farm.updateOne(
     { _id: farmId },
-    { $pull: { reviews: { $oid: reviewToDelete } } },
+    { $pull: { reviews: { _id: reviewToDelete } } },
   );
   await review.deleteOne({ _id: reviewToDelete });
   res.redirect(`/farms/${farmId}`);
