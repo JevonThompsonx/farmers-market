@@ -5,7 +5,7 @@ import {
 import { groceryProduct } from "../../models/index.js";
 import randomIntGen from "../../utils/randomIntGen.js";
 import { farm } from "../../models/index.js";
-
+import { randReview } from "./generateReview.js";
 const productListLength = combinedProductList.length,
   randomNameSelector = () =>
     combinedProductList[randomIntGen(productListLength)],
@@ -27,27 +27,18 @@ const productListLength = combinedProductList.length,
       category: randomCategorySelector(),
       //imageLink is auto generated on save
       farm: farmList[randomIntGen(farmListLength)],
-      //finish this l8tr
+      reviews: [randReview(), randReview(), randReview(), randReview()],
     };
   };
 
-//
-// groceryProductSchema = new Schema({
-//
-
-//     farm: {
-//       type: ObjectId,
-//       ref: "farm",
-//     },
-//     reviews: [
-//       {
-//         type: ObjectId,
-//         ref: "review",
-//       },
-//     ],
-//     rating: {
-//       type: ratingSchema,
-//       required: false,
-//     },
-//   })
-//
+// ratingSchema = new Schema({
+//    ratingInNumbers: {
+//      type: Number,
+//      required: true,
+//    },
+//    ratingInStars: {
+//      type: String,
+//      required: true,
+//      enum: ["⭐", "⭐⭐", "⭐⭐⭐", "⭐⭐⭐⭐", "⭐⭐⭐⭐⭐"],
+//    },
+//  }),
