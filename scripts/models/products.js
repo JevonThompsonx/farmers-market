@@ -1,17 +1,8 @@
 import mongoose, { Schema } from "mongoose";
+import { ratingSchema } from "./reviews.js";
 import getBing from "../seed/utils/getBing.js";
 import Joi from "joi";
-const ObjectId = Schema.Types.ObjectId, ratingSchema = new Schema({
-    ratingInNumbers: {
-        type: Number,
-        required: true,
-    },
-    ratingInStars: {
-        type: String,
-        required: true,
-        enum: ["⭐", "⭐⭐", "⭐⭐⭐", "⭐⭐⭐⭐", "⭐⭐⭐⭐⭐"],
-    },
-}), groceryProductSchema = new Schema({
+const ObjectId = Schema.Types.ObjectId, groceryProductSchema = new Schema({
     name: {
         type: String,
         required: true,
