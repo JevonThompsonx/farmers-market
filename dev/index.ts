@@ -9,6 +9,7 @@ import {
   capitalize,
   updateAllProductRatings,
   updateProductRating,
+  updateFarmRating,
 } from "./utils/index.js";
 
 //for accessing pw safely:
@@ -257,14 +258,14 @@ app.post("/search", async (req, res, next) => {
   }
 });
 //delete and seeding mongo database
-app.get("/reset", async (req, res, next) => {
-  try {
-    await imageReset();
-    res.redirect("/products");
-  } catch {
-    next(new AppError(500, _500_server));
-  }
-});
+// app.get("/reset", async (req, res, next) => {
+//   try {
+//     await imageReset();
+//     res.redirect("/products");
+//   } catch {
+//     next(new AppError(500, _500_server));
+//   }
+// });
 //edit product route
 app.get("products/:id/edit", async (req, res, next) => {
   try {
@@ -441,9 +442,11 @@ app.post("/products/:id/review", joiReviewValidate, async (req, res, next) => {
         ratingInStars: stars[reviewRating - 1],
       }),
       productToBeReviewed = await groceryProduct.findById(id);
-    productToBeReviewed?.reviews.push(reviewToBeSaved._id);
+    productToBeReviewed?.reviews.push(reviewToBeSaved?.id);
+
     await productToBeReviewed?.save();
     await reviewToBeSaved.save();
+    await updateProductRating(productToBeReviewed?.id);
     res.redirect(`/products/${id}`);
   } catch {
     next(new AppError(400, _400_user));
@@ -464,6 +467,7 @@ app.post("/farms/:id/review", joiReviewValidate, async (req, res, next) => {
     farmToBeReviewed?.reviews.push(reviewToBeSaved._id);
     await farmToBeReviewed?.save();
     await reviewToBeSaved.save();
+    await updateFarmRating(farmToBeReviewed?.id);
     res.redirect(`/farms/${id}`);
   } catch {
     next(new AppError(400, _400_user));
