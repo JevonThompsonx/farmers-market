@@ -21,8 +21,7 @@ const updateProductRating = async (product: ObjectId) => {
     sum += element?.ratingInNumbers ?? 0;
     if (index + 1 === lengthOfReviews) {
       const rawAverage = sum / lengthOfReviews,
-        averageFloored = Math.floor(rawAverage),
-        averageInStars = stars[averageFloored - 1];
+        averageInStars = stars[Math.round(rawAverage) - 1];
       // console.log(`The average is: ${averageFloored}`);
       // console.log(
       //   `The average rating for the post is ${stars[averageFloored - 1]} `,
@@ -31,7 +30,7 @@ const updateProductRating = async (product: ObjectId) => {
         { _id: thisProduct?._id },
         {
           rating: {
-            ratingInNumbers: averageFloored,
+            ratingInNumbers: rawAverage,
             ratingInStars: averageInStars,
           },
         },

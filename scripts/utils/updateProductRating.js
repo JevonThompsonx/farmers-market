@@ -10,10 +10,10 @@ const updateProductRating = async (product) => {
         const element = await review.findById(thisProduct?.reviews[index]);
         sum += element?.ratingInNumbers ?? 0;
         if (index + 1 === lengthOfReviews) {
-            const rawAverage = sum / lengthOfReviews, averageFloored = Math.floor(rawAverage), averageInStars = stars[averageFloored - 1];
+            const rawAverage = sum / lengthOfReviews, averageInStars = stars[Math.round(rawAverage) - 1];
             const updatedProduct = await groceryProduct.updateOne({ _id: thisProduct?._id }, {
                 rating: {
-                    ratingInNumbers: averageFloored,
+                    ratingInNumbers: rawAverage,
                     ratingInStars: averageInStars,
                 },
             });

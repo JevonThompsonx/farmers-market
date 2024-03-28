@@ -4,7 +4,7 @@
 // add all Farm ratings together and find an average
 
 import connectionString from "./connectionString.js";
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction, raw } from "express";
 import { farm } from "../models/index.js";
 import { review, rating } from "../models/index.js";
 import { stars } from "../models/modelData/index.js";
@@ -20,8 +20,8 @@ const updateFarmRating = async (singleFarm: ObjectId) => {
     sum += element?.ratingInNumbers ?? 0;
     if (index + 1 === lengthOfReviews) {
       const rawAverage = sum / lengthOfReviews,
-        averageFloored = Math.floor(rawAverage),
-        averageInStars = stars[averageFloored - 1];
+        averageInStars = stars[Math.round(rawAverage) - 1];
+
       // console.log(`The average is: ${averageFloored}`);
       // console.log(
       //   `The average rating for the post is ${stars[averageFloored - 1]} `,
@@ -30,7 +30,7 @@ const updateFarmRating = async (singleFarm: ObjectId) => {
         { _id: singleFarm ?? thisFarm?._id },
         {
           rating: {
-            ratingInNumbers: averageFloored,
+            ratingInNumbers: rawAverage,
             ratingInStars: averageInStars,
           },
         },

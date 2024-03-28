@@ -1,14 +1,15 @@
 import express, { urlencoded } from "express";
 import path from "path";
-import { AppError, fileDirName, capitalize, } from "./utils/index.js";
+import { AppError, fileDirName, capitalize, updateProductRating, updateFarmRating, } from "./utils/index.js";
 import "dotenv/config";
 import { configDotenv } from "dotenv";
 configDotenv({ path: "../.env" });
+import connectionString from "./utils/connectionString.js";
+await connectionString();
 import { groceryProduct, farm, review } from "./models/index.js";
-import { imageReset } from "./seed/utils/addBingImage.js";
 import engine from "ejs-mate";
 import { _503_server_down, _404, _404_product, _404_edit, _404_cat, _500_server, _400_user, } from "./errorCodes/index.js";
-import { joiFarmCreationValiation, joiFarmEditValiation, joiProductEditValidation, joiProductCreationValidation, joiReviewValidate, } from "./utils/middleware/index.js";
+import { joiFarmCreationValiation, joiFarmEditValiation, joiProductCreationValidation, joiProductEditValidation, joiReviewValidate, } from "./utils/middleware/index.js";
 import { _400_ErrorImage, _503_serverErrorImage, } from "./errorCodes/index.js";
 import { stars } from "./models/modelData/index.js";
 const { __dirname } = fileDirName(import.meta), port = process.env.PORT || 8080, app = express();
@@ -180,15 +181,6 @@ app.post("/search", async (req, res, next) => {
         next(new AppError(500, _500_server));
     }
 });
-app.get("/reset", async (req, res, next) => {
-    try {
-        await imageReset();
-        res.redirect("/products");
-    }
-    catch {
-        next(new AppError(500, _500_server));
-    }
-});
 app.get("products/:id/edit", async (req, res, next) => {
     try {
         const { id } = req.params, singleGroceryProductData = await groceryProduct
@@ -340,9 +332,10 @@ app.post("/products/:id/review", joiReviewValidate, async (req, res, next) => {
             ratingInNumbers: reviewRating,
             ratingInStars: stars[reviewRating - 1],
         }), productToBeReviewed = await groceryProduct.findById(id);
-        productToBeReviewed?.reviews.push(reviewToBeSaved._id);
+        productToBeReviewed?.reviews.push(reviewToBeSaved?.id);
         await productToBeReviewed?.save();
         await reviewToBeSaved.save();
+        await updateProductRating(productToBeReviewed?.id);
         res.redirect(`/products/${id}`);
     }
     catch {
@@ -361,6 +354,7 @@ app.post("/farms/:id/review", joiReviewValidate, async (req, res, next) => {
         farmToBeReviewed?.reviews.push(reviewToBeSaved._id);
         await farmToBeReviewed?.save();
         await reviewToBeSaved.save();
+        await updateFarmRating(farmToBeReviewed?.id);
         res.redirect(`/farms/${id}`);
     }
     catch {

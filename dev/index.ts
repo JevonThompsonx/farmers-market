@@ -1,7 +1,6 @@
 //Database & routing
 import express, { urlencoded, Response, Request, NextFunction } from "express";
 //files
-
 import path from "path";
 import {
   AppError,
@@ -18,12 +17,10 @@ import { configDotenv } from "dotenv";
 configDotenv({ path: "../.env" });
 //mongoose connection string
 import connectionString from "./utils/connectionString.js";
+await connectionString()
 //schema, products and farm data
 import { groceryProduct, farm, review } from "./models/index.js";
-// getBing func
-import { imageReset } from "./seed/utils/addBingImage.js";
-//custom error
-//@ts-ignore
+// @ts-ignore
 import engine from "ejs-mate";
 import {
   _503_server_down,
@@ -39,8 +36,8 @@ import {
 import {
   joiFarmCreationValiation,
   joiFarmEditValiation,
-  joiProductEditValidation,
   joiProductCreationValidation,
+  joiProductEditValidation,
   joiReviewValidate,
 } from "./utils/middleware/index.js";
 

@@ -1,6 +1,4 @@
-import { configDotenv } from "dotenv";
 import "dotenv/config";
-configDotenv({ path: "../../.env" });
 import getBing from "./getBing.js";
 import { groceryProduct } from "../../models/products.js";
 const addBingImg = async (productName) => {

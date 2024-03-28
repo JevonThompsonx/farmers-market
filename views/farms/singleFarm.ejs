@@ -1,5 +1,5 @@
 <% layout('layouts/boilerplate') %>
-<% const {name,description,location,_id,imageLink,reviews} = singleFarmData,
+<% const {name,description,location,_id,imageLink,reviews,rating} = singleFarmData,
 city = location.city,
 state = location.state,
 id = _id %>
@@ -16,6 +16,10 @@ id = _id %>
                 <div class="card-body">
                     <h2 class="card-title"><%= capitalize(name) %></h2>
 
+  <% if (rating) { %>
+ <h5> <%=rating.ratingInNumbers %> <%= rating.ratingInStars %> </h5>
+              <% } else { %>
+              <% }%>
                     <h3 class="card-text">Location : </h3>
                     <p class="card-text"><%= city %>, <%= state  %></p>
                     <p class="card-text"><%= description %></p>

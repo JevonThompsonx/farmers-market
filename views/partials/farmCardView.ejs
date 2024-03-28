@@ -1,4 +1,4 @@
-<% const {name,description,location,_id,imageLink} = singleFarmData,
+<% const {name,description,location,_id,imageLink, rating} = singleFarmData,
 city = location.city,
 state = location.state,
 id = _id %>
@@ -7,12 +7,19 @@ id = _id %>
     <img src=<%= imageLink %> class="img-fluid" alt="Image of the <%= name %> farm">
     <div class=" card-body d-flex flex-column justify-content-evenly">
         <h2 class="card-title"><%= capitalize(name) %></h2>
+
+
+  <% if (rating) { %>
+ <h5> <%=rating.ratingInNumbers %> <%= rating.ratingInStars %> </h5>
+              <% } else { %>
+              <% }%>
         <p class="card-text"><%= city %>, <%= state  %></p>
         <p class="card-text"><%= description %></p>
         <a href="/farms/<%= id %>" class="btn btn-outline-primary mb-1
         ">View Farm</a>
 
         <a class="btn btn-outline-success mb-1 " href="/products/farms/<%= id %>">
+
             View <%= name %> products
         </a>
     </div>

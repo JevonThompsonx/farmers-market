@@ -1,10 +1,15 @@
 		<div class="card singleProduct mb-5" style="width: 18rem;">
 
-			<% let {name,price,unit,qty,category,id,imageLink,farm} = singleProduct %>
+			<% let {name,price,unit,qty,category,id,imageLink,farm,rating} = singleProduct %>
 			<img src="<%= imageLink %>" class="card-img-top" alt="An image of <%= name %>">
 			<div class="card-body">
 				<h5 class="card-title"><%=capitalize(name) %></h5>
-				<p class="card-text">$<%=price %> per
+
+   <% if (rating) { %>
+ <h5> <%=rating.ratingInNumbers %> <%= rating.ratingInStars %> </h5>
+              <% } else { %>
+              <% }%>
+				<p class="card-text">$<%=price %>
 					<% try { %>
 					<%= size %> <%= unit %></p>
 
@@ -16,9 +21,13 @@
 				<% if (qty === 0) { %>
 				<p class="card-text">Sorry we're all out. Please check again tomorrow</p>
 				<% } else if (qty > 10 ) { %>
-				<p class="card-text"><%= qty %> <%= unit %> left</p>
+				<p class="card-text"><%= qty %> <%= unit %> of <%= name %>s  left</p>
+
+				<% } else if (qty === 1 ) { %>
+
+				<p class="card-text">act now! only <%= qty %> <%= name %> left</p>
 				<% } else { %>
-				<p class="card-text">act now! only <%= qty %> <%= unit %> left</p>
+				<p class="card-text">act now! only <%= qty %> <%= name %>s left</p>
 				<% } %>
 				<a href="/products/<%= id %>" class="btn btn-primary">More info</a>
 				<a href="#" class="btn btn-primary">Add to cart</a>

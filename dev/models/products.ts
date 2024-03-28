@@ -26,6 +26,11 @@ const ObjectId = Schema.Types.ObjectId,
       enum: ["oz", "fl oz", "lbs", "item"],
       lowercase: true,
     },
+    form: {
+      type: String,
+      required: true,
+      enum: ["Whole", "Sliced", "Frozen"],
+    },
     qty: {
       type: Number,
       required: false,
@@ -84,8 +89,8 @@ const ObjectId = Schema.Types.ObjectId,
 
 groceryProductSchema.pre("save", async function(next) {
   this.updated = new Date();
-  const newImageLink = await getBing(this.name);
-  if (!this.imageLink || this.imageLink != newImageLink) {
+  if (!this.imageLink) {
+    const newImageLink = await getBing(this.name);
     this.imageLink = newImageLink;
   }
   next();

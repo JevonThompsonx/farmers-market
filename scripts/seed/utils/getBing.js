@@ -1,7 +1,7 @@
 import axios from "axios";
 import { configDotenv } from "dotenv";
 import "dotenv/config";
-configDotenv({ path: "../../.env" });
+configDotenv({ path: "../../../.env" });
 const BING_KEY = process.env.BING_KEY;
 export default async function (search) {
     const result = await axios.get("https://api.bing.microsoft.com/v7.0/images/search", {
