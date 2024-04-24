@@ -1,7 +1,5 @@
-//Database & routing
-import express, { urlencoded, Response, Request, NextFunction } from "express";
-//files
-import path from "path";
+import express, { NextFunction } from "express";
+import path from "node:path";
 import {
   AppError,
   fileDirName,
@@ -49,16 +47,17 @@ import {
 } from "./errorCodes/index.js";
 import { stars } from "./models/modelData/index.js";
 //express setup
-const { __dirname } = fileDirName(import.meta),
-  port = process.env.PORT || 8080,
-  app = express(); //shortcut for executed express
+const { __dirname } = fileDirName(import.meta)
+const
+  port = process.env.PORT || 8080
+  export const app = express(); //shortcut for executed express
 
 //default pageName
-let pageName = "farmersMarket";
+const pageName = "farmersMarket";
 //layout
 app.engine("ejs", engine);
 //express set up
-app.use(urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "../")));
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "../views"));
@@ -76,41 +75,6 @@ app.get("/", async (req, res, next) => {
     next(new AppError(500, _503_server_down));
   }
 });
-//all products view
-app.get("/products", async (req, res, next) => {
-  try {
-    const groceryProductData = await groceryProduct
-      .find()
-      .populate(["farm", "reviews"]),
-      fruitData = groceryProductData.filter((data) => {
-        if (data.category === "fruit") {
-          return data;
-        } else {
-        }
-      }),
-      dairyData = groceryProductData.filter((data) => {
-        if (data.category === "dairy") {
-          return data;
-        } else {
-        }
-      }),
-      vegetableData = groceryProductData.filter((data) => {
-        if (data.category === "vegetable") {
-          return data;
-        } else {
-        }
-      });
-    res.render("products/products", {
-      fruitData,
-      vegetableData,
-      pageName: "Products",
-      capitalize,
-      dairyData,
-    });
-  } catch {
-    next(new AppError(500, _500_server));
-  }
-});
 // get route for new product
 app.get("/products/new", async (req, res, next) => {
   try {
@@ -126,8 +90,8 @@ app.get("/products/new", async (req, res, next) => {
 //get new product on farm route
 app.get("/farms/:id/new", async (req, res, next) => {
   try {
-    const { id } = req.params,
-      selectedFarm = await farm.findById(id);
+    const { id } = req.params;
+    const selectedFarm = await farm.findById(id);
     res.render("products/new", {
       pageName: "New Product",
       selectedFarm,
@@ -150,9 +114,9 @@ app.post(
         category: newCategory,
         size: newSize,
         farmName: newFarmName,
-      } = req.body,
-        assignedFarm = await farm.findOne({ name: newFarmName }),
-        newProd = new groceryProduct({
+      } = req.body;
+      const assignedFarm = await farm.findOne({ name: newFarmName });
+      const newProd = new groceryProduct({
           name: capitalize(prodName),
           price: prodPrice,
           qty: prodQty,
@@ -160,8 +124,8 @@ app.post(
           category: newCategory,
           size: newSize || 1,
           farm: assignedFarm,
-        }),
-        prodId = newProd._id;
+        });
+      const prodId = newProd._id;
       await newProd.save();
       res.redirect(`/products/${prodId}`);
     } catch {
@@ -173,12 +137,12 @@ app.post(
 //get single product view
 app.get("/products/:id", async (req, res, next) => {
   try {
-    const { id } = req.params,
-      singleGroceryProductData = await groceryProduct
+    const { id } = req.params;
+    const singleGroceryProductData = await groceryProduct
         .findById(id)
-        .populate(["farm", "reviews"]),
-      pageName = singleGroceryProductData?.name,
-      singleGroceryProductReviews = singleGroceryProductData?.reviews;
+        .populate(["farm", "reviews"]);
+    const pageName = singleGroceryProductData?.name;
+    const singleGroceryProductReviews = singleGroceryProductData?.reviews;
     res.render("products/singleProduct", {
       singleGroceryProductData,
       id,
@@ -192,8 +156,8 @@ app.get("/products/:id", async (req, res, next) => {
 //get category view of products
 app.get("/categories/:category", async (req, res, next) => {
   try {
-    const { category } = req.params,
-      groceryProductData = await groceryProduct
+    const { category } = req.params;
+    const groceryProductData = await groceryProduct
         .find({
           category: `${category}`,
         })
@@ -213,13 +177,13 @@ app.get("/categories/:category", async (req, res, next) => {
 //get route by farm
 app.get("/products/farms/:id", async (req, res, next) => {
   try {
-    const { id } = req.params,
-      groceryProductData = await groceryProduct
+    const { id } = req.params;
+    const groceryProductData = await groceryProduct
         .find({
           farm: { _id: id },
         })
-        .populate(["farm", "reviews"]),
-      farmName = await farm.findById(id).select("name");
+        .populate(["farm", "reviews"]);
+    const farmName = await farm.findById(id).select("name");
     res.render("products/perFarm", {
       groceryProductData,
       pageName: farmName?.name,
@@ -232,15 +196,14 @@ app.get("/products/farms/:id", async (req, res, next) => {
 //searched view of products
 app.post("/search", async (req, res, next) => {
   try {
-    const { searchBar } = req.body,
-      searchedProduct = searchBar.toLowerCase(),
-      unfilteredGroceryProductData = await groceryProduct
+    const { searchBar } = req.body;
+    const searchedProduct = searchBar.toLowerCase();
+    const unfilteredGroceryProductData = await groceryProduct
         .find({})
-        .populate(["farm", "reviews"]),
-      groceryProductData = unfilteredGroceryProductData.filter((data) => {
+        .populate(["farm", "reviews"]);
+    const groceryProductData = unfilteredGroceryProductData.filter((data) => {
         if (data.name.includes(searchedProduct)) {
           return data;
-        } else {
         }
       });
 
@@ -266,15 +229,15 @@ app.post("/search", async (req, res, next) => {
 //edit product route
 app.get("products/:id/edit", async (req, res, next) => {
   try {
-    const { id } = req.params,
-      singleGroceryProductData = await groceryProduct
+    const { id } = req.params;
+    const singleGroceryProductData = await groceryProduct
         .findById(id)
         .populate(["farm"]);
 
     res.render("products/edit", {
       singleGroceryProductData,
       id,
-      pageName: `Edit | ${singleGroceryProductData?.name}` || `Edit `,
+      pageName: `Edit | ${singleGroceryProductData?.name}` ,
       capitalize,
     });
   } catch {
@@ -287,9 +250,9 @@ app.post(
   joiProductEditValidation,
   async (req, res, next) => {
     try {
-      const { id } = req.params,
-        { price: prodPrice, qty: prodQty } = req.body,
-        currentProduct = await groceryProduct.findById(id);
+      const { id } = req.params;
+      const { price: prodPrice, qty: prodQty } = req.body;
+      const currentProduct = await groceryProduct.findById(id);
       await groceryProduct
         .updateOne(
           { _id: id },
@@ -322,8 +285,8 @@ app.get("/farms/new", (req, res, next) => {
 //post new farm
 app.post("/farms/new", joiFarmCreationValiation, async (req, res, next) => {
   try {
-    const { name, description, email, city, state } = req.body,
-      newFarm = new farm({
+    const { name, description, email, city, state } = req.body;
+    const newFarm = new farm({
         name: name,
         email: email,
         description: description,
@@ -331,8 +294,8 @@ app.post("/farms/new", joiFarmCreationValiation, async (req, res, next) => {
           city: city,
           state: state,
         },
-      }),
-      newFarmId = newFarm._id;
+      });
+    const newFarmId = newFarm._id;
     await newFarm.save();
 
     res.redirect(`/farms/${newFarmId}`);
@@ -343,9 +306,9 @@ app.post("/farms/new", joiFarmCreationValiation, async (req, res, next) => {
 //get single farm
 app.get("/farms/:id", async (req, res, next) => {
   try {
-    const { id } = req.params,
-      singleFarmData = await farm.findById(id).populate("reviews"),
-      groceryProductData = await groceryProduct
+    const { id } = req.params;
+    const singleFarmData = await farm.findById(id).populate("reviews");
+    const groceryProductData = await groceryProduct
         .find({
           farm: { _id: id },
         })
@@ -363,8 +326,8 @@ app.get("/farms/:id", async (req, res, next) => {
 //get edit single farm
 app.get("/farms/:id/edit", async (req, res, next) => {
   try {
-    const { id } = req.params,
-      singleFarmData = await farm.findById(id);
+    const { id } = req.params;
+    const singleFarmData = await farm.findById(id);
 
     res.render("farms/edit", {
       singleFarmData,
@@ -390,25 +353,24 @@ app.post("/farms/:id/edit", joiFarmEditValiation, async (req, res, next) => {
 //delete farm route
 app.get("/farms/:id/delete", async (req, res, next) => {
   try {
-    const { id } = req.params,
-      allProducts = await groceryProduct.find().populate(["farm"]),
-      farmToDelete = await farm.findById(id),
-      productsAttachedToFarm = allProducts.filter((product) => {
-        let parsedProductId = String(product.farm?._id);
+    const { id } = req.params;
+    const allProducts = await groceryProduct.find().populate(["farm"]);
+    const farmToDelete = await farm.findById(id);
+    const productsAttachedToFarm = allProducts.filter((product) => {
+        const parsedProductId = String(product.farm?._id);
         if (parsedProductId === id) {
           return product;
-        } else {
         }
       });
 
     if (productsAttachedToFarm.length > 0) {
-      for (let product of productsAttachedToFarm) {
+      for (const product of productsAttachedToFarm) {
         await groceryProduct.deleteOne({ _id: product._id });
       }
     } else {
     }
 
-    for (let singleReview in farmToDelete?.reviews) {
+    for (const singleReview in farmToDelete?.reviews) {
       review.deleteOne({ _id: singleReview });
     }
 
@@ -432,13 +394,13 @@ app.post("/products/:id/review", joiReviewValidate, async (req, res, next) => {
   try {
     let { reviewBody, reviewRating } = req.body;
     reviewBody = reviewBody.trim();
-    const { id } = req.params,
-      reviewToBeSaved = new review({
+    const { id } = req.params;
+    const reviewToBeSaved = new review({
         body: reviewBody,
         ratingInNumbers: reviewRating,
         ratingInStars: stars[reviewRating - 1],
-      }),
-      productToBeReviewed = await groceryProduct.findById(id);
+      });
+    const productToBeReviewed = await groceryProduct.findById(id);
     productToBeReviewed?.reviews.push(reviewToBeSaved?.id);
 
     await productToBeReviewed?.save();
@@ -454,13 +416,13 @@ app.post("/farms/:id/review", joiReviewValidate, async (req, res, next) => {
     let { reviewBody, reviewRating } = req.body;
     reviewBody = reviewBody.trim();
 
-    const { id } = req.params,
-      reviewToBeSaved = new review({
+    const { id } = req.params;
+    const reviewToBeSaved = new review({
         body: reviewBody,
         ratingInNumbers: reviewRating,
         ratingInStars: stars[reviewRating - 1],
-      }),
-      farmToBeReviewed = await farm.findById(id);
+      });
+    const farmToBeReviewed = await farm.findById(id);
     farmToBeReviewed?.reviews.push(reviewToBeSaved._id);
     await farmToBeReviewed?.save();
     await reviewToBeSaved.save();
@@ -468,11 +430,13 @@ app.post("/farms/:id/review", joiReviewValidate, async (req, res, next) => {
     res.redirect(`/farms/${id}`);
   } catch {
     next(new AppError(400, _400_user));
+
   }
-});
+}
+  )
 app.get("/products/:productId/review/:reviewId/delete", async (req, res) => {
-  const { productId, reviewId } = req.params,
-    reviewToDelete = await review.findById(reviewId);
+  const { productId, reviewId } = req.params;
+  const reviewToDelete = await review.findById(reviewId);
 
   await groceryProduct.updateOne(
     { _id: productId },
@@ -482,8 +446,8 @@ app.get("/products/:productId/review/:reviewId/delete", async (req, res) => {
   res.redirect(`/products/${productId}`);
 });
 app.get("/farms/:farmId/review/:reviewId/delete", async (req, res) => {
-  const { farmId, reviewId } = req.params,
-    reviewToDelete = await review.findById(reviewId);
+  const { farmId, reviewId } = req.params;
+  const reviewToDelete = await review.findById(reviewId);
   await farm.updateOne(
     { _id: farmId },
     { $pull: { reviews: { _id: reviewToDelete } } },
@@ -496,17 +460,21 @@ app.get("/farms/:farmId/review/:reviewId/delete", async (req, res) => {
 app.get("*", (req, res, next) => {
   next(new AppError(404, _404));
 });
-
-app.use((err: AppError, req: Request, res: Response, next: NextFunction) => {
+//@ts-ignore
+app.use((err: AppError, req, res, next):void => {
   const { status = 500, message = "Something went wrong" } = err;
-  let link, linkText, imageSource;
+  let link:string;
+  let linkText:string;
+  let imageSource:string;
   if (status === 400 || status === 404) {
-    (link = "/"), (linkText = "Home"), (imageSource = _400_ErrorImage);
+     link = "/";
+      linkText = "Home";
+        imageSource = _400_ErrorImage;
   } else {
     //500
-    (link = "/contact"),
-      (linkText = "Contact me"),
-      (imageSource = _503_serverErrorImage);
+    link = "/contact";
+      linkText = "Contact me";
+      imageSource = _503_serverErrorImage;
   }
   res.render("error", {
     pageName: `${status} Error`,
