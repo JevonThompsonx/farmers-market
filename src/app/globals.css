@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+/* Design token system */
+:root {
+  /* Brand colors */
+  --color-brand-50: oklch(97% 0.03 145);
+  --color-brand-100: oklch(94% 0.07 145);
+  --color-brand-200: oklch(88% 0.12 145);
+  --color-brand-300: oklch(80% 0.17 145);
+  --color-brand-400: oklch(70% 0.20 145);
+  --color-brand-500: oklch(60% 0.22 145);
+  --color-brand-600: oklch(50% 0.20 145);
+  --color-brand-700: oklch(40% 0.17 145);
+  --color-brand-800: oklch(30% 0.12 145);
+  --color-brand-900: oklch(22% 0.08 145);
+
+  /* Semantic colors */
+  --color-bg: oklch(99% 0.005 145);
+  --color-bg-subtle: oklch(96% 0.01 145);
+  --color-surface: oklch(100% 0 0);
+  --color-border: oklch(88% 0.01 145);
+  --color-text: oklch(15% 0.02 145);
+  --color-text-muted: oklch(50% 0.02 145);
+
+  /* Typography scale */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+
+  /* Border radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: oklch(14% 0.02 145);
+    --color-bg-subtle: oklch(18% 0.02 145);
+    --color-surface: oklch(20% 0.02 145);
+    --color-border: oklch(30% 0.03 145);
+    --color-text: oklch(95% 0.01 145);
+    --color-text-muted: oklch(65% 0.02 145);
+  }
+}
+
+[data-theme="dark"] {
+  --color-bg: oklch(14% 0.02 145);
+  --color-bg-subtle: oklch(18% 0.02 145);
+  --color-surface: oklch(20% 0.02 145);
+  --color-border: oklch(30% 0.03 145);
+  --color-text: oklch(95% 0.01 145);
+  --color-text-muted: oklch(65% 0.02 145);
+}
+
+[data-theme="light"] {
+  --color-bg: oklch(99% 0.005 145);
+  --color-bg-subtle: oklch(96% 0.01 145);
+  --color-surface: oklch(100% 0 0);
+  --color-border: oklch(88% 0.01 145);
+  --color-text: oklch(15% 0.02 145);
+  --color-text-muted: oklch(50% 0.02 145);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}

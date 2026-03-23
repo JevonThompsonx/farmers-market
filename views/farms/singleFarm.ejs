@@ -29,9 +29,9 @@ id = _id %>
                     <a class="btn btn-outline-success mb-1 " href="/products/farms/<%= id %>">
                         View <%= name %> products
                     </a>
-                     <a class="btn btn-outline-danger mb-1 " href="/farms/<%= id %>/delete">
-                        Delete <%= name %> farm
-                    </a>
+                    <form method="POST" action="/farms/<%= id %>/delete" style="display:inline;">
+                        <button type="submit" class="btn btn-outline-danger mb-1">Delete <%= name %> farm</button>
+                    </form>
                 </div>
             </div>
         </div>

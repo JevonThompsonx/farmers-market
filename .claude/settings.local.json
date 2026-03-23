@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat c:/Users/Jevon/Nextcloud/Projects/farmers-market/dev/utils/middleware/*.ts)",
+      "Bash(c:/Users/Jevon/Nextcloud/Projects/farmers-market/dev/types/ejs-mate.d.ts:*)",
+      "Bash(c:/Users/Jevon/Nextcloud/Projects/farmers-market/.gitignore:*)",
+      "Bash(c:/Users/Jevon/Nextcloud/Projects/farmers-market/.env.example:*)"
+    ]
+  }
+}

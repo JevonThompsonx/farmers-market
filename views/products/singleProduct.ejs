@@ -31,7 +31,9 @@
 
           <a href="/products/<%= id %>" class="btn btn-primary">add to cart</a>
           <a href="/editproduct/<%= id %>" class="btn btn-primary">edit</a>
-          <a href="/products/<%= id %>/delete" class="btn btn-primary">delete <%= name %></a>
+          <form method="POST" action="/products/<%= id %>/delete" style="display:inline;">
+            <button type="submit" class="btn btn-danger">delete <%= name %></button>
+          </form>
 
 
         </div>

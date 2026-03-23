@@ -23,7 +23,6 @@ import { groceryProduct, farm, review } from "./models/index.js";
 // getBing func
 import { imageReset } from "./seed/utils/addBingImage.js";
 //custom error
-//@ts-ignore
 import engine from "ejs-mate";
 import {
   _503_server_down,
@@ -391,7 +390,7 @@ app.post("/farms/:id/edit", joiFarmEditValiation, async (req, res, next) => {
   }
 });
 //delete farm route
-app.get("/farms/:id/delete", async (req, res, next) => {
+app.post("/farms/:id/delete", async (req, res, next) => {
   try {
     const { id } = req.params,
       allProducts = await groceryProduct.find().populate(["farm"]),
@@ -422,7 +421,7 @@ app.get("/farms/:id/delete", async (req, res, next) => {
     next(new AppError(404, _404_edit));
   }
 });
-app.get("/products/:id/delete", async (req, res, next) => {
+app.post("/products/:id/delete", async (req, res, next) => {
   try {
     const { id } = req.params;
     await groceryProduct.deleteOne({ _id: id });
@@ -473,7 +472,7 @@ app.post("/farms/:id/review", joiReviewValidate, async (req, res, next) => {
     next(new AppError(400, _400_user));
   }
 });
-app.get("/products/:productId/review/:reviewId/delete", async (req, res) => {
+app.post("/products/:productId/review/:reviewId/delete", async (req, res) => {
   const { productId, reviewId } = req.params,
     reviewToDelete = await review.findById(reviewId);
 
@@ -484,7 +483,7 @@ app.get("/products/:productId/review/:reviewId/delete", async (req, res) => {
   await review.deleteOne({ _id: reviewToDelete });
   res.redirect(`/products/${productId}`);
 });
-app.get("/farms/:farmId/review/:reviewId/delete", async (req, res) => {
+app.post("/farms/:farmId/review/:reviewId/delete", async (req, res) => {
   const { farmId, reviewId } = req.params,
     reviewToDelete = await review.findById(reviewId);
   await farm.updateOne(
