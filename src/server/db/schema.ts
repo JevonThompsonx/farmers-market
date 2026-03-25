@@ -1,5 +1,4 @@
 import { sql } from "drizzle-orm";
-import { randomUUID } from "crypto";
 import {
   text,
   integer,
@@ -28,7 +27,7 @@ export const users = sqliteTable("users", {
 export const accounts = sqliteTable("accounts", {
   id: text("id")
     .primaryKey()
-    .$defaultFn(() => randomUUID()),
+    .$defaultFn(() => crypto.randomUUID()),
   userId: text("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
@@ -47,7 +46,7 @@ export const accounts = sqliteTable("accounts", {
 export const sessions = sqliteTable("sessions", {
   id: text("id")
     .primaryKey()
-    .$defaultFn(() => randomUUID()),
+    .$defaultFn(() => crypto.randomUUID()),
   sessionToken: text("session_token").notNull().unique(),
   userId: text("user_id")
     .notNull()
