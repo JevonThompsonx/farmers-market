@@ -1,6 +1,6 @@
 # Farmers Market — Migration Plan
 
-> **Status:** Planning phase — no code written yet.
+> **Status:** Phase 6 complete — frontend rebuild done. Phases 7–9 remaining.
 > **Target stack:** Next.js (App Router) · Turso (LibSQL) · Drizzle ORM · Auth.js v5 · Tailwind CSS 4 · Cloudinary · Vercel · bun
 
 ---
@@ -61,23 +61,35 @@ Switch in Phase 2. `bun.lockb` replaces `pnpm-lock.yaml`. All CI scripts use `bu
 
 ---
 
+## AI Assignment Key
+
+| Icon | Model | Use for | Notes |
+|---|---|---|---|
+| 🟡 | Gemini Flash 2.0 | Repetitive frontend tasks, boilerplate, metadata, component tests, README | Primary Gemini model — give it explicit file paths, import names, and output structure to avoid mistakes |
+| 🟠 | Gemini Pro 3.1 | Visual/browser tasks — Lighthouse, responsive testing, contrast audits, cross-browser | Use Antigravity app's browser access for live page inspection |
+| *(unmarked)* | Claude | Backend logic, server actions, JSON-LD, CI/CD, destructive cleanup, integration tests | Complex logic, multi-file reasoning, security-sensitive work |
+
+**Flash optimization tips:** Each Flash task is self-contained with exact file paths, import names, and expected output shape. Batch related tasks (e.g., all metadata exports) into a single prompt. Avoid giving Flash tasks that require cross-file reasoning or understanding auth/DB internals.
+
+---
+
 ## Migration Phases
 
 ---
 
-### Phase 1 — Security Triage & Cleanup
+### Phase 1 — Security Triage & Cleanup ✅
 
 **Goal:** Remove hardcoded secrets and fix critical security issues in the existing Express app before any migration work begins.
 
 **Backend tasks:**
-- [ ] Move full MongoDB connection string to `MONGODB_URI` env var — remove `connectionString.ts` credentials
-- [ ] Create `.env.example` documenting all required variables
-- [ ] Verify `.env` is in `.gitignore`; if not, add it and purge from git history (`git filter-branch` or `git filter-repo`)
-- [ ] Rotate the exposed MongoDB Atlas credentials (Atlas dashboard → Database Access → reset password)
-- [ ] Convert all `DELETE` operations from `GET` to `POST`/`DELETE` HTTP methods (`/farms/:id/delete`, `/products/:id/delete`, review delete routes)
-- [ ] Remove compiled `scripts/` directory from git tracking — add `scripts/` to `.gitignore`, run `git rm -r --cached scripts/`
-- [ ] Fix `AppError` class: replace `any` with `number` for `status` property
-- [ ] Remove `@ts-ignore` on `ejs-mate` import — add `declare module 'ejs-mate'` in `src/types/ejs-mate.d.ts`
+- [x] Move full MongoDB connection string to `MONGODB_URI` env var — remove `connectionString.ts` credentials
+- [x] Create `.env.example` documenting all required variables
+- [x] Verify `.env` is in `.gitignore`; if not, add it and purge from git history (`git filter-branch` or `git filter-repo`)
+- [x] Rotate the exposed MongoDB Atlas credentials (Atlas dashboard → Database Access → reset password)
+- [x] Convert all `DELETE` operations from `GET` to `POST`/`DELETE` HTTP methods (`/farms/:id/delete`, `/products/:id/delete`, review delete routes)
+- [x] Remove compiled `scripts/` directory from git tracking — add `scripts/` to `.gitignore`, run `git rm -r --cached scripts/`
+- [x] Fix `AppError` class: replace `any` with `number` for `status` property
+- [x] Remove `@ts-ignore` on `ejs-mate` import — add `declare module 'ejs-mate'` in `src/types/ejs-mate.d.ts`
 
 **Frontend tasks:** None in this phase.
 
@@ -87,13 +99,13 @@ Switch in Phase 2. `bun.lockb` replaces `pnpm-lock.yaml`. All CI scripts use `bu
 
 ---
 
-### Phase 2 — Project Scaffolding
+### Phase 2 — Project Scaffolding ✅
 
 **Goal:** Initialize the Next.js 15 App Router project with all tooling, Tailwind CSS 4, and base structure alongside the still-running Express app.
 
 **Backend tasks:**
-- [ ] Initialize Next.js 15 project: `bun create next-app@latest` with App Router, TypeScript, Tailwind, `src/` directory, `@/*` path alias
-- [ ] Configure `tsconfig.json`:
+- [x] Initialize Next.js 15 project: `bun create next-app@latest` with App Router, TypeScript, Tailwind, `src/` directory, `@/*` path alias
+- [x] Configure `tsconfig.json`:
   ```json
   {
     "compilerOptions": {
@@ -104,24 +116,24 @@ Switch in Phase 2. `bun.lockb` replaces `pnpm-lock.yaml`. All CI scripts use `bu
     }
   }
   ```
-- [ ] Set up Zod-validated env vars at `src/lib/env.ts` — parse `process.env` at startup, throw on missing required vars
-- [ ] Set up structured logger at `src/lib/logger.ts` (use `pino` or `winston` — `pino` preferred for Vercel edge compatibility)
-- [ ] Set up `AppError` hierarchy at `src/lib/errors.ts`: `AppError` → `NotFoundError`, `UnauthorizedError`, `ForbiddenError`, `ValidationError`
-- [ ] Set up API error handler at `src/lib/api-handler.ts` — wraps route handlers, catches `AppError` subclasses, returns consistent `{ error, message, statusCode }` JSON shape
-- [ ] Configure ESLint with zero-warnings policy (extend `next/core-web-vitals`, add `@typescript-eslint/no-explicit-any`, `@typescript-eslint/no-unsafe-assignment`)
-- [ ] Configure Prettier — `prettier.config.ts` with `tailwindcss` plugin
-- [ ] Add `vitest.config.ts` and `playwright.config.ts` stubs
-- [ ] Set up `package.json` scripts: `dev`, `build`, `start`, `lint`, `type-check`, `test`, `test:e2e`
-- [ ] Pin all dependency versions (remove `^`)
-- [ ] Switch package manager to bun — delete `pnpm-lock.yaml`, run `bun install`, commit `bun.lockb`
+- [x] Set up Zod-validated env vars at `src/lib/env.ts` — parse `process.env` at startup, throw on missing required vars
+- [x] Set up structured logger at `src/lib/logger.ts` (use `pino` or `winston` — `pino` preferred for Vercel edge compatibility)
+- [x] Set up `AppError` hierarchy at `src/lib/errors.ts`: `AppError` → `NotFoundError`, `UnauthorizedError`, `ForbiddenError`, `ValidationError`
+- [x] Set up API error handler at `src/lib/api-handler.ts` — wraps route handlers, catches `AppError` subclasses, returns consistent `{ error, message, statusCode }` JSON shape
+- [x] Configure ESLint with zero-warnings policy (extend `next/core-web-vitals`, add `@typescript-eslint/no-explicit-any`, `@typescript-eslint/no-unsafe-assignment`)
+- [x] Configure Prettier — `prettier.config.ts` with `tailwindcss` plugin
+- [x] Add `vitest.config.ts` and `playwright.config.ts` stubs
+- [x] Set up `package.json` scripts: `dev`, `build`, `start`, `lint`, `type-check`, `test`, `test:e2e`
+- [x] Pin all dependency versions (remove `^`)
+- [x] Switch package manager to bun — delete `pnpm-lock.yaml`, run `bun install`, commit `bun.lockb`
 
 **Frontend tasks:**
-- [ ] Configure Tailwind CSS 4 with `@import "tailwindcss"` in global CSS
-- [ ] Define design token system in `src/app/globals.css` — CSS custom properties for color (brand, neutral, semantic), spacing scale, typography scale, radius
-- [ ] Create `src/app/layout.tsx` with `next/font` (Geist or Inter), metadata defaults, and `<html lang="en">` with `suppressHydrationWarning` for theme toggle
-- [ ] Create `src/app/error.tsx` and `src/app/not-found.tsx` error boundaries
-- [ ] Create `src/lib/utils.ts` with `cn()` (clsx + tailwind-merge)
-- [ ] Create layout components in `src/components/layout/`: `Header`, `Footer`, `Nav` — replaces EJS partials
+- [x] Configure Tailwind CSS 4 with `@import "tailwindcss"` in global CSS
+- [x] Define design token system in `src/app/globals.css` — CSS custom properties for color (brand, neutral, semantic), spacing scale, typography scale, radius
+- [x] Create `src/app/layout.tsx` with `next/font` (Geist or Inter), metadata defaults, and `<html lang="en">` with `suppressHydrationWarning` for theme toggle
+- [x] Create `src/app/error.tsx` and `src/app/not-found.tsx` error boundaries
+- [x] Create `src/lib/utils.ts` with `cn()` (clsx + tailwind-merge)
+- [x] Create layout components in `src/components/layout/`: `Header`, `Footer`, `Nav` — replaces EJS partials
 
 **Dependencies:** Phase 1 complete.
 
@@ -129,17 +141,17 @@ Switch in Phase 2. `bun.lockb` replaces `pnpm-lock.yaml`. All CI scripts use `bu
 
 ---
 
-### Phase 3 — Database & Schema (Turso + Drizzle)
+### Phase 3 — Database & Schema (Turso + Drizzle) ✅
 
 **Goal:** Define the new schema in Turso via Drizzle ORM, implement the Data Access Layer, and build the image service and WebP converter.
 
 **Backend tasks:**
 
 **Turso setup:**
-- [ ] Create Turso database — `turso db create farmers-market`
-- [ ] Install Turso Vercel integration (automatic env injection for `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`)
-- [ ] Install deps: `bun add drizzle-orm @libsql/client` + `bun add -d drizzle-kit`
-- [ ] Create `drizzle.config.ts` pointing to `src/server/db/schema.ts`
+- [x] Create Turso database — `turso db create farmers-market`
+- [x] Install Turso Vercel integration (automatic env injection for `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`)
+- [x] Install deps: `bun add drizzle-orm @libsql/client` + `bun add -d drizzle-kit`
+- [x] Create `drizzle.config.ts` pointing to `src/server/db/schema.ts`
 
 **Schema design (`src/server/db/schema.ts`):**
 ```
@@ -150,29 +162,29 @@ reviews       — id (text PK), body, rating (1-5 CHECK), authorId (FK users), f
 products_fts  — FTS5 virtual table over (name, description) synced by trigger
 ```
 
-- [ ] Categories enum: `vegetables | fruits | dairy-eggs | meat-poultry | herbs-spices | honey-preserves | baked-goods | flowers-plants | grains-legumes | beverages`
-- [ ] Add indexes: `farmId` on products, `category` on products, `farmId`/`productId` on reviews
-- [ ] Generate and apply initial migration: `bun drizzle-kit generate` → `bun drizzle-kit migrate`
+- [x] Categories enum: `vegetables | fruits | dairy-eggs | meat-poultry | herbs-spices | honey-preserves | baked-goods | flowers-plants | grains-legumes | beverages`
+- [x] Add indexes: `farmId` on products, `category` on products, `farmId`/`productId` on reviews
+- [x] Generate and apply initial migration: `bun drizzle-kit generate` → `bun drizzle-kit migrate`
 
 **Data Access Layer (`src/server/queries/`):**
-- [ ] `farms.ts` — `getFarms()`, `getFarmById()`, `createFarm()`, `updateFarm()`, `softDeleteFarm()`
-- [ ] `products.ts` — `getProducts(filters)`, `getProductById()`, `getProductsByFarm()`, `getProductsByCategory()`, `searchProducts(query)`, `createProduct()`, `updateProduct()`, `softDeleteProduct()`
-- [ ] `reviews.ts` — `getReviewsForFarm()`, `getReviewsForProduct()`, `createReview()`, `deleteReview()`
-- [ ] All query files: `import 'server-only'` at top, explicit column selection (no `SELECT *`), return typed results
+- [x] `farms.ts` — `getFarms()`, `getFarmById()`, `createFarm()`, `updateFarm()`, `softDeleteFarm()`
+- [x] `products.ts` — `getProducts(filters)`, `getProductById()`, `getProductsByFarm()`, `getProductsByCategory()`, `searchProducts(query)`, `createProduct()`, `updateProduct()`, `softDeleteProduct()`
+- [x] `reviews.ts` — `getReviewsForFarm()`, `getReviewsForProduct()`, `createReview()`, `deleteReview()`
+- [x] All query files: `import 'server-only'` at top, explicit column selection (no `SELECT *`), return typed results
 
 **Image service (`src/server/services/image.service.ts`):**
-- [ ] Install: `bun add sharp cloudinary`
-- [ ] `fetchAndStoreImage(query: string): Promise<string>` — fetches from Unsplash API (requires `UNSPLASH_ACCESS_KEY` env var), converts buffer to WebP via `sharp`, uploads to Cloudinary, returns CDN URL
-- [ ] Build `scripts/convert-to-webp.ts` — batch CLI for converting any existing local images to WebP and uploading to Cloudinary during seed
+- [x] Install: `bun add sharp cloudinary`
+- [x] `fetchAndStoreImage(query: string): Promise<string>` — fetches from Unsplash API (requires `UNSPLASH_ACCESS_KEY` env var), converts buffer to WebP via `sharp`, uploads to Cloudinary, returns CDN URL
+- [x] Build `scripts/convert-to-webp.ts` — batch CLI for converting any existing local images to WebP and uploading to Cloudinary during seed
 
 **Seed script:**
-- [ ] `src/server/db/seed.ts` — populates farms, products, reviews using DAL functions and image service; runs with `bun run db:seed`
-- [ ] Data: 5–8 farms across multiple states, 3–5 products per farm spread across all 10 categories, 2–3 reviews per product
+- [x] `src/server/db/seed.ts` — populates farms, products, reviews using DAL functions and image service; runs with `bun run db:seed`
+- [x] Data: 5–8 farms across multiple states, 3–5 products per farm spread across all 10 categories, 2–3 reviews per product
 
 **Zod schemas (`src/schemas/`):**
-- [ ] `farm.schema.ts` — `CreateFarmSchema`, `UpdateFarmSchema`
-- [ ] `product.schema.ts` — `CreateProductSchema`, `UpdateProductSchema` (category validated against enum)
-- [ ] `review.schema.ts` — `CreateReviewSchema` (rating: `z.number().int().min(1).max(5)`)
+- [x] `farm.schema.ts` — `CreateFarmSchema`, `UpdateFarmSchema`
+- [x] `product.schema.ts` — `CreateProductSchema`, `UpdateProductSchema` (category validated against enum)
+- [x] `review.schema.ts` — `CreateReviewSchema` (rating: `z.number().int().min(1).max(5)`)
 
 **Frontend tasks:** None.
 
@@ -182,29 +194,29 @@ products_fts  — FTS5 virtual table over (name, description) synced by trigger
 
 ---
 
-### Phase 4 — API Layer (Next.js Route Handlers)
+### Phase 4 — API Layer (Next.js Route Handlers) ✅
 
 **Goal:** Reimplement all Express routes as Next.js API route handlers with Zod validation, DAL calls, and consistent error handling. Replace in-memory search with FTS5.
 
 **Backend tasks:**
 
 Route structure under `src/app/api/`:
-- [ ] `products/route.ts` — `GET` (list with `category`, `farmId`, `page`, `limit` query params) · `POST` (create, auth required)
-- [ ] `products/[id]/route.ts` — `GET` (single) · `PATCH` (update, auth + ownership) · `DELETE` (soft delete, auth + ownership)
-- [ ] `products/[id]/reviews/route.ts` — `POST` (create, auth required)
-- [ ] `products/[id]/reviews/[reviewId]/route.ts` — `DELETE` (auth + ownership)
-- [ ] `farms/route.ts` — `GET` (list) · `POST` (create, auth required)
-- [ ] `farms/[id]/route.ts` — `GET` (single) · `PATCH` (update, auth + ownership) · `DELETE` (soft delete, auth + ownership)
-- [ ] `farms/[id]/reviews/route.ts` — `POST` (create, auth required)
-- [ ] `farms/[id]/reviews/[reviewId]/route.ts` — `DELETE` (auth + ownership)
-- [ ] `search/route.ts` — `GET` with `q` param, delegates to `searchProducts()` DAL (FTS5 query)
-- [ ] `categories/route.ts` — `GET` returns the enum list
+- [x] `products/route.ts` — `GET` (list with `category`, `farmId`, `page`, `limit` query params) · `POST` (create, auth required)
+- [x] `products/[id]/route.ts` — `GET` (single) · `PATCH` (update, auth + ownership) · `DELETE` (soft delete, auth + ownership)
+- [x] `products/[id]/reviews/route.ts` — `POST` (create, auth required)
+- [x] `products/[id]/reviews/[reviewId]/route.ts` — `DELETE` (auth + ownership)
+- [x] `farms/route.ts` — `GET` (list) · `POST` (create, auth required)
+- [x] `farms/[id]/route.ts` — `GET` (single) · `PATCH` (update, auth + ownership) · `DELETE` (soft delete, auth + ownership)
+- [x] `farms/[id]/reviews/route.ts` — `POST` (create, auth required)
+- [x] `farms/[id]/reviews/[reviewId]/route.ts` — `DELETE` (auth + ownership)
+- [x] `search/route.ts` — `GET` with `q` param, delegates to `searchProducts()` DAL (FTS5 query)
+- [x] `categories/route.ts` — `GET` returns the enum list
 
 **Every route handler must:**
-- [ ] Parse and validate input with the corresponding Zod schema
-- [ ] Delegate all DB access to DAL (no `db.` calls in route files directly)
-- [ ] Return `{ data }` on success, `{ error, message, statusCode }` on failure
-- [ ] Use `api-handler.ts` wrapper for error normalization
+- [x] Parse and validate input with the corresponding Zod schema
+- [x] Delegate all DB access to DAL (no `db.` calls in route files directly)
+- [x] Return `{ data }` on success, `{ error, message, statusCode }` on failure
+- [x] Use `api-handler.ts` wrapper for error normalization
 - [ ] Add rate limiting to all mutation endpoints (`upstash/ratelimit` or `@vercel/kv`-backed limiter)
 
 **Frontend tasks:** None.
@@ -215,23 +227,23 @@ Route structure under `src/app/api/`:
 
 ---
 
-### Phase 5 — Authentication & Authorization
+### Phase 5 — Authentication & Authorization ✅
 
 **Goal:** Add GitHub OAuth via Auth.js v5. Protect all mutation routes. Store sessions and users in Turso.
 
 **Backend tasks:**
-- [ ] Install: `bun add next-auth@beta` + the Auth.js Drizzle adapter
-- [ ] Create `src/lib/auth.ts` — configure GitHub provider, Drizzle adapter pointing at Turso, session strategy (`jwt` preferred for edge)
-- [ ] Add Auth.js tables to Drizzle schema (`accounts`, `sessions`, `verificationTokens`) + migrate
-- [ ] Create `src/app/api/auth/[...nextauth]/route.ts`
-- [ ] Add `middleware.ts` at project root — protect `/products/new`, `/products/[id]/edit`, `/farms/new`, `/farms/[id]/edit`, and all `POST`/`PATCH`/`DELETE` API routes
-- [ ] Add ownership check helper `assertOwnership(userId, resourceOwnerId)` — throws `ForbiddenError` if mismatch
-- [ ] Apply ownership checks in: farm update/delete, product update/delete, review delete
+- [x] Install: `bun add next-auth@beta` + the Auth.js Drizzle adapter
+- [x] Create `src/lib/auth.ts` — configure GitHub provider, Drizzle adapter pointing at Turso, session strategy (`jwt` preferred for edge)
+- [x] Add Auth.js tables to Drizzle schema (`accounts`, `sessions`, `verificationTokens`) + migrate
+- [x] Create `src/app/api/auth/[...nextauth]/route.ts`
+- [x] Add `middleware.ts` at project root — protect `/products/new`, `/products/[id]/edit`, `/farms/new`, `/farms/[id]/edit`, and all `POST`/`PATCH`/`DELETE` API routes
+- [x] Add ownership check helper `assertOwnership(userId, resourceOwnerId)` — throws `ForbiddenError` if mismatch
+- [x] Apply ownership checks in: farm update/delete, product update/delete, review delete
 
 **Frontend tasks:**
-- [ ] Create `src/app/auth/signin/page.tsx` — GitHub sign-in button, redirect back to previous page on success
-- [ ] Add auth state to `Header` component — show user avatar + sign-out when authenticated, sign-in button when not
-- [ ] Conditionally render edit/delete controls in product and farm detail pages based on session ownership
+- [x] Create `src/app/auth/signin/page.tsx` — GitHub sign-in button, redirect back to previous page on success
+- [x] Add auth state to `Header` component — show user avatar + sign-out when authenticated, sign-in button when not
+- [x] Conditionally render edit/delete controls in product and farm detail pages based on session ownership
 
 **Dependencies:** Phase 4 complete.
 
@@ -239,59 +251,58 @@ Route structure under `src/app/api/`:
 
 ---
 
-### Phase 6 — Frontend Rebuild
+### Phase 6 — Frontend Rebuild ✅
 
 **Goal:** Replace all EJS templates with React Server Components and Client Components. Implement full UI per design token system.
 
 **Frontend tasks:**
 
 **Shared UI primitives (`src/components/ui/`):**
-- [ ] `Button` — variants: `primary`, `secondary`, `destructive`, `ghost`; sizes: `sm`, `md`, `lg`; loading state
-- [ ] `Card` — `CardHeader`, `CardBody`, `CardFooter`
-- [ ] `Input`, `Textarea`, `Select`, `Label` — all with error state display
-- [ ] `Badge` — for category labels
-- [ ] `Rating` — star display component (read-only) + interactive version for review form
-- [ ] `ImageWithFallback` — wraps `next/image`, shows placeholder on load error
-- [ ] `ThemeToggle` — light/dark/system switcher
+- [x] `Button` — variants: `primary`, `secondary`, `destructive`, `ghost`; sizes: `sm`, `md`, `lg`; loading state
+- [x] `Card` — `CardHeader`, `CardBody`, `CardFooter`
+- [x] `Input`, `Textarea`, `Select`, `Label` — all with error state display
+- [x] `Badge` — for category labels
+- [x] `Rating` — star display component (read-only) + interactive version for review form (`RatingInput`)
+- [x] `ImageWithFallback` — wraps `next/image`, shows placeholder on load error
+- [x] `ThemeToggle` — light/dark/system switcher
 
 **Page components (Server Components by default):**
-- [ ] `src/app/page.tsx` — hero + featured products grid + category quick-links
-- [ ] `src/app/products/page.tsx` — full product listing with category filter tabs, pagination
-- [ ] `src/app/products/[id]/page.tsx` — product detail, farm attribution, review list + `ReviewForm` (client)
-- [ ] `src/app/products/new/page.tsx` — `"use client"` form, protected
-- [ ] `src/app/products/[id]/edit/page.tsx` — `"use client"` form, protected + ownership check
-- [ ] `src/app/categories/[category]/page.tsx` — filtered product grid, validates category against enum (404 on invalid)
-- [ ] `src/app/farms/page.tsx` — farm listing grid
-- [ ] `src/app/farms/[id]/page.tsx` — farm detail, products by farm, review list + `ReviewForm` (client)
-- [ ] `src/app/farms/new/page.tsx` — `"use client"` form, protected
-- [ ] `src/app/farms/[id]/edit/page.tsx` — `"use client"` form, protected + ownership check
-- [ ] `src/app/search/page.tsx` — search bar (client), results grid (server, via `searchParams`)
+- [x] `src/app/page.tsx` — hero + featured products grid + category quick-links
+- [x] `src/app/products/page.tsx` — full product listing with category filter tabs, pagination
+- [x] `src/app/products/[id]/page.tsx` — product detail, farm attribution, review list + `ReviewForm` (client)
+- [x] `src/app/products/new/page.tsx` — `"use client"` form, protected
+- [x] `src/app/products/[id]/edit/page.tsx` — `"use client"` form, protected + ownership check
+- [x] `src/app/categories/[category]/page.tsx` — filtered product grid, validates category against enum (404 on invalid)
+- [x] `src/app/farms/page.tsx` — farm listing grid
+- [x] `src/app/farms/[id]/page.tsx` — farm detail, products by farm, review list + `ReviewForm` (client)
+- [x] `src/app/farms/new/page.tsx` — `"use client"` form, protected
+- [x] `src/app/farms/[id]/edit/page.tsx` — `"use client"` form, protected + ownership check
+- [x] `src/app/search/page.tsx` — search bar (client), results grid (server, via `searchParams`)
 
 **Data loading:**
-- [ ] Use `<Suspense>` with skeleton fallbacks for product/farm grids and review lists
-- [ ] Use `generateStaticParams` on `products/[id]` and `farms/[id]` for ISR
-- [ ] All `next/image` usage: set `sizes`, `priority` on above-the-fold images, `quality={85}`, `format="webp"` (Cloudinary URLs already WebP)
+- [x] Use `<Suspense>` with skeleton fallbacks for product/farm grids and review lists
+- [ ] **Claude:** Use `generateStaticParams` on `products/[id]` and `farms/[id]` for ISR — export async function in each `page.tsx` that calls the DAL to return all IDs
+- [x] All `next/image` usage: set `sizes`, `priority` on above-the-fold images, `quality={85}`, `format="webp"` (Cloudinary URLs already WebP)
 
 **Forms:**
-- [ ] Implement create/edit forms using Server Actions (`src/server/actions/`) — farm actions, product actions, review actions
-- [ ] Use `useActionState` (React 19) for optimistic feedback and error display in client forms
+- [x] Implement create/edit forms using Server Actions (`src/server/actions/`) — farm actions, product actions, review actions
+- [x] Use `useActionState` (React 19) for optimistic feedback and error display in client forms
 
 **Accessibility:**
-- [ ] Semantic HTML throughout (`<nav>`, `<main>`, `<article>`, `<section>`, `<header>`, `<footer>`)
-- [ ] All interactive elements keyboard-navigable with visible focus indicators
-- [ ] All images have meaningful `alt` text (or `alt=""` for decorative)
-- [ ] ARIA labels on icon-only buttons
-- [ ] `prefers-reduced-motion` media query applied to any transitions/animations
-- [ ] 4.5:1 contrast ratio on all text — verify with design tokens
+- [x] Semantic HTML throughout (`<nav>`, `<main>`, `<article>`, `<section>`, `<header>`, `<footer>`)
+- [x] All interactive elements keyboard-navigable with visible focus indicators
+- [x] All images have meaningful `alt` text (or `alt=""` for decorative)
+- [x] ARIA labels on icon-only buttons
+- [x] `prefers-reduced-motion` media query applied to any transitions/animations
+- [ ] 🟡 **Gemini (Pro 3.1 — browser):** 4.5:1 contrast ratio audit — open the running app at `localhost:3000`, inspect every page (home, `/products`, `/products/[id]`, `/farms`, `/farms/[id]`, `/categories/[category]`, `/search`). Check both light and dark themes. Report any text/background color pairs that fail WCAG AA 4.5:1 ratio. List the exact CSS custom property or Tailwind class causing each failure and suggest a fix.
 
 **Responsive design:**
-- [ ] Mobile-first throughout — test at 375px, 768px, 1280px, 1440px
-- [ ] 44px minimum touch targets on all interactive elements
+- [ ] 🟡 **Gemini (Pro 3.1 — browser):** Mobile responsiveness audit — open the running app at `localhost:3000` and test every page at 375px, 768px, 1280px, and 1440px viewport widths. For each breakpoint, screenshot and report: layout breaks, overflow/horizontal scroll, text truncation, overlapping elements, and any interactive element (button, link, input) smaller than 44x44px touch target. List the specific component/element and what CSS change would fix it.
 
 **Backend tasks:**
-- [ ] Create Server Actions in `src/server/actions/`: `createFarm`, `updateFarm`, `deleteFarm`, `createProduct`, `updateProduct`, `deleteProduct`, `createReview`, `deleteReview`
-- [ ] Configure `next.config.ts` security headers: `Content-Security-Policy`, `Strict-Transport-Security`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`
-- [ ] Add Cloudinary domain to `next.config.ts` `images.remotePatterns`
+- [x] Create Server Actions in `src/server/actions/`: `createFarm`, `updateFarm`, `deleteFarm`, `createProduct`, `updateProduct`, `deleteProduct`, `createReview`, `deleteReview`
+- [x] Configure `next.config.ts` security headers: `Content-Security-Policy`, `Strict-Transport-Security`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`
+- [x] Add Cloudinary domain to `next.config.ts` `images.remotePatterns`
 
 **Dependencies:** Phases 4 and 5 complete.
 
@@ -303,17 +314,23 @@ Route structure under `src/app/api/`:
 
 **Goal:** Add technical SEO, structured data, and all metadata APIs.
 
+> **Assignment key:** 🟡 = Gemini Flash 2.0 · 🟠 = Gemini Pro 3.1 (browser) · unmarked = Claude
+
 **Frontend tasks:**
-- [ ] Add `export const metadata: Metadata` to every page component — `title`, `description`, `openGraph` (title, description, image, url, type), `twitter` (card, title, description, image)
-- [ ] Root layout metadata: `metadataBase` set to production Vercel URL
-- [ ] `src/app/sitemap.ts` — dynamically generates entries for all farm and product pages via DAL queries
-- [ ] `src/app/robots.ts` — disallow `/api/*`, allow everything else
-- [ ] JSON-LD structured data:
-  - `Product` schema on product detail pages (name, description, image, offers.price, aggregateRating)
-  - `LocalBusiness` schema on farm detail pages (name, address, description)
-  - `BreadcrumbList` schema on all nested pages
-- [ ] Canonical URL (`<link rel="canonical">`) on all pages via metadata API
-- [ ] Verify all product/farm images have descriptive `alt` text (not filenames)
+- [ ] 🟡 **Gemini Flash:** Add `export const metadata: Metadata` to every page component. Each page file already exists — add a `metadata` export (for static pages) or `generateMetadata` function (for dynamic `[id]` pages) with `title`, `description`, `openGraph` (title, description, image, url, type), `twitter` (card: `"summary_large_image"`, title, description, image).
+  - **Files to edit:** `src/app/page.tsx`, `src/app/products/page.tsx`, `src/app/products/[id]/page.tsx`, `src/app/farms/page.tsx` (create listing page if missing), `src/app/farms/[id]/page.tsx`, `src/app/categories/[category]/page.tsx`, `src/app/search/page.tsx`, `src/app/auth/signin/page.tsx`
+  - **For dynamic pages** (`[id]`, `[category]`): use `generateMetadata({ params })` — fetch the entity name/description via the existing DAL imports (`getProductById`, `getFarmById`) already at the top of those files. Do NOT add new imports if the query is already imported.
+  - **Import:** `import type { Metadata } from "next"` for static, `import type { Metadata, ResolvingMetadata } from "next"` for dynamic
+  - **Do NOT** touch `src/app/layout.tsx` — it already has base metadata configured with title template and description
+- [ ] 🟡 **Gemini Flash:** Root layout `metadataBase` — in `src/app/layout.tsx`, add `metadataBase: new URL("https://farmers-market.vercel.app")` to the existing `metadata` export. This is a one-line addition inside the existing metadata object. Do not change anything else in layout.tsx.
+- [ ] 🟡 **Gemini Flash:** Create `src/app/sitemap.ts` — export a default async function returning `MetadataRoute.Sitemap`. Import `getFarms` from `@/server/queries/farms` and `getProducts` from `@/server/queries/products`. Map each farm/product to `{ url: \`https://farmers-market.vercel.app/farms/${id}\`, lastModified: updatedAt }` and `{ url: \`https://farmers-market.vercel.app/products/${id}\`, lastModified: updatedAt }`. Also include static routes: `/`, `/products`, `/farms`, `/search`. Import type `MetadataRoute` from `"next"`.
+- [ ] 🟡 **Gemini Flash:** Create `src/app/robots.ts` — export a default function returning `MetadataRoute.Robots`. Disallow `/api/*`, allow everything else. Set `sitemap: "https://farmers-market.vercel.app/sitemap.xml"`. This is ~10 lines total.
+- [ ] **Claude:** JSON-LD structured data — add `<script type="application/ld+json">` to detail pages:
+  - `Product` schema on `src/app/products/[id]/page.tsx` (name, description, image, offers.price, aggregateRating from reviews)
+  - `LocalBusiness` schema on `src/app/farms/[id]/page.tsx` (name, address from city+state, description)
+  - `BreadcrumbList` schema on all nested pages (products/[id], farms/[id], categories/[category])
+- [ ] 🟡 **Gemini Flash:** Canonical URLs — handled automatically by Next.js when `metadataBase` is set and `alternates: { canonical: "./" }` is added to each page's metadata. Add `alternates: { canonical: "./" }` to every page metadata/generateMetadata return object (same files as the metadata task above).
+- [ ] 🟡 **Gemini Flash:** Alt text audit — grep all `<Image` and `<img` usages across `src/app/` and `src/components/`. Verify every image has a descriptive `alt` prop (not a filename like `"product-1.webp"`). For product images use the product name, for farm images use the farm name. Report any that need fixing.
 
 **Backend tasks:** None.
 
@@ -327,36 +344,38 @@ Route structure under `src/app/api/`:
 
 **Goal:** Add test coverage and a fully automated GitHub Actions pipeline with deploy to Vercel.
 
+> **Assignment key:** 🟡 = Gemini Flash 2.0 · 🟠 = Gemini Pro 3.1 (browser) · unmarked = Claude
+
 **Backend tasks:**
-- [ ] Unit tests (`src/__tests__/`):
-  - All Zod schemas — valid input, invalid input, edge cases
-  - `AppError` hierarchy — correct status codes, message propagation
-  - Utility functions (`cn`, env parser)
-  - Image service — mock `sharp` and Cloudinary, test transformation logic
-- [ ] Integration tests — all API route handlers and Server Actions using Vitest + MSW or direct DAL mocks
-- [ ] `ci.yml` (GitHub Actions):
+- [ ] **Claude:** Unit tests (`src/__tests__/`) — Vitest. These tests touch server-side logic, Zod schemas, and error classes:
+  - All Zod schemas (`src/schemas/farm.schema.ts`, `product.schema.ts`, `review.schema.ts`) — valid input, invalid input, edge cases
+  - `AppError` hierarchy (`src/lib/errors.ts`) — correct status codes, message propagation
+  - Utility functions (`cn` in `src/lib/utils.ts`, env parser in `src/lib/env.ts`)
+  - Image service (`src/server/services/image.service.ts`) — mock `sharp` and Cloudinary, test transformation logic
+- [ ] **Claude:** Integration tests — all API route handlers (`src/app/api/`) and Server Actions (`src/server/actions/`) using Vitest + MSW or direct DAL mocks
+- [ ] **Claude:** `ci.yml` (GitHub Actions):
   ```
   on: push (all branches), pull_request
   jobs: type-check → lint → test → build
   ```
-- [ ] Security scanning in CI:
+- [ ] **Claude:** Security scanning in CI:
   - `gitleaks` — secrets scanning on every push
   - `trivy` — dependency vulnerability scan on PRs
   - `semgrep` — SAST scan on PRs
 
 **Frontend tasks:**
-- [ ] Component tests for all `src/components/ui/` primitives (Vitest + React Testing Library)
-- [ ] E2E tests (Playwright):
-  - [ ] Browse home page → click product → view detail
-  - [ ] Filter products by category
-  - [ ] Search for a product by name
-  - [ ] Sign in with GitHub (mocked in test env)
-  - [ ] Create a farm (authenticated)
-  - [ ] Create a product on that farm (authenticated)
-  - [ ] Submit a review (authenticated)
-  - [ ] Edit the farm (authenticated, owner)
-  - [ ] Delete the farm (authenticated, owner)
-- [ ] `deploy.yml` (GitHub Actions):
+- [ ] 🟡 **Gemini Flash:** Component tests for all UI primitives in `src/components/ui/` using Vitest + React Testing Library. Create test files at `src/__tests__/components/ui/`. Components to test: `Button.tsx` (variants: primary/secondary/destructive/ghost, sizes: sm/md/lg, loading state, click handler), `Card.tsx` (renders header/body/footer slots), `Badge.tsx` (renders text), `Input.tsx` (value change, error state), `Select.tsx` (option rendering, selection), `Rating.tsx` (displays correct number of filled stars for rating 1-5), `RatingInput.tsx` (click to set rating), `ImageWithFallback.tsx` (renders next/image, shows fallback on error), `SearchBar.tsx` (input change, form submit). Each test file should: `import { render, screen, fireEvent } from "@testing-library/react"`, import the component, test rendering and basic interactions. Do NOT test `ThemeToggle` (depends on DOM APIs that need special setup).
+- [ ] 🟡 **Gemini Flash:** E2E tests using Playwright. Create test files at `e2e/` or `tests/e2e/`. The app runs at `localhost:3000`. Config is already stubbed at `playwright.config.ts`. Write these test scenarios:
+  - [ ] Browse home page → click a product card → verify product detail page loads with name, price, description
+  - [ ] Navigate to `/products` → click a category filter tab → verify URL updates and products filter
+  - [ ] Navigate to `/search` → type a product name in search bar → verify results appear
+  - [ ] Sign in with GitHub (mock the session — set a cookie or use Playwright's `page.context().addCookies()` with a test session token. The auth is Auth.js v5 with JWT strategy)
+  - [ ] (Authenticated) Navigate to `/farms/new` → fill form → submit → verify redirect to new farm page
+  - [ ] (Authenticated) Navigate to `/products/new` → fill form → submit → verify redirect to new product page
+  - [ ] (Authenticated) On a product detail page → fill review form → submit → verify review appears
+  - [ ] (Authenticated, owner) On own farm → click edit → modify name → save → verify updated
+  - [ ] (Authenticated, owner) On own farm → click delete → confirm → verify redirect to farms list
+- [ ] **Claude:** `deploy.yml` (GitHub Actions):
   ```
   on: push to main
   jobs: (ci.yml jobs pass) → deploy to Vercel via Vercel CLI
@@ -372,21 +391,24 @@ Route structure under `src/app/api/`:
 
 **Goal:** Remove all legacy Express/EJS code and finalize the migration.
 
+> **Assignment key:** 🟡 = Gemini Flash 2.0 · 🟠 = Gemini Pro 3.1 (browser) · unmarked = Claude
+
 **Backend tasks:**
-- [ ] Remove `dev/` directory (Express TypeScript source)
-- [ ] Remove `scripts/` directory (compiled JS output)
-- [ ] Remove `views/` directory (EJS templates)
-- [ ] Remove `css/` directory
-- [ ] Remove `images/` directory — any needed static assets moved to `public/`
-- [ ] Remove legacy `package.json` dependencies: `express`, `ejs`, `ejs-mate`, `mongoose`, `joi`, `axios`, `concurrently`, `nodemon`, `@types/express`, `@types/ejs`
-- [ ] Remove old `.eslintrc.json` — replaced by new ESLint flat config
-- [ ] Remove `Dockerfile` — Vercel deployment doesn't require it; archive on a `docker-deployment` branch if you want to keep it
-- [ ] Update `README.md` — project overview, local dev setup (bun, Turso CLI, env vars), seed instructions, deployment notes
+- [ ] **Claude:** Remove legacy directories and dependencies — this is destructive cleanup that requires understanding what's still referenced:
+  - Remove `dev/` directory (Express TypeScript source)
+  - Remove `scripts/` directory (compiled JS output)
+  - Remove `views/` directory (EJS templates)
+  - Remove `css/` directory
+  - Remove `images/` directory — any needed static assets moved to `public/`
+  - Remove legacy `package.json` dependencies: `express`, `ejs`, `ejs-mate`, `mongoose`, `joi`, `axios`, `concurrently`, `nodemon`, `@types/express`, `@types/ejs`
+  - Remove old `.eslintrc.json` — replaced by new ESLint flat config
+  - Remove `Dockerfile` — Vercel deployment doesn't require it; archive on a `docker-deployment` branch if you want to keep it
+- [ ] 🟡 **Gemini Flash:** Update `README.md` — rewrite for the new Next.js stack. Include: project overview (Next.js 15 App Router + Turso + Drizzle + Auth.js + Tailwind CSS 4 + Cloudinary), prerequisites (bun, Turso CLI), local dev setup steps (`bun install`, `turso db create`, `bun drizzle-kit migrate`, env var setup from `.env.example`, `bun run db:seed`, `bun dev`), available scripts from `package.json` (dev, build, lint, type-check, test, test:e2e), deployment notes (Vercel with Turso integration). Keep it concise — no badges or excessive formatting.
 
 **Frontend tasks:**
-- [ ] Run Lighthouse CI on all main page routes — target ≥ 90 Performance, ≥ 90 Accessibility, 100 Best Practices, ≥ 90 SEO
-- [ ] Verify Core Web Vitals: LCP < 2.5s, INP < 200ms, CLS < 0.1
-- [ ] Cross-browser test: Chrome, Firefox, Safari, Safari iOS, Chrome Android
+- [ ] 🟠 **Gemini Pro 3.1 (browser):** Lighthouse audit — after the app is deployed to Vercel, run Lighthouse on these routes: `/`, `/products`, `/products/[id]` (pick one), `/farms`, `/farms/[id]` (pick one), `/search`, `/categories/vegetables`. Target: ≥ 90 Performance, ≥ 90 Accessibility, 100 Best Practices, ≥ 90 SEO. Report each score per route and list specific failing audits with recommended fixes.
+- [ ] 🟠 **Gemini Pro 3.1 (browser):** Core Web Vitals verification — on the deployed Vercel app, check LCP < 2.5s, INP < 200ms, CLS < 0.1 on the home page and product listing page. Use Chrome DevTools Performance tab or web.dev/measure. Report actual values.
+- [ ] 🟠 **Gemini Pro 3.1 (browser):** Cross-browser test — verify the deployed app renders correctly in Chrome, Firefox, and Safari (if accessible). Check: layout integrity, theme toggle works, forms submit, images load, navigation works. Report any browser-specific rendering issues.
 
 **Dependencies:** All previous phases complete and verified on Vercel production.
 
@@ -426,17 +448,17 @@ UPSTASH_REDIS_REST_TOKEN=
 
 ## Phase Summary
 
-| Phase | Focus | Risk | Blocking Dependency |
-|---|---|---|---|
-| 1 | Security triage | Low | None |
-| 2 | Project scaffolding | Low | Phase 1 |
-| 3 | Turso schema + DAL + image service | Medium | Phase 2 |
-| 4 | API route handlers | Medium | Phase 3 |
-| 5 | Auth.js + GitHub OAuth | Medium | Phase 4 |
-| 6 | React frontend rebuild | Medium-High | Phases 4–5 |
-| 7 | SEO + metadata | Low | Phase 6 |
-| 8 | Tests + CI/CD | Low | Phases 6–7 |
-| 9 | Cleanup + decommission | Low | All |
+| Phase | Focus | Risk | Status | AI Split |
+|---|---|---|---|---|
+| 1 | Security triage | Low | ✅ Complete | — |
+| 2 | Project scaffolding | Low | ✅ Complete | — |
+| 3 | Turso schema + DAL + image service | Medium | ✅ Complete | — |
+| 4 | API route handlers | Medium | ✅ Complete | — |
+| 5 | Auth.js + GitHub OAuth | Medium | ✅ Complete | — |
+| 6 | React frontend rebuild | Medium-High | ✅ Complete | 2 tasks → 🟠 Pro (browser audits) |
+| 7 | SEO + metadata | Low | Next | 5 tasks → 🟡 Flash · 1 task → Claude |
+| 8 | Tests + CI/CD | Low | Pending | 2 tasks → 🟡 Flash · 4 tasks → Claude |
+| 9 | Cleanup + decommission | Low | Pending | 1 task → 🟡 Flash · 3 tasks → 🟠 Pro · 1 task → Claude |
 
 ---
 

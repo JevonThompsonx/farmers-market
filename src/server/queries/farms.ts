@@ -64,6 +64,13 @@ export async function softDeleteFarm(id: string) {
     .where(eq(farms.id, id));
 }
 
+export async function getAllFarmIds() {
+  return db
+    .select({ id: farms.id })
+    .from(farms)
+    .where(isNull(farms.deletedAt));
+}
+
 export async function updateFarmRating(farmId: string, rating: number) {
   await db
     .update(farms)

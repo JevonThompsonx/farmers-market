@@ -21,7 +21,9 @@ async function ProductGrid({
   category?: Category;
   page: number;
 }) {
-  const products = await getProducts({ category, page, limit: 20 });
+  const filters: Parameters<typeof getProducts>[0] = { page, limit: 20 };
+  if (category) filters.category = category;
+  const products = await getProducts(filters);
 
   if (products.length === 0) {
     return (
@@ -140,7 +142,7 @@ export default async function ProductsPage({
           </div>
         }
       >
-        <ProductGrid category={category} page={page} />
+        <ProductGrid {...(category ? { category } : {})} page={page} />
       </Suspense>
     </div>
   );

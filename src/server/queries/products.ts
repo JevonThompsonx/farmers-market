@@ -100,6 +100,13 @@ export async function softDeleteProduct(id: string) {
     .where(eq(products.id, id));
 }
 
+export async function getAllProductIds() {
+  return db
+    .select({ id: products.id })
+    .from(products)
+    .where(isNull(products.deletedAt));
+}
+
 export async function updateProductRating(productId: string, rating: number) {
   await db
     .update(products)
