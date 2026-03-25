@@ -1,17 +1,22 @@
+import { createElement, type ImgHTMLAttributes } from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 
+interface MockNextImageProps extends ImgHTMLAttributes<HTMLImageElement> {
+  src: string;
+  alt: string;
+}
+
 // Mock next/image since it's hard to test in jsdom
 vi.mock("next/image", () => ({
-  default: ({ src, alt, onError, ...props }: any) => (
-    <img
-      src={src}
-      alt={alt}
-      onError={onError}
-      {...props}
-    />
-  ),
+  default: ({ src, alt, onError, ...props }: MockNextImageProps) =>
+    createElement("img", {
+      src,
+      alt,
+      onError,
+      ...props,
+    }),
 }));
 
 describe("ImageWithFallback", () => {
@@ -38,6 +43,6 @@ describe("ImageWithFallback", () => {
     fireEvent.error(img);
 
     expect(img).toHaveAttribute("src", "/fallback.svg");
-    expect(img).toHaveClass("opacity-60");
+    expect(img).toHaveClass("opacity-80");
   });
 });

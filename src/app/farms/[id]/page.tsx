@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFarmById, getAllFarmIds } from "@/server/queries/farms";
@@ -65,7 +64,7 @@ async function FarmProducts({ farmId }: { farmId: string }) {
         <Link key={product.id} href={`/products/${product.id}`}>
           <Card className="group h-full transition-shadow hover:shadow-md">
             <div className="relative aspect-[4/3] overflow-hidden rounded-t-[var(--radius-lg)]">
-              <Image
+              <ImageWithFallback
                 src={product.image}
                 alt={product.name}
                 fill
@@ -232,6 +231,7 @@ export default async function FarmDetailPage({ params }: Props) {
           fill
           sizes="100vw"
           className="object-cover"
+          fallbackSrc="/placeholders/farm-skeleton.svg"
           priority
           quality={85}
         />

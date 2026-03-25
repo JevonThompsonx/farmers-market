@@ -1,10 +1,10 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { getProducts } from "@/server/queries/products";
 import { CATEGORIES } from "@/server/db/schema";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardBody } from "@/components/ui/Card";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { Rating } from "@/components/ui/Rating";
 import type { Metadata } from "next";
 
@@ -42,7 +42,7 @@ async function FeaturedProducts() {
           <Link key={product.id} href={`/products/${product.id}`}>
             <Card className="group h-full transition-shadow hover:shadow-md">
               <div className="relative aspect-[4/3] overflow-hidden rounded-t-[var(--radius-lg)]">
-                <Image
+                <ImageWithFallback
                   src={product.image}
                   alt={product.name}
                   fill

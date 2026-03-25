@@ -1,6 +1,6 @@
 # Farmers Market — Migration Plan
 
-> **Status:** Phase 8 implementation is complete in-repo — CI, security, rate limiting, and deploy workflow are all in place. `products_fts` follow-up migration is committed and applied locally; run migrations in remaining target environments as part of release rollout. Gemini Pro localhost QA audits (contrast + responsive) are complete, P0 UI fixes are applied, and a focused mobile smoke pass is passing.
+> **Status:** Phase 8 implementation is complete in-repo — CI, security, rate limiting, and deploy workflow are all in place. `products_fts` follow-up migration is committed and applied locally; run migrations in remaining target environments as part of release rollout. Gemini Pro localhost QA audits (contrast + responsive) are complete, P0 UI fixes are applied, and a focused mobile smoke pass is passing. Latest local stability pass fixed theme-toggle double-click behavior, added local skeleton image fallbacks (including legacy `placehold.co` normalization + `public/sw.js`), and expanded reseeding to 120 products. Seed content is now full-featured with deterministic photo URLs plus multi-user comments on products and farms.
 > **Target stack:** Next.js (App Router) · Turso (LibSQL) · Drizzle ORM · Auth.js v5 · Tailwind CSS 4 · Cloudinary · Vercel · bun
 
 ---
@@ -340,17 +340,22 @@ Route structure under `src/app/api/`:
 
 > **Assignment key:** 🟡 = Gemini Flash 2.0 · 🟠 = Gemini Pro 3.1 (browser) · unmarked = Claude
 
+**Backend tasks:**
+
 - [x] **Claude:** Unit tests — Zod schemas (`farm.schema.test.ts`, `product.schema.test.ts`, `review.schema.test.ts`), `AppError` hierarchy (`errors.test.ts`), `cn()` utility (`utils.test.ts`)
 - [x] **Claude:** Integration tests — API route handlers (`farms.route.test.ts`, `products.route.test.ts`) and Server Actions (`farms.actions.test.ts`, `reviews.actions.test.ts`) — 76 tests total passing
 - [x] **Claude:** `ci.yml` — `.github/workflows/ci.yml` (type-check → lint → test → build)
+
 - [x] **Claude:** Security scanning in CI — `.github/workflows/security.yml` (gitleaks + trivy + semgrep)
 - [x] **Claude:** Rate limiting on mutation endpoints — implemented distributed Upstash-backed limiter in `src/lib/rate-limit.ts` (`@upstash/ratelimit` + `@upstash/redis`) with automatic in-memory fallback when Upstash env vars are absent; applied to all current API mutation handlers (`POST`/`PATCH`/`DELETE` in farms/products/reviews create flows)
 - [x] **Claude:** Migration for `products_fts` is committed and applied locally; run migrations in remaining target environments as part of release rollout.
 
 **Frontend tasks:**
+
 - [x] 🟡 **Gemini Flash:** Component tests — 28 tests across 9 components in `src/__tests__/components/ui/`. All 104 unit+integration tests pass. Note: Claude fixed `vitest.config.ts` to add `include`/`exclude` patterns so Vitest no longer incorrectly picks up Playwright `e2e/` files.
 - [x] 🟡 **Gemini Flash:** E2E tests — `e2e/public.spec.ts` (3 public scenarios) and `e2e/authenticated.spec.ts` (5 authenticated scenarios). Authenticated tests use a placeholder JWT cookie — real sessions require generating a signed JWT with `NEXTAUTH_SECRET`. E2E tests run separately via `bun run test:e2e`.
 - [x] **Claude:** `deploy.yml` — created at `.github/workflows/deploy.yml`. Runs on successful `CI` completion for `main` (and manual dispatch), then deploys to Vercel via Vercel CLI using `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`.
+
 **Dependencies:** Phases 6–7 complete.
 
 **Risk:** Low — purely additive. GitHub OAuth in Playwright requires a test account or mocked session; set up a dedicated test GitHub app with a bot account.

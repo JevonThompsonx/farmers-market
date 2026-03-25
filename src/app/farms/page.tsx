@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { getFarms } from "@/server/queries/farms";
 import { Card, CardBody } from "@/components/ui/Card";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { Rating } from "@/components/ui/Rating";
 import type { Metadata } from "next";
 
@@ -39,12 +39,13 @@ async function FarmGrid() {
         <Link key={farm.id} href={`/farms/${farm.id}`}>
           <Card className="group h-full transition-shadow hover:shadow-md">
             <div className="relative aspect-[16/9] overflow-hidden rounded-t-[var(--radius-lg)]">
-              <Image
+              <ImageWithFallback
                 src={farm.image}
                 alt={farm.name}
                 fill
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
+                fallbackSrc="/placeholders/farm-skeleton.svg"
                 quality={85}
               />
             </div>

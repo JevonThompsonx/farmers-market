@@ -25,8 +25,14 @@ Gemini Flash tasks for Phases 7, 8, and 9 are complete:
 | 9 | README rewrite | ✅ |
 
 **Latest Claude fixes in this run:**
-- Hardened image URL handling in query layer so legacy `placehold.co` seeded URLs are normalized to PNG-compatible URLs at runtime (prevents `dangerouslyAllowSVG` errors).
-- Updated seed fallbacks to use PNG placeholder URLs for future seed runs.
+- Fixed theme switcher one-click behavior by changing it to deterministic light/dark toggling with persisted state (`src/components/ui/ThemeToggle.tsx`), eliminating the apparent double-click issue from previous system/light/dark cycling.
+- Added resilient image fallbacks across all core product/farm surfaces by standardizing on `ImageWithFallback` in listing/detail pages (`src/app/page.tsx`, `src/app/products/page.tsx`, `src/app/categories/[category]/page.tsx`, `src/app/search/page.tsx`, `src/app/products/[id]/page.tsx`, `src/app/farms/page.tsx`, `src/app/farms/[id]/page.tsx`).
+- Upgraded `ImageWithFallback` to include a loading skeleton overlay and stronger local default fallback (`src/components/ui/ImageWithFallback.tsx`), and aligned the component test assertion (`src/__tests__/components/ui/ImageWithFallback.test.tsx`).
+- Added dedicated local skeleton image assets for failed image states (`public/placeholders/product-skeleton.svg`, `public/placeholders/farm-skeleton.svg`).
+- Normalized legacy `placehold.co` URLs directly to local skeleton assets in query normalization (`src/server/queries/image-url.ts`) to prevent repeated Next image optimizer upstream 404 errors.
+- Added a minimal no-op service worker file (`public/sw.js`) to satisfy existing browser registrations and stop local `/sw.js` 404 noise.
+- Expanded seed generation to 100+ products (currently 120) via variant expansion logic, switched seed fallback images to local skeleton assets, and made reseeding deterministic by clearing existing seeded entities before insert (`src/server/db/seed.ts`).
+- Upgraded seed content quality so entries are full-featured: every product now seeds with a deterministic photo URL (`picsum.photos`), rich description text, and multiple comments from multiple seeded users; farm-level comments are also seeded for populated farm detail pages (`src/server/db/seed.ts`, `next.config.ts`).
 - Hardened `searchProducts()` to gracefully fallback to SQL `LIKE` when `products_fts` is missing, preventing runtime search crashes.
 - Corrected FTS join shape to use SQLite `rowid` semantics when FTS exists.
 - Implemented mobile header hamburger navigation (`src/components/layout/Nav.tsx`) and increased header touch targets (`src/components/layout/Header.tsx`).
@@ -35,8 +41,10 @@ Gemini Flash tasks for Phases 7, 8, and 9 are complete:
 - Improved mobile category filter usability via horizontal scrolling + 44px tap targets (`src/app/products/page.tsx`, `src/app/page.tsx`).
 - Improved farm detail mobile behavior and resilience (`src/app/farms/[id]/page.tsx`) with breadcrumb wrapping, responsive action layout, and hero image fallback.
 - Added follow-up Drizzle migration for FTS (`src/server/db/migrations/0001_products_fts.sql`) and migration journal entry (`src/server/db/migrations/meta/_journal.json`) to create/sync `products_fts` with guarded SQL + triggers.
-- Implemented baseline API mutation rate limiting via `src/lib/rate-limit.ts` and wired guards into all current `POST`/`PATCH`/`DELETE` handlers in `src/app/api/farms*` and `src/app/api/products*`.
+- Migrated API mutation rate limiting to distributed Upstash-backed limiter in `src/lib/rate-limit.ts` (`@upstash/ratelimit` + `@upstash/redis`) with automatic in-memory fallback when Upstash env vars are absent; wired guards into all current `POST`/`PATCH`/`DELETE` handlers in `src/app/api/farms*` and `src/app/api/products*`.
 - Added focused mobile QA regression smoke test `e2e/mobile-qa.spec.ts` and verified it passes on Chromium (`2 passed`) for viewport overflow and 44px touch-target checks.
+- Created deploy workflow `.github/workflows/deploy.yml` (triggers after successful `CI` on `main`, plus manual dispatch) to deploy with Vercel CLI using repository secrets.
+- Ran `bun run db:migrate` successfully in the current local environment; migration set is applied locally.
 
 **Gemini task queue before backend completion:**
 - No active Gemini tasks remain on localhost before backend/deploy work is complete.
@@ -46,17 +54,17 @@ Gemini Flash tasks for Phases 7, 8, and 9 are complete:
 
 ## What Claude needs to do next
 
-### 1. Apply migration per environment
+### 1. Apply migration in non-local environments
 
-`0001_products_fts.sql` is committed. Run `bun run db:migrate` in each target environment (local/dev/prod) to activate FTS table + triggers where not yet applied.
+Local migration is complete. Run `bun run db:migrate` in remaining target environments (staging/production) to activate `products_fts` and triggers everywhere.
 
-### 2. Production-hardening for rate limiting
+### 2. Configure deploy secrets + trigger first deploy
 
-Current implementation uses an in-memory limiter (`src/lib/rate-limit.ts`), which is suitable for single-instance local/dev usage. Before production scaling, replace backing store with distributed Redis/KV (e.g., Upstash) while keeping existing route guard call sites.
+Ensure GitHub repository secrets exist: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`. Then trigger deploy via push to `main` (after CI succeeds) or `workflow_dispatch`.
 
-### 3. `deploy.yml` GitHub Actions (Phase 8)
+### 3. Continue remaining Phase 9 Claude cleanup tasks
 
-Create `.github/workflows/deploy.yml` — on push to `main`, runs after `ci.yml` passes, deploys to Vercel via Vercel CLI. Requires `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` as GitHub secrets.
+Legacy cleanup/decommission tasks are still pending (remove old Express/EJS assets and legacy dependencies when ready).
 
 ---
 
