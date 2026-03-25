@@ -4,6 +4,7 @@ import { createReview, getReviewsForFarm, getAverageRatingForFarm } from "@/serv
 import { updateFarmRating } from "@/server/queries/farms";
 import { CreateReviewSchema } from "@/schemas/review.schema";
 import { ValidationError } from "@/lib/errors";
+import { assertRateLimit } from "@/lib/rate-limit";
 import { randomUUID } from "crypto";
 
 type Params = { params: Promise<{ id: string }> };
@@ -15,6 +16,8 @@ export const GET = apiHandler(async (_req: NextRequest, { params }: Params) => {
 });
 
 export const POST = apiHandler(async (req: NextRequest, { params }: Params) => {
+  await assertRateLimit(req, "api:farms:reviews:create");
+
   const { id } = await params;
   const body: unknown = await req.json();
   const parsed = CreateReviewSchema.safeParse(body);

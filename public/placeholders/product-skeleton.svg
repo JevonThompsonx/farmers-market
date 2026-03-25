@@ -1,0 +1,21 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Product image unavailable</title>
+  <desc id="desc">Product placeholder with skeleton content blocks</desc>
+  <rect width="1200" height="800" fill="#F3F4F6"/>
+  <rect x="0" y="0" width="1200" height="800" fill="url(#bg)" opacity="0.55"/>
+  <rect x="120" y="110" width="960" height="540" rx="24" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="8"/>
+  <rect x="180" y="190" width="510" height="44" rx="10" fill="#D1D5DB"/>
+  <rect x="180" y="260" width="300" height="32" rx="8" fill="#E5E7EB"/>
+  <rect x="180" y="322" width="820" height="24" rx="8" fill="#E5E7EB"/>
+  <rect x="180" y="364" width="760" height="24" rx="8" fill="#E5E7EB"/>
+  <rect x="180" y="406" width="690" height="24" rx="8" fill="#E5E7EB"/>
+  <rect x="180" y="510" width="220" height="56" rx="28" fill="#A3C97E"/>
+  <path d="M864 196C864 163.817 890.817 137 923 137H971C1003.18 137 1030 163.817 1030 196V243H864V196Z" fill="#D1D5DB"/>
+  <rect x="864" y="243" width="166" height="190" rx="20" fill="#E5E7EB"/>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="800" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FDE68A"/>
+      <stop offset="1" stop-color="#BFDBFE"/>
+    </linearGradient>
+  </defs>
+</svg>

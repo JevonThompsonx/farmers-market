@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFarmById, getAllFarmIds } from "@/server/queries/farms";
@@ -10,6 +9,7 @@ import { deleteFarm } from "@/server/actions/farms";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardBody } from "@/components/ui/Card";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { Rating } from "@/components/ui/Rating";
 import { ReviewForm } from "@/components/ReviewForm";
 import type { Metadata } from "next";
@@ -35,6 +35,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         description: farm.description.slice(0, 160),
         images: [{ url: farm.image }],
       },
+      twitter: {
+        card: "summary_large_image",
+        title: farm.name,
+        description: farm.description.slice(0, 160),
+      },
+      alternates: { canonical: "./" },
     };
   } catch {
     return { title: "Farm Not Found" };
@@ -58,7 +64,7 @@ async function FarmProducts({ farmId }: { farmId: string }) {
         <Link key={product.id} href={`/products/${product.id}`}>
           <Card className="group h-full transition-shadow hover:shadow-md">
             <div className="relative aspect-[4/3] overflow-hidden rounded-t-[var(--radius-lg)]">
-              <Image
+              <ImageWithFallback
                 src={product.image}
                 alt={product.name}
                 fill
@@ -207,31 +213,32 @@ export default async function FarmDetailPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <nav aria-label="Breadcrumb" className="mb-6">
-        <ol className="flex items-center gap-2 text-sm text-[var(--color-text-muted)]">
+        <ol className="flex flex-wrap items-center gap-2 text-sm text-[var(--color-text-muted)]">
           <li>
             <Link href="/farms" className="hover:text-[var(--color-text)]">
               Farms
             </Link>
           </li>
           <li aria-hidden="true">/</li>
-          <li className="text-[var(--color-text)]">{farm.name}</li>
+          <li className="break-words text-[var(--color-text)]">{farm.name}</li>
         </ol>
       </nav>
 
       <div className="relative aspect-[21/9] overflow-hidden rounded-[var(--radius-xl)]">
-        <Image
+        <ImageWithFallback
           src={farm.image}
           alt={farm.name}
           fill
           sizes="100vw"
           className="object-cover"
+          fallbackSrc="/placeholders/farm-skeleton.svg"
           priority
           quality={85}
         />
       </div>
 
       <div className="mt-6">
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold text-[var(--color-text)]">
               {farm.name}
@@ -250,7 +257,7 @@ export default async function FarmDetailPage({ params }: Props) {
           </div>
 
           {isOwner ? (
-            <div className="flex gap-3">
+            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
               <Link href={`/farms/${id}/edit`}>
                 <Button variant="secondary" size="sm">
                   Edit Farm
@@ -292,7 +299,7 @@ export default async function FarmDetailPage({ params }: Props) {
       </div>
 
       <section className="mt-12" aria-labelledby="products-heading">
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2
             id="products-heading"
             className="text-2xl font-bold text-[var(--color-text)]"

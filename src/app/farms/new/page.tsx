@@ -4,8 +4,6 @@ import { useActionState } from "react";
 import { createFarm } from "@/server/actions/farms";
 import { Input, Textarea } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import type { Metadata } from "next";
-
 export default function NewFarmPage() {
   const [state, action, pending] = useActionState(createFarm, undefined);
 

@@ -1,10 +1,10 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { getProducts } from "@/server/queries/products";
 import { CATEGORIES, type Category } from "@/server/db/schema";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardBody } from "@/components/ui/Card";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { Rating } from "@/components/ui/Rating";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
@@ -12,6 +12,17 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "All Products",
   description: "Browse all fresh, local products available at Farmers Market.",
+  openGraph: {
+    title: "All Products | Farmers Market",
+    description: "Browse all fresh, local products available at Farmers Market.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "All Products | Farmers Market",
+    description: "Browse all fresh, local products available at Farmers Market.",
+  },
+  alternates: { canonical: "./" },
 };
 
 async function ProductGrid({
@@ -39,7 +50,7 @@ async function ProductGrid({
         <Link key={product.id} href={`/products/${product.id}`}>
           <Card className="group h-full transition-shadow hover:shadow-md">
             <div className="relative aspect-[4/3] overflow-hidden rounded-t-[var(--radius-lg)]">
-              <Image
+              <ImageWithFallback
                 src={product.image}
                 alt={product.name}
                 fill
@@ -100,11 +111,11 @@ export default async function ProductsPage({
       </h1>
 
       <nav aria-label="Category filter" className="mb-8">
-        <div className="flex flex-wrap gap-2">
+        <div className="flex gap-2 overflow-x-auto pb-1 md:flex-wrap md:overflow-visible">
           <Link
             href="/products"
             className={cn(
-              "rounded-[var(--radius-full)] px-4 py-1.5 text-sm font-medium transition-colors",
+              "inline-flex min-h-11 shrink-0 items-center rounded-[var(--radius-full)] px-4 text-sm font-medium transition-colors",
               !category
                 ? "bg-[var(--color-brand-600)] text-white"
                 : "border border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-[var(--color-brand-300)] hover:text-[var(--color-brand-700)]",
@@ -117,7 +128,7 @@ export default async function ProductsPage({
               key={cat}
               href={`/products?category=${cat}`}
               className={cn(
-                "rounded-[var(--radius-full)] px-4 py-1.5 text-sm font-medium transition-colors",
+                "inline-flex min-h-11 shrink-0 items-center rounded-[var(--radius-full)] px-4 text-sm font-medium transition-colors",
                 category === cat
                   ? "bg-[var(--color-brand-600)] text-white"
                   : "border border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-[var(--color-brand-300)] hover:text-[var(--color-brand-700)]",

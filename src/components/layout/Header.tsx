@@ -9,19 +9,19 @@ export async function Header() {
 
   return (
     <header className="border-b border-[var(--color-border)] bg-[var(--color-surface)]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex min-h-16 items-center justify-between gap-2 py-2">
           <Link
             href="/"
-            className="text-xl font-bold text-[var(--color-brand-700)] hover:text-[var(--color-brand-600)]"
+            className="whitespace-nowrap text-lg font-bold text-[var(--color-brand-700)] transition-colors hover:text-[var(--color-brand-600)] sm:text-xl"
           >
             Farmers Market
           </Link>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Nav />
-            <ThemeToggle />
+            <ThemeToggle className="min-h-11 min-w-11" />
             {session?.user ? (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 {session.user.image ? (
                   <Image
                     src={session.user.image}
@@ -31,7 +31,7 @@ export async function Header() {
                     className="rounded-full"
                   />
                 ) : (
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-brand-100)] text-sm font-medium text-[var(--color-brand-700)]">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-brand-100)] text-sm font-medium text-[var(--color-brand-700)]">
                     {session.user.name?.charAt(0).toUpperCase() ?? "U"}
                   </div>
                 )}
@@ -43,7 +43,7 @@ export async function Header() {
                 >
                   <button
                     type="submit"
-                    className="text-sm font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
+                    className="inline-flex min-h-11 items-center rounded-[var(--radius-md)] px-2 text-sm font-medium text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-500)]"
                   >
                     Sign out
                   </button>
@@ -52,7 +52,7 @@ export async function Header() {
             ) : (
               <Link
                 href="/auth/signin"
-                className="rounded-[var(--radius-md)] bg-[var(--color-brand-600)] px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-[var(--color-brand-700)]"
+                className="inline-flex min-h-11 items-center rounded-[var(--radius-md)] bg-[var(--color-brand-600)] px-4 text-sm font-medium text-white transition-colors hover:bg-[var(--color-brand-700)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-500)]"
               >
                 Sign in
               </Link>

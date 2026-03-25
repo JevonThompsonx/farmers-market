@@ -67,7 +67,7 @@ describe("CreateProductSchema", () => {
   });
 
   it("rejects missing farmId", () => {
-    const { farmId: _, ...rest } = valid;
+    const { farmId: _farmId, ...rest } = valid;
     const result = CreateProductSchema.safeParse(rest);
     expect(result.success).toBe(false);
   });

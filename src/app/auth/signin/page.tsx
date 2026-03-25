@@ -3,13 +3,40 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Sign In",
+  description: "Sign in to Farmers Market to manage your farm or review products.",
+  openGraph: {
+    title: "Sign In | Farmers Market",
+    description: "Sign in to Farmers Market to manage your farm or review products.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Sign In | Farmers Market",
+    description: "Sign in to Farmers Market to manage your farm or review products.",
+  },
+  alternates: { canonical: "./" },
 };
 
-export default function SignInPage({
+export default async function SignInPage({
   searchParams,
 }: {
-  searchParams: Promise<{ callbackUrl?: string }>;
+  searchParams: Promise<{ callbackUrl?: string; error?: string }>;
 }) {
+  const params = await searchParams;
+  const callbackUrl = params.callbackUrl ?? "/";
+  const authErrorMessages: Record<string, string> = {
+    OAuthAccountNotLinked:
+      "That email is already associated with another sign-in method. Try signing in with your original method first.",
+    Configuration:
+      "Authentication is temporarily misconfigured. Please try again shortly.",
+    AccessDenied: "Access was denied by the provider. Please try again.",
+    Verification: "Your sign-in link is invalid or expired. Please request a new one.",
+    Default: "We couldn't sign you in. Please try again.",
+  };
+  const errorMessage = params.error
+    ? (authErrorMessages[params.error] ?? authErrorMessages.Default)
+    : null;
+
   return (
     <div className="flex min-h-[60vh] items-center justify-center px-4">
       <div
@@ -21,12 +48,19 @@ export default function SignInPage({
         <p className="mb-6 text-sm text-[var(--color-text-muted)]">
           Use your GitHub account to continue.
         </p>
+        {errorMessage ? (
+          <p
+            role="alert"
+            className="mb-4 rounded-[var(--radius-md)] border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700"
+          >
+            {errorMessage}
+          </p>
+        ) : null}
         <form
           action={async () => {
             "use server";
-            const params = await searchParams;
             await signIn("github", {
-              redirectTo: params.callbackUrl ?? "/",
+              redirectTo: callbackUrl,
             });
           }}
         >

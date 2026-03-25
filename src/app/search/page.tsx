@@ -1,14 +1,26 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { searchProducts } from "@/server/queries/products";
 import { Card, CardBody } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { SearchBar } from "@/components/ui/SearchBar";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Search Products",
+  description: "Search for fresh, local products from your favorite farms.",
+  openGraph: {
+    title: "Search Products | Farmers Market",
+    description: "Search for fresh, local products from your favorite farms.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Search Products | Farmers Market",
+    description: "Search for fresh, local products from your favorite farms.",
+  },
+  alternates: { canonical: "./" },
 };
 
 async function SearchResults({ query }: { query: string }) {
@@ -44,7 +56,7 @@ async function SearchResults({ query }: { query: string }) {
         <Link key={product.id} href={`/products/${product.id}`}>
           <Card className="group h-full transition-shadow hover:shadow-md">
             <div className="relative aspect-[4/3] overflow-hidden rounded-t-[var(--radius-lg)]">
-              <Image
+              <ImageWithFallback
                 src={product.image}
                 alt={product.name}
                 fill

@@ -3,6 +3,23 @@ import { eq, isNull, desc, sql } from "drizzle-orm";
 import { db } from "../db";
 import { products, type NewProduct, type Category } from "../db/schema";
 import { NotFoundError } from "@/lib/errors";
+import { normalizeImageUrl } from "./image-url";
+
+function isMissingProductsFtsTableError(error: unknown): boolean {
+  if (typeof error !== "object" || error === null || !("message" in error)) {
+    return false;
+  }
+
+  const message = error.message;
+  return typeof message === "string" && message.includes("no such table: products_fts");
+}
+
+function normalizeProductImage<T extends { image: string }>(product: T): T {
+  return {
+    ...product,
+    image: normalizeImageUrl(product.image),
+  };
+}
 
 export async function getProducts(filters?: {
   category?: Category;
@@ -13,7 +30,7 @@ export async function getProducts(filters?: {
   const { category, farmId, page = 1, limit = 20 } = filters ?? {};
   const offset = (page - 1) * limit;
 
-  return db
+  const rows = await db
     .select({
       id: products.id,
       name: products.name,
@@ -34,6 +51,8 @@ export async function getProducts(filters?: {
     .orderBy(desc(products.createdAt))
     .limit(limit)
     .offset(offset);
+
+  return rows.map(normalizeProductImage);
 }
 
 export async function getProductById(id: string) {
@@ -47,28 +66,84 @@ export async function getProductById(id: string) {
   if (!product || product.deletedAt !== null) {
     throw new NotFoundError(`Product ${id} not found`);
   }
-  return product;
+  return normalizeProductImage(product);
 }
 
 export async function getProductsByFarm(farmId: string) {
-  return db
+  const rows = await db
     .select()
     .from(products)
     .where(sql`${products.farmId} = ${farmId} AND ${products.deletedAt} IS NULL`)
     .orderBy(desc(products.createdAt));
+
+  return rows.map(normalizeProductImage);
 }
 
 export async function searchProducts(query: string) {
-  // FTS5 search via raw SQL — the products_fts virtual table is created in migrations
-  return db.all(
-    sql`SELECT p.id, p.name, p.price, p.description, p.category, p.image, p.farm_id, p.rating, p.created_at
-        FROM products_fts fts
-        JOIN products p ON p.id = fts.rowid
-        WHERE fts.products_fts MATCH ${query + "*"}
-          AND p.deleted_at IS NULL
-        ORDER BY rank
-        LIMIT 50`,
-  );
+  const wildcardQuery = query
+    .trim()
+    .split(/\s+/)
+    .filter((term) => term.length > 0)
+    .map((term) => `${term}*`)
+    .join(" ");
+
+  try {
+    const rows = await db.all(
+      sql`SELECT p.id, p.name, p.price, p.description, p.category, p.image, p.farm_id, p.rating, p.created_at
+          FROM products_fts
+          JOIN products p ON p.rowid = products_fts.rowid
+          WHERE products_fts MATCH ${wildcardQuery}
+            AND p.deleted_at IS NULL
+          ORDER BY bm25(products_fts)
+          LIMIT 50`,
+    );
+
+    return rows.map((row) => {
+      if (typeof row !== "object" || row === null || !("image" in row)) {
+        return row;
+      }
+
+      const image = row.image;
+      if (typeof image !== "string") {
+        return row;
+      }
+
+      return {
+        ...row,
+        image: normalizeImageUrl(image),
+      };
+    });
+  } catch (error) {
+    if (!isMissingProductsFtsTableError(error)) {
+      throw error;
+    }
+
+    const fallbackPattern = `%${query.trim()}%`;
+    const rows = await db.all(
+      sql`SELECT p.id, p.name, p.price, p.description, p.category, p.image, p.farm_id, p.rating, p.created_at
+          FROM products p
+          WHERE p.deleted_at IS NULL
+            AND (p.name LIKE ${fallbackPattern} OR p.description LIKE ${fallbackPattern})
+          ORDER BY p.created_at DESC
+          LIMIT 50`,
+    );
+
+    return rows.map((row) => {
+      if (typeof row !== "object" || row === null || !("image" in row)) {
+        return row;
+      }
+
+      const image = row.image;
+      if (typeof image !== "string") {
+        return row;
+      }
+
+      return {
+        ...row,
+        image: normalizeImageUrl(image),
+      };
+    });
+  }
 }
 
 export async function createProduct(data: NewProduct) {
@@ -80,7 +155,7 @@ export async function createProduct(data: NewProduct) {
     .limit(1);
   const product = rows[0];
   if (!product) throw new Error("Product insert failed");
-  return product;
+  return normalizeProductImage(product);
 }
 
 export async function updateProduct(

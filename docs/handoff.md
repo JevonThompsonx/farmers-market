@@ -7,255 +7,79 @@
 
 ---
 
-## What Claude completed this session
+## Status
 
-- Fixed `@auth/drizzle-adapter` missing package (`bun add @auth/drizzle-adapter`)
-- Added `generateStaticParams` to `src/app/products/[id]/page.tsx` and `src/app/farms/[id]/page.tsx`
-- Added JSON-LD structured data (`Product` + `BreadcrumbList` on product detail; `LocalBusiness` + `BreadcrumbList` on farm detail)
-- Unit tests: Zod schemas, `AppError` hierarchy, `cn()` utility — 54 tests
-- Integration tests: API route handlers (`GET`/`POST /api/farms`, `GET`/`POST /api/products`) and Server Actions (`createFarm`, `deleteFarm`, `createReview`, `deleteReview`) — 76 tests total, all passing
-- GitHub Actions CI: `.github/workflows/ci.yml` (type-check → lint → test → build)
-- GitHub Actions security scanning: `.github/workflows/security.yml` (gitleaks + trivy + semgrep)
-- Installed `jsdom` (was missing, blocked tests)
+**Gemini Pro localhost browser QA tasks are complete.**
 
----
+Gemini Flash tasks for Phases 7, 8, and 9 are complete:
 
-## What remains for Gemini
-
-### Phase 7 — SEO & Metadata (Gemini Flash 2.0)
-
-All page files exist. The tasks below are purely additive — no logic changes needed.
-
----
-
-#### Task 1: Add `metadata` / `generateMetadata` to every page
-
-**Files to edit:**
-
-| File | Type | Notes |
+| Phase | Task | Status |
 |---|---|---|
-| `src/app/page.tsx` | Static | export `const metadata: Metadata` |
-| `src/app/products/page.tsx` | Static | export `const metadata: Metadata` |
-| `src/app/farms/page.tsx` | Static | export `const metadata: Metadata` |
-| `src/app/search/page.tsx` | Static | export `const metadata: Metadata` |
-| `src/app/auth/signin/page.tsx` | Static | export `const metadata: Metadata` |
-| `src/app/products/[id]/page.tsx` | Dynamic | `generateMetadata` already exists — add `alternates: { canonical: "./" }` to its return |
-| `src/app/farms/[id]/page.tsx` | Dynamic | `generateMetadata` already exists — add `alternates: { canonical: "./" }` to its return |
-| `src/app/categories/[category]/page.tsx` | Dynamic | `generateMetadata({ params })` — read `category` from params, use it in title/description |
+| 7 | Metadata on all pages (static + dynamic) | ✅ |
+| 7 | `src/app/sitemap.ts` | ✅ |
+| 7 | `src/app/robots.ts` | ✅ |
+| 7 | Canonical URLs on all pages | ✅ |
+| 7 | Alt text audit | ✅ |
+| 8 | Component unit tests (9 components, 28 tests) | ✅ |
+| 8 | E2E test scaffolding (`e2e/public.spec.ts`, `e2e/authenticated.spec.ts`) | ✅ |
+| 9 | README rewrite | ✅ |
 
-**Import for static pages:**
-```ts
-import type { Metadata } from "next";
-```
+**Latest Claude fixes in this run:**
+- Fixed theme switcher one-click behavior by changing it to deterministic light/dark toggling with persisted state (`src/components/ui/ThemeToggle.tsx`), eliminating the apparent double-click issue from previous system/light/dark cycling.
+- Added resilient image fallbacks across all core product/farm surfaces by standardizing on `ImageWithFallback` in listing/detail pages (`src/app/page.tsx`, `src/app/products/page.tsx`, `src/app/categories/[category]/page.tsx`, `src/app/search/page.tsx`, `src/app/products/[id]/page.tsx`, `src/app/farms/page.tsx`, `src/app/farms/[id]/page.tsx`).
+- Upgraded `ImageWithFallback` to include a loading skeleton overlay and stronger local default fallback (`src/components/ui/ImageWithFallback.tsx`), and aligned the component test assertion (`src/__tests__/components/ui/ImageWithFallback.test.tsx`).
+- Added dedicated local skeleton image assets for failed image states (`public/placeholders/product-skeleton.svg`, `public/placeholders/farm-skeleton.svg`).
+- Normalized legacy `placehold.co` URLs directly to local skeleton assets in query normalization (`src/server/queries/image-url.ts`) to prevent repeated Next image optimizer upstream 404 errors.
+- Added a minimal no-op service worker file (`public/sw.js`) to satisfy existing browser registrations and stop local `/sw.js` 404 noise.
+- Expanded seed generation to 100+ products (currently 120) via variant expansion logic, switched seed fallback images to local skeleton assets, and made reseeding deterministic by clearing existing seeded entities before insert (`src/server/db/seed.ts`).
+- Upgraded seed content quality so entries are full-featured: every product now seeds with a deterministic photo URL (`picsum.photos`), rich description text, and multiple comments from multiple seeded users; farm-level comments are also seeded for populated farm detail pages (`src/server/db/seed.ts`, `next.config.ts`).
+- Hardened `searchProducts()` to gracefully fallback to SQL `LIKE` when `products_fts` is missing, preventing runtime search crashes.
+- Corrected FTS join shape to use SQLite `rowid` semantics when FTS exists.
+- Implemented mobile header hamburger navigation (`src/components/layout/Nav.tsx`) and increased header touch targets (`src/components/layout/Header.tsx`).
+- Updated contrast tokens in `src/app/globals.css` (`--color-text-muted` light/dark) to address WCAG findings from Gemini QA.
+- Fixed mobile search overflow and control sizing (`src/components/ui/SearchBar.tsx`).
+- Improved mobile category filter usability via horizontal scrolling + 44px tap targets (`src/app/products/page.tsx`, `src/app/page.tsx`).
+- Improved farm detail mobile behavior and resilience (`src/app/farms/[id]/page.tsx`) with breadcrumb wrapping, responsive action layout, and hero image fallback.
+- Added follow-up Drizzle migration for FTS (`src/server/db/migrations/0001_products_fts.sql`) and migration journal entry (`src/server/db/migrations/meta/_journal.json`) to create/sync `products_fts` with guarded SQL + triggers.
+- Migrated API mutation rate limiting to distributed Upstash-backed limiter in `src/lib/rate-limit.ts` (`@upstash/ratelimit` + `@upstash/redis`) with automatic in-memory fallback when Upstash env vars are absent; wired guards into all current `POST`/`PATCH`/`DELETE` handlers in `src/app/api/farms*` and `src/app/api/products*`.
+- Added focused mobile QA regression smoke test `e2e/mobile-qa.spec.ts` and verified it passes on Chromium (`2 passed`) for viewport overflow and 44px touch-target checks.
+- Created deploy workflow `.github/workflows/deploy.yml` (triggers after successful `CI` on `main`, plus manual dispatch) to deploy with Vercel CLI using repository secrets.
+- Ran `bun run db:migrate` successfully in the current local environment; migration set is applied locally.
 
-**Import for dynamic pages (if not already imported):**
-```ts
-import type { Metadata, ResolvingMetadata } from "next";
-```
-
-**Do NOT touch `src/app/layout.tsx`** — it already has `metadataBase`, title template, description, and openGraph configured.
-
-**Shape for static pages:**
-```ts
-export const metadata: Metadata = {
-  title: "Page Title",
-  description: "Page description under 160 chars.",
-  openGraph: {
-    title: "Page Title",
-    description: "Page description.",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Page Title",
-    description: "Page description.",
-  },
-  alternates: { canonical: "./" },
-};
-```
-
-**Shape for dynamic pages — add to existing `generateMetadata` return:**
-```ts
-alternates: { canonical: "./" },
-twitter: {
-  card: "summary_large_image",
-  title: product.name,       // or farm.name / category name
-  description: product.description.slice(0, 160),
-},
-```
-
-**For `src/app/categories/[category]/page.tsx`:** add `generateMetadata({ params })`. The page already imports and validates `category`. Use the category slug for the title (e.g., `"Vegetables | Farmers Market"`).
+**Gemini task queue before backend completion:**
+- No active Gemini tasks remain on localhost before backend/deploy work is complete.
+- Next Gemini Pro tasks are deploy-dependent (Phase 9): Lighthouse, Core Web Vitals, and cross-browser validation after Vercel deploy.
 
 ---
 
-#### Task 2: `metadataBase` in layout
+## What Claude needs to do next
 
-Already done — `src/app/layout.tsx` has:
-```ts
-metadataBase: new URL(process.env["NEXTAUTH_URL"] ?? "http://localhost:3000"),
-```
-**No change needed.**
+### 1. Apply migration in non-local environments
 
----
+Local migration is complete. Run `bun run db:migrate` in remaining target environments (staging/production) to activate `products_fts` and triggers everywhere.
 
-#### Task 3: Create `src/app/sitemap.ts`
+### 2. Configure deploy secrets + trigger first deploy
 
-```ts
-import type { MetadataRoute } from "next";
-import { getFarms } from "@/server/queries/farms";
-import { getProducts } from "@/server/queries/products";
+Ensure GitHub repository secrets exist: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`. Then trigger deploy via push to `main` (after CI succeeds) or `workflow_dispatch`.
 
-const BASE = "https://farmers-market.vercel.app";
+### 3. Continue remaining Phase 9 Claude cleanup tasks
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [farms, products] = await Promise.all([getFarms(), getProducts()]);
-
-  const farmEntries = farms.map((f) => ({
-    url: `${BASE}/farms/${f.id}`,
-    lastModified: new Date(f.createdAt),
-  }));
-
-  const productEntries = products.map((p) => ({
-    url: `${BASE}/products/${p.id}`,
-    lastModified: new Date(p.createdAt),
-  }));
-
-  return [
-    { url: BASE, lastModified: new Date() },
-    { url: `${BASE}/products`, lastModified: new Date() },
-    { url: `${BASE}/farms`, lastModified: new Date() },
-    { url: `${BASE}/search`, lastModified: new Date() },
-    ...farmEntries,
-    ...productEntries,
-  ];
-}
-```
-
-Note: `getFarms()` returns objects with `id` and `createdAt`. `getProducts()` takes optional filters — call with no args for all products.
+Legacy cleanup/decommission tasks are still pending (remove old Express/EJS assets and legacy dependencies when ready).
 
 ---
 
-#### Task 4: Create `src/app/robots.ts`
+## Gemini Pro 3.1 tasks (browser)
 
-```ts
-import type { MetadataRoute } from "next";
+### Localhost tasks (completed)
 
-export default function robots(): MetadataRoute.Robots {
-  return {
-    rules: [
-      {
-        userAgent: "*",
-        allow: "/",
-        disallow: "/api/",
-      },
-    ],
-    sitemap: "https://farmers-market.vercel.app/sitemap.xml",
-  };
-}
-```
+Completed against `http://localhost:3000`:
 
----
+1. **WCAG contrast audit** — completed across target routes/themes.
+2. **Mobile responsiveness audit** — completed at 375px, 768px, 1280px, 1440px with screenshots and remediation guidance.
 
-#### Task 5: Canonical URL additions
+### After Vercel deploy
 
-Already covered in Task 1 — add `alternates: { canonical: "./" }` to every page's metadata return.
-
----
-
-#### Task 6: Alt text audit
-
-Grep all `<Image` usages across `src/app/` and `src/components/`. Verify every `<Image` has a meaningful `alt` prop:
-- Product images: `alt={product.name}`
-- Farm images: `alt={farm.name}`
-- Flag any `alt=""` that is not on a decorative image
-- Flag any alt text that is a filename (e.g., `"image.webp"`)
-
-Files to check: `src/app/page.tsx`, `src/app/products/page.tsx`, `src/app/products/[id]/page.tsx`, `src/app/farms/page.tsx`, `src/app/farms/[id]/page.tsx`, `src/components/ui/ImageWithFallback.tsx`
-
----
-
-### Phase 8 — Component Tests (Gemini Flash 2.0)
-
-Vitest + React Testing Library is already installed. Setup file: `src/__tests__/setup.ts`.
-
-**Create test files at `src/__tests__/components/ui/`**
-
-Components to test (all in `src/components/ui/`):
-
-| Component | File | What to test |
-|---|---|---|
-| `Button` | `Button.tsx` | renders with each variant (primary/secondary/destructive/ghost), each size (sm/md/lg), loading state disables button, onClick fires |
-| `Card` | `Card.tsx` | renders CardHeader, CardBody, CardFooter slots with children |
-| `Badge` | `Badge.tsx` | renders text content |
-| `Input` | `Input.tsx` | renders value, fires onChange, shows error message when error prop provided |
-| `Select` | `Select.tsx` | renders options, fires onChange on selection |
-| `Rating` | `Rating.tsx` | renders correct number of filled stars for ratings 1–5 |
-| `RatingInput` | `RatingInput.tsx` | clicking a star sets the rating value |
-| `ImageWithFallback` | `ImageWithFallback.tsx` | renders next/image, fires onError fallback |
-| `SearchBar` | `SearchBar.tsx` | input change updates value, form submit fires handler |
-
-**Do NOT test `ThemeToggle`** — it depends on `localStorage` / `matchMedia` that require extra jsdom setup.
-
-**Test template:**
-```tsx
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
-import { Button } from "@/components/ui/Button";
-
-describe("Button", () => {
-  it("renders children", () => {
-    render(<Button>Click me</Button>);
-    expect(screen.getByText("Click me")).toBeInTheDocument();
-  });
-  // ...
-});
-```
-
----
-
-### Phase 8 — E2E Tests (Gemini Flash 2.0)
-
-Playwright is installed. Config: `playwright.config.ts`. The app runs at `http://localhost:3000`.
-
-**Create test files at `e2e/`** (directory exists).
-
-Scenarios to implement:
-
-1. Browse home page → click a product card → verify product detail page loads with name, price, description
-2. Navigate to `/products` → click a category filter tab → verify URL updates and products are filtered
-3. Navigate to `/search` → type a product name → verify results appear
-4. Sign in with GitHub — mock the session using `page.context().addCookies()` with a test Auth.js v5 JWT session cookie (`next-auth.session-token`)
-5. (Authenticated) Navigate to `/farms/new` → fill form → submit → verify redirect to new farm page
-6. (Authenticated) Navigate to `/products/new` → fill form → submit → verify redirect to new product page
-7. (Authenticated) On a product detail page → fill review form → submit → verify review appears
-8. (Authenticated, owner) On own farm → click Edit → modify name → save → verify update
-9. (Authenticated, owner) On own farm → click Delete → confirm → verify redirect to `/farms`
-
-For Auth.js v5 JWT mock: generate a signed JWT with `NEXTAUTH_SECRET` matching your `.env`. The cookie name is `next-auth.session-token` in development (or `__Secure-next-auth.session-token` in production/HTTPS).
-
----
-
-### Phase 9 — README rewrite (Gemini Flash 2.0)
-
-Rewrite `README.md` for the new stack. Include:
-- Project overview: Next.js 15 App Router + Turso + Drizzle ORM + Auth.js v5 + Tailwind CSS 4 + Cloudinary
-- Prerequisites: bun, Turso CLI (`brew install tursodatabase/tap/turso`)
-- Local setup steps:
-  1. `bun install`
-  2. `cp .env.example .env` and fill in values
-  3. `turso db create farmers-market`
-  4. `bun run db:migrate`
-  5. `bun run db:seed`
-  6. `bun dev`
-- Available scripts from `package.json`: `dev`, `build`, `start`, `lint`, `type-check`, `test`, `test:e2e`, `db:generate`, `db:migrate`, `db:seed`
-- Deployment: Vercel with Turso native integration (add `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` via Vercel dashboard or `vercel env pull`)
-- Keep concise — no badges, no excessive formatting
-
----
-
-### Phase 9 — Visual/Browser Audits (Gemini Pro 3.1 — needs browser)
-
-These require the running app. Do after Vercel deployment.
+These require the live deployed app. Do not run until deployment is confirmed.
 
 1. **Lighthouse audit** — run on `/`, `/products`, `/products/[id]`, `/farms`, `/farms/[id]`, `/search`, `/categories/vegetables`. Targets: ≥90 Performance, ≥90 Accessibility, 100 Best Practices, ≥90 SEO.
 2. **Core Web Vitals** — on home page and product listing: LCP <2.5s, INP <200ms, CLS <0.1.
@@ -265,20 +89,43 @@ These require the running app. Do after Vercel deployment.
 
 ---
 
+## Notes on E2E tests
+
+`e2e/authenticated.spec.ts` uses a placeholder JWT value (`"mock-session-token"`). These tests will fail until replaced with a real signed JWT. To generate one:
+
+```ts
+import { encode } from "next-auth/jwt";
+
+const token = await encode({
+  token: {
+    sub: "<your-user-id>",
+    name: "Test User",
+    email: "test@example.com",
+  },
+  secret: process.env.NEXTAUTH_SECRET!,
+});
+```
+
+Set this value as the `next-auth.session-token` cookie in `authenticated.spec.ts` and ensure the user ID matches a seeded user in the database who owns at least one farm.
+
+---
+
 ## Key files reference
 
 ```
 src/
   app/
-    layout.tsx                    — Root layout, metadata base, fonts
-    page.tsx                      — Home page
-    products/page.tsx             — Product listing with category filters
-    products/[id]/page.tsx        — Product detail (has generateMetadata + generateStaticParams + JSON-LD)
-    farms/page.tsx                — Farm listing
-    farms/[id]/page.tsx           — Farm detail (has generateMetadata + generateStaticParams + JSON-LD)
-    categories/[category]/page.tsx — Category filtered products
-    search/page.tsx               — Search page
-    auth/signin/page.tsx          — GitHub sign-in page
+    layout.tsx                    — Root layout, metadataBase, fonts
+    page.tsx                      — Home page (has metadata)
+    sitemap.ts                    — Dynamic sitemap
+    robots.ts                     — Robots config
+    products/page.tsx             — Product listing with category filters (has metadata)
+    products/[id]/page.tsx        — Product detail (generateMetadata + generateStaticParams + JSON-LD)
+    farms/page.tsx                — Farm listing (has metadata)
+    farms/[id]/page.tsx           — Farm detail (generateMetadata + generateStaticParams + JSON-LD)
+    categories/[category]/page.tsx — Category filtered products (generateMetadata)
+    search/page.tsx               — Search page (has metadata)
+    auth/signin/page.tsx          — GitHub sign-in page (has metadata)
   components/ui/                  — Button, Card, Badge, Input, Select, Rating, RatingInput, ImageWithFallback, SearchBar, ThemeToggle
   server/
     queries/                      — DAL (farms.ts, products.ts, reviews.ts)
@@ -290,16 +137,12 @@ src/
     env.ts                        — Zod-validated env vars
     errors.ts                     — AppError hierarchy
     utils.ts                      — cn()
-  __tests__/                      — 76 passing unit + integration tests
+  __tests__/                      — 104 passing tests (unit + integration + component)
+e2e/
+  public.spec.ts                  — 3 public browsing scenarios
+  authenticated.spec.ts           — 5 authenticated scenarios (placeholder JWT — needs real token)
+  mobile-qa.spec.ts               — focused mobile overflow + touch-target smoke checks
 .github/workflows/
   ci.yml                          — type-check → lint → test → build
   security.yml                    — gitleaks + trivy + semgrep
 ```
-
-## Important notes for Gemini
-
-- **Auth.js v5 beta** — use beta docs only. Session user type requires `session.user.id` (configured via JWT callback in `src/lib/auth.ts`).
-- **`server-only` imports** — DAL files have `import "server-only"` at the top. Do not import them from client components directly — they are already called via Server Actions or RSC.
-- **`CATEGORIES` enum** — imported from `src/server/db/schema.ts` as `CATEGORIES` (a `readonly string[]`). Use this when generating category metadata titles.
-- **Tailwind CSS 4** — uses `@import "tailwindcss"` syntax, NOT `@tailwind base/components/utilities`. CSS custom properties defined in `src/app/globals.css`.
-- **Design tokens** — colors use `var(--color-brand-600)`, `var(--color-text)`, `var(--color-border)`, etc. — defined as CSS custom properties in `globals.css`. Do not use raw Tailwind color classes like `text-blue-600`.

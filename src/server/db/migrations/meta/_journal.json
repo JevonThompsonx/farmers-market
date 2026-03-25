@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1774464277115,
+      "tag": "0000_dazzling_morlocks",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1774479000000,
+      "tag": "0001_products_fts",
+      "breakpoints": true
+    }
+  ]
+}

@@ -1,11 +1,10 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { getFarms } from "@/server/queries/farms";
 import { getProducts } from "@/server/queries/products";
 import { CATEGORIES } from "@/server/db/schema";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardBody } from "@/components/ui/Card";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { Rating } from "@/components/ui/Rating";
 import type { Metadata } from "next";
 
@@ -13,6 +12,19 @@ export const metadata: Metadata = {
   title: "Farmers Market — Fresh Local Produce",
   description:
     "Discover fresh, local produce from farms near you. Browse products, connect with farmers, and support your local food community.",
+  openGraph: {
+    title: "Farmers Market — Fresh Local Produce",
+    description:
+      "Discover fresh, local produce from farms near you. Browse products, connect with farmers, and support your local food community.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Farmers Market — Fresh Local Produce",
+    description:
+      "Discover fresh, local produce from farms near you. Browse products, connect with farmers, and support your local food community.",
+  },
+  alternates: { canonical: "./" },
 };
 
 async function FeaturedProducts() {
@@ -30,7 +42,7 @@ async function FeaturedProducts() {
           <Link key={product.id} href={`/products/${product.id}`}>
             <Card className="group h-full transition-shadow hover:shadow-md">
               <div className="relative aspect-[4/3] overflow-hidden rounded-t-[var(--radius-lg)]">
-                <Image
+                <ImageWithFallback
                   src={product.image}
                   alt={product.name}
                   fill
@@ -83,12 +95,12 @@ function CategoryLinks() {
       >
         Browse by Category
       </h2>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex gap-2 overflow-x-auto pb-1 md:flex-wrap md:overflow-visible">
         {CATEGORIES.map((cat) => (
           <Link
             key={cat}
             href={`/categories/${cat}`}
-            className="rounded-[var(--radius-full)] border border-[var(--color-brand-300)] px-4 py-2 text-sm font-medium text-[var(--color-brand-700)] transition-colors hover:bg-[var(--color-brand-50)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-500)]"
+            className="inline-flex min-h-11 shrink-0 items-center rounded-[var(--radius-full)] border border-[var(--color-brand-300)] px-4 text-sm font-medium text-[var(--color-brand-700)] transition-colors hover:bg-[var(--color-brand-50)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-500)]"
           >
             {categoryLabels[cat] ?? cat}
           </Link>

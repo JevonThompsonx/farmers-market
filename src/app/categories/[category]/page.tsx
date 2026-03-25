@@ -1,11 +1,11 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getProducts } from "@/server/queries/products";
 import { CATEGORIES, type Category } from "@/server/db/schema";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardBody } from "@/components/ui/Card";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { Rating } from "@/components/ui/Rating";
 import type { Metadata } from "next";
 
@@ -30,9 +30,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category } = await params;
   const label = categoryLabels[category];
   if (!label) return { title: "Category Not Found" };
+  const description = `Browse fresh, local ${label.toLowerCase()} from farms near you.`;
   return {
     title: label,
-    description: `Browse fresh, local ${label.toLowerCase()} from farms near you.`,
+    description,
+    openGraph: {
+      title: `${label} | Farmers Market`,
+      description,
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${label} | Farmers Market`,
+      description,
+    },
+    alternates: { canonical: "./" },
   };
 }
 
@@ -53,7 +65,7 @@ async function CategoryProducts({ category }: { category: Category }) {
         <Link key={product.id} href={`/products/${product.id}`}>
           <Card className="group h-full transition-shadow hover:shadow-md">
             <div className="relative aspect-[4/3] overflow-hidden rounded-t-[var(--radius-lg)]">
-              <Image
+              <ImageWithFallback
                 src={product.image}
                 alt={product.name}
                 fill

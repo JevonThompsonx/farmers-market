@@ -1,0 +1,22 @@
+<svg width="1400" height="700" viewBox="0 0 1400 700" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Farm image unavailable</title>
+  <desc id="desc">Farm placeholder with landscape skeleton</desc>
+  <rect width="1400" height="700" fill="#ECFDF5"/>
+  <rect width="1400" height="700" fill="url(#sky)" opacity="0.6"/>
+  <path d="M0 500L200 430L420 500L650 390L920 500L1130 430L1400 500V700H0V500Z" fill="#BBF7D0"/>
+  <path d="M0 560L260 500L520 560L790 480L1080 560L1400 500V700H0V560Z" fill="#86EFAC"/>
+  <rect x="220" y="170" width="960" height="390" rx="24" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="8"/>
+  <rect x="290" y="250" width="480" height="44" rx="10" fill="#D1D5DB"/>
+  <rect x="290" y="324" width="360" height="30" rx="8" fill="#E5E7EB"/>
+  <rect x="290" y="380" width="780" height="22" rx="7" fill="#E5E7EB"/>
+  <rect x="290" y="420" width="710" height="22" rx="7" fill="#E5E7EB"/>
+  <rect x="290" y="468" width="210" height="54" rx="27" fill="#34D399"/>
+  <path d="M930 233L1010 170L1090 233V356C1090 362.627 1084.63 368 1078 368H942C935.373 368 930 362.627 930 356V233Z" fill="#D1D5DB"/>
+  <rect x="980" y="292" width="60" height="76" rx="8" fill="#E5E7EB"/>
+  <defs>
+    <linearGradient id="sky" x1="700" y1="0" x2="700" y2="700" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#DBEAFE"/>
+      <stop offset="1" stop-color="#BFDBFE"/>
+    </linearGradient>
+  </defs>
+</svg>

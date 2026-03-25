@@ -67,7 +67,8 @@ describe("createReview action", () => {
   });
 
   it("throws UnauthorizedError when not authenticated", async () => {
-    vi.mocked(auth).mockResolvedValue(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(auth).mockResolvedValue(null as any);
     const fd = makeFormData({ body: "Great product!", rating: "5" });
     await expect(createReview({ farmId: "farm-1" }, undefined, fd)).rejects.toBeInstanceOf(
       UnauthorizedError,
@@ -108,7 +109,8 @@ describe("createReview action", () => {
 
 describe("deleteReview action", () => {
   it("throws UnauthorizedError when not authenticated", async () => {
-    vi.mocked(auth).mockResolvedValue(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(auth).mockResolvedValue(null as any);
     await expect(deleteReview("review-1")).rejects.toBeInstanceOf(UnauthorizedError);
   });
 });

@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProductById, getAllProductIds } from "@/server/queries/products";
@@ -9,6 +8,7 @@ import { auth } from "@/lib/auth";
 import { deleteProduct } from "@/server/actions/products";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { Rating } from "@/components/ui/Rating";
 import { ReviewForm } from "@/components/ReviewForm";
 import type { Metadata } from "next";
@@ -34,6 +34,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         description: product.description.slice(0, 160),
         images: [{ url: product.image }],
       },
+      twitter: {
+        card: "summary_large_image",
+        title: product.name,
+        description: product.description.slice(0, 160),
+      },
+      alternates: { canonical: "./" },
     };
   } catch {
     return { title: "Product Not Found" };
@@ -184,7 +190,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
       <article className="grid grid-cols-1 gap-8 md:grid-cols-2">
         <div className="relative aspect-square overflow-hidden rounded-[var(--radius-xl)]">
-          <Image
+          <ImageWithFallback
             src={product.image}
             alt={product.name}
             fill

@@ -78,7 +78,7 @@ describe("createFarm action", () => {
   });
 
   it("throws UnauthorizedError when not authenticated", async () => {
-    vi.mocked(auth).mockResolvedValue(null);
+    vi.mocked(auth).mockResolvedValue(null as unknown as AnySession);
     const fd = makeFormData({
       name: "Sunrise Farm",
       city: "Portland",
@@ -121,7 +121,7 @@ describe("deleteFarm action", () => {
   });
 
   it("throws UnauthorizedError when not authenticated", async () => {
-    vi.mocked(auth).mockResolvedValue(null);
+    vi.mocked(auth).mockResolvedValue(null as unknown as AnySession);
     await expect(deleteFarm("farm-1")).rejects.toBeInstanceOf(UnauthorizedError);
   });
 

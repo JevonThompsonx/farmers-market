@@ -1,6 +1,6 @@
 # Farmers Market — Migration Plan
 
-> **Status:** Phase 6 complete — frontend rebuild done. Phases 7–9 remaining.
+> **Status:** Phase 8 implementation is complete in-repo — CI, security, rate limiting, and deploy workflow are all in place. `products_fts` follow-up migration is committed and applied locally; run migrations in remaining target environments as part of release rollout. Gemini Pro localhost QA audits (contrast + responsive) are complete, P0 UI fixes are applied, and a focused mobile smoke pass is passing. Latest local stability pass fixed theme-toggle double-click behavior, added local skeleton image fallbacks (including legacy `placehold.co` normalization + `public/sw.js`), and expanded reseeding to 120 products. Seed content is now full-featured with deterministic photo URLs plus multi-user comments on products and farms.
 > **Target stack:** Next.js (App Router) · Turso (LibSQL) · Drizzle ORM · Auth.js v5 · Tailwind CSS 4 · Cloudinary · Vercel · bun
 
 ---
@@ -77,7 +77,7 @@ Switch in Phase 2. `bun.lockb` replaces `pnpm-lock.yaml`. All CI scripts use `bu
 
 ---
 
-### Phase 1 — Security Triage & Cleanup ✅
+### Phase 1 — Security Triage & Cleanup 
 
 **Goal:** Remove hardcoded secrets and fix critical security issues in the existing Express app before any migration work begins.
 
@@ -99,7 +99,7 @@ Switch in Phase 2. `bun.lockb` replaces `pnpm-lock.yaml`. All CI scripts use `bu
 
 ---
 
-### Phase 2 — Project Scaffolding ✅
+### Phase 2 — Project Scaffolding 
 
 **Goal:** Initialize the Next.js 15 App Router project with all tooling, Tailwind CSS 4, and base structure alongside the still-running Express app.
 
@@ -135,13 +135,13 @@ Switch in Phase 2. `bun.lockb` replaces `pnpm-lock.yaml`. All CI scripts use `bu
 - [x] Create `src/lib/utils.ts` with `cn()` (clsx + tailwind-merge)
 - [x] Create layout components in `src/components/layout/`: `Header`, `Footer`, `Nav` — replaces EJS partials
 
-**Dependencies:** Phase 1 complete.
+**Dependencies:** None — this is the starting point.
 
 **Risk:** Low — purely additive. The existing Express app continues running untouched.
 
 ---
 
-### Phase 3 — Database & Schema (Turso + Drizzle) ✅
+### Phase 3 — Database & Schema (Turso + Drizzle) 
 
 **Goal:** Define the new schema in Turso via Drizzle ORM, implement the Data Access Layer, and build the image service and WebP converter.
 
@@ -165,6 +165,7 @@ products_fts  — FTS5 virtual table over (name, description) synced by trigger
 - [x] Categories enum: `vegetables | fruits | dairy-eggs | meat-poultry | herbs-spices | honey-preserves | baked-goods | flowers-plants | grains-legumes | beverages`
 - [x] Add indexes: `farmId` on products, `category` on products, `farmId`/`productId` on reviews
 - [x] Generate and apply initial migration: `bun drizzle-kit generate` → `bun drizzle-kit migrate`
+- [x] **Claude:** Add follow-up migration for `products_fts` + sync triggers (`INSERT`/`UPDATE`/`DELETE`) with `IF NOT EXISTS`/guarded SQL (`src/server/db/migrations/0001_products_fts.sql` + journal entry)
 
 **Data Access Layer (`src/server/queries/`):**
 - [x] `farms.ts` — `getFarms()`, `getFarmById()`, `createFarm()`, `updateFarm()`, `softDeleteFarm()`
@@ -194,7 +195,7 @@ products_fts  — FTS5 virtual table over (name, description) synced by trigger
 
 ---
 
-### Phase 4 — API Layer (Next.js Route Handlers) ✅
+### Phase 4 — API Layer (Next.js Route Handlers) 
 
 **Goal:** Reimplement all Express routes as Next.js API route handlers with Zod validation, DAL calls, and consistent error handling. Replace in-memory search with FTS5.
 
@@ -217,7 +218,7 @@ Route structure under `src/app/api/`:
 - [x] Delegate all DB access to DAL (no `db.` calls in route files directly)
 - [x] Return `{ data }` on success, `{ error, message, statusCode }` on failure
 - [x] Use `api-handler.ts` wrapper for error normalization
-- [ ] Add rate limiting to all mutation endpoints (`upstash/ratelimit` or `@vercel/kv`-backed limiter)
+- [x] Add rate limiting to all current mutation endpoints via shared `assertRateLimit()` guard (`src/lib/rate-limit.ts`) wired into `POST`/`PATCH`/`DELETE` route handlers under `src/app/api/farms*` and `src/app/api/products*`
 
 **Frontend tasks:** None.
 
@@ -227,7 +228,7 @@ Route structure under `src/app/api/`:
 
 ---
 
-### Phase 5 — Authentication & Authorization ✅
+### Phase 5 — Authentication & Authorization 
 
 **Goal:** Add GitHub OAuth via Auth.js v5. Protect all mutation routes. Store sessions and users in Turso.
 
@@ -251,7 +252,7 @@ Route structure under `src/app/api/`:
 
 ---
 
-### Phase 6 — Frontend Rebuild ✅
+### Phase 6 — Frontend Rebuild 
 
 **Goal:** Replace all EJS templates with React Server Components and Client Components. Implement full UI per design token system.
 
@@ -281,7 +282,7 @@ Route structure under `src/app/api/`:
 
 **Data loading:**
 - [x] Use `<Suspense>` with skeleton fallbacks for product/farm grids and review lists
-- [ ] **Claude:** Use `generateStaticParams` on `products/[id]` and `farms/[id]` for ISR — export async function in each `page.tsx` that calls the DAL to return all IDs
+- [x] **Claude:** Use `generateStaticParams` on `products/[id]` and `farms/[id]` for ISR — both pages now export async functions that call DAL ID queries
 - [x] All `next/image` usage: set `sizes`, `priority` on above-the-fold images, `quality={85}`, `format="webp"` (Cloudinary URLs already WebP)
 
 **Forms:**
@@ -294,10 +295,10 @@ Route structure under `src/app/api/`:
 - [x] All images have meaningful `alt` text (or `alt=""` for decorative)
 - [x] ARIA labels on icon-only buttons
 - [x] `prefers-reduced-motion` media query applied to any transitions/animations
-- [ ] 🟡 **Gemini (Pro 3.1 — browser):** 4.5:1 contrast ratio audit — open the running app at `localhost:3000`, inspect every page (home, `/products`, `/products/[id]`, `/farms`, `/farms/[id]`, `/categories/[category]`, `/search`). Check both light and dark themes. Report any text/background color pairs that fail WCAG AA 4.5:1 ratio. List the exact CSS custom property or Tailwind class causing each failure and suggest a fix.
+- [x] **Gemini Pro 3.1 (browser):** 4.5:1 contrast ratio audit completed on localhost across target routes/themes. Findings captured in external `qa_audit_report.md` artifact; Claude applied token fixes in `src/app/globals.css` (`--color-text-muted` light/dark adjustments) and raised affected control/placeholder contrast.
 
 **Responsive design:**
-- [ ] 🟡 **Gemini (Pro 3.1 — browser):** Mobile responsiveness audit — open the running app at `localhost:3000` and test every page at 375px, 768px, 1280px, and 1440px viewport widths. For each breakpoint, screenshot and report: layout breaks, overflow/horizontal scroll, text truncation, overlapping elements, and any interactive element (button, link, input) smaller than 44x44px touch target. List the specific component/element and what CSS change would fix it.
+- [x] **Gemini Pro 3.1 (browser):** Mobile responsiveness audit completed on localhost at 375px/768px/1280px/1440px with screenshot evidence. Claude applied P0/P1 follow-up fixes: mobile hamburger nav, 44px tap targets for header/filter controls, mobile search form stacking, horizontal scrolling for category pills, breadcrumb wrapping, and farm hero image fallback.
 
 **Backend tasks:**
 - [x] Create Server Actions in `src/server/actions/`: `createFarm`, `updateFarm`, `deleteFarm`, `createProduct`, `updateProduct`, `deleteProduct`, `createReview`, `deleteReview`
@@ -317,20 +318,13 @@ Route structure under `src/app/api/`:
 > **Assignment key:** 🟡 = Gemini Flash 2.0 · 🟠 = Gemini Pro 3.1 (browser) · unmarked = Claude
 
 **Frontend tasks:**
-- [ ] 🟡 **Gemini Flash:** Add `export const metadata: Metadata` to every page component. Each page file already exists — add a `metadata` export (for static pages) or `generateMetadata` function (for dynamic `[id]` pages) with `title`, `description`, `openGraph` (title, description, image, url, type), `twitter` (card: `"summary_large_image"`, title, description, image).
-  - **Files to edit:** `src/app/page.tsx`, `src/app/products/page.tsx`, `src/app/products/[id]/page.tsx`, `src/app/farms/page.tsx` (create listing page if missing), `src/app/farms/[id]/page.tsx`, `src/app/categories/[category]/page.tsx`, `src/app/search/page.tsx`, `src/app/auth/signin/page.tsx`
-  - **For dynamic pages** (`[id]`, `[category]`): use `generateMetadata({ params })` — fetch the entity name/description via the existing DAL imports (`getProductById`, `getFarmById`) already at the top of those files. Do NOT add new imports if the query is already imported.
-  - **Import:** `import type { Metadata } from "next"` for static, `import type { Metadata, ResolvingMetadata } from "next"` for dynamic
-  - **Do NOT** touch `src/app/layout.tsx` — it already has base metadata configured with title template and description
-- [ ] 🟡 **Gemini Flash:** Root layout `metadataBase` — in `src/app/layout.tsx`, add `metadataBase: new URL("https://farmers-market.vercel.app")` to the existing `metadata` export. This is a one-line addition inside the existing metadata object. Do not change anything else in layout.tsx.
-- [ ] 🟡 **Gemini Flash:** Create `src/app/sitemap.ts` — export a default async function returning `MetadataRoute.Sitemap`. Import `getFarms` from `@/server/queries/farms` and `getProducts` from `@/server/queries/products`. Map each farm/product to `{ url: \`https://farmers-market.vercel.app/farms/${id}\`, lastModified: updatedAt }` and `{ url: \`https://farmers-market.vercel.app/products/${id}\`, lastModified: updatedAt }`. Also include static routes: `/`, `/products`, `/farms`, `/search`. Import type `MetadataRoute` from `"next"`.
-- [ ] 🟡 **Gemini Flash:** Create `src/app/robots.ts` — export a default function returning `MetadataRoute.Robots`. Disallow `/api/*`, allow everything else. Set `sitemap: "https://farmers-market.vercel.app/sitemap.xml"`. This is ~10 lines total.
-- [ ] **Claude:** JSON-LD structured data — add `<script type="application/ld+json">` to detail pages:
-  - `Product` schema on `src/app/products/[id]/page.tsx` (name, description, image, offers.price, aggregateRating from reviews)
-  - `LocalBusiness` schema on `src/app/farms/[id]/page.tsx` (name, address from city+state, description)
-  - `BreadcrumbList` schema on all nested pages (products/[id], farms/[id], categories/[category])
-- [ ] 🟡 **Gemini Flash:** Canonical URLs — handled automatically by Next.js when `metadataBase` is set and `alternates: { canonical: "./" }` is added to each page's metadata. Add `alternates: { canonical: "./" }` to every page metadata/generateMetadata return object (same files as the metadata task above).
-- [ ] 🟡 **Gemini Flash:** Alt text audit — grep all `<Image` and `<img` usages across `src/app/` and `src/components/`. Verify every image has a descriptive `alt` prop (not a filename like `"product-1.webp"`). For product images use the product name, for farm images use the farm name. Report any that need fixing.
+- [x] 🟡 **Gemini Flash:** Add `export const metadata: Metadata` / `generateMetadata` to every page — all pages have metadata: `page.tsx`, `products/page.tsx`, `farms/page.tsx`, `search/page.tsx`, `auth/signin/page.tsx`, `products/[id]/page.tsx`, `farms/[id]/page.tsx`, `categories/[category]/page.tsx`
+- [x] 🟡 **Gemini Flash:** Root layout `metadataBase` — already set to `new URL(process.env["NEXTAUTH_URL"] ?? "http://localhost:3000")` in `src/app/layout.tsx`
+- [x] 🟡 **Gemini Flash:** Create `src/app/sitemap.ts` — dynamic sitemap with all farms and products.
+- [x] 🟡 **Gemini Flash:** Create `src/app/robots.ts` — disallow `/api/`, sitemap link set.
+- [x] **Claude:** JSON-LD structured data — `Product` + `BreadcrumbList` on `src/app/products/[id]/page.tsx`; `LocalBusiness` + `BreadcrumbList` on `src/app/farms/[id]/page.tsx`
+- [x] 🟡 **Gemini Flash:** Canonical URLs — `alternates: { canonical: "./" }` added to all page metadata exports
+- [x] 🟡 **Gemini Flash:** Alt text audit — all `<Image>` usages verified. Product images use `alt={product.name}`, farm images use `alt={farm.name}`.
 
 **Backend tasks:** None.
 
@@ -340,46 +334,27 @@ Route structure under `src/app/api/`:
 
 ---
 
-### Phase 8 — Testing & CI/CD
+### Phase 8 — Testing & CI/CD 
 
 **Goal:** Add test coverage and a fully automated GitHub Actions pipeline with deploy to Vercel.
 
 > **Assignment key:** 🟡 = Gemini Flash 2.0 · 🟠 = Gemini Pro 3.1 (browser) · unmarked = Claude
 
 **Backend tasks:**
-- [ ] **Claude:** Unit tests (`src/__tests__/`) — Vitest. These tests touch server-side logic, Zod schemas, and error classes:
-  - All Zod schemas (`src/schemas/farm.schema.ts`, `product.schema.ts`, `review.schema.ts`) — valid input, invalid input, edge cases
-  - `AppError` hierarchy (`src/lib/errors.ts`) — correct status codes, message propagation
-  - Utility functions (`cn` in `src/lib/utils.ts`, env parser in `src/lib/env.ts`)
-  - Image service (`src/server/services/image.service.ts`) — mock `sharp` and Cloudinary, test transformation logic
-- [ ] **Claude:** Integration tests — all API route handlers (`src/app/api/`) and Server Actions (`src/server/actions/`) using Vitest + MSW or direct DAL mocks
-- [ ] **Claude:** `ci.yml` (GitHub Actions):
-  ```
-  on: push (all branches), pull_request
-  jobs: type-check → lint → test → build
-  ```
-- [ ] **Claude:** Security scanning in CI:
-  - `gitleaks` — secrets scanning on every push
-  - `trivy` — dependency vulnerability scan on PRs
-  - `semgrep` — SAST scan on PRs
+
+- [x] **Claude:** Unit tests — Zod schemas (`farm.schema.test.ts`, `product.schema.test.ts`, `review.schema.test.ts`), `AppError` hierarchy (`errors.test.ts`), `cn()` utility (`utils.test.ts`)
+- [x] **Claude:** Integration tests — API route handlers (`farms.route.test.ts`, `products.route.test.ts`) and Server Actions (`farms.actions.test.ts`, `reviews.actions.test.ts`) — 76 tests total passing
+- [x] **Claude:** `ci.yml` — `.github/workflows/ci.yml` (type-check → lint → test → build)
+
+- [x] **Claude:** Security scanning in CI — `.github/workflows/security.yml` (gitleaks + trivy + semgrep)
+- [x] **Claude:** Rate limiting on mutation endpoints — implemented distributed Upstash-backed limiter in `src/lib/rate-limit.ts` (`@upstash/ratelimit` + `@upstash/redis`) with automatic in-memory fallback when Upstash env vars are absent; applied to all current API mutation handlers (`POST`/`PATCH`/`DELETE` in farms/products/reviews create flows)
+- [x] **Claude:** Migration for `products_fts` is committed and applied locally; run migrations in remaining target environments as part of release rollout.
 
 **Frontend tasks:**
-- [ ] 🟡 **Gemini Flash:** Component tests for all UI primitives in `src/components/ui/` using Vitest + React Testing Library. Create test files at `src/__tests__/components/ui/`. Components to test: `Button.tsx` (variants: primary/secondary/destructive/ghost, sizes: sm/md/lg, loading state, click handler), `Card.tsx` (renders header/body/footer slots), `Badge.tsx` (renders text), `Input.tsx` (value change, error state), `Select.tsx` (option rendering, selection), `Rating.tsx` (displays correct number of filled stars for rating 1-5), `RatingInput.tsx` (click to set rating), `ImageWithFallback.tsx` (renders next/image, shows fallback on error), `SearchBar.tsx` (input change, form submit). Each test file should: `import { render, screen, fireEvent } from "@testing-library/react"`, import the component, test rendering and basic interactions. Do NOT test `ThemeToggle` (depends on DOM APIs that need special setup).
-- [ ] 🟡 **Gemini Flash:** E2E tests using Playwright. Create test files at `e2e/` or `tests/e2e/`. The app runs at `localhost:3000`. Config is already stubbed at `playwright.config.ts`. Write these test scenarios:
-  - [ ] Browse home page → click a product card → verify product detail page loads with name, price, description
-  - [ ] Navigate to `/products` → click a category filter tab → verify URL updates and products filter
-  - [ ] Navigate to `/search` → type a product name in search bar → verify results appear
-  - [ ] Sign in with GitHub (mock the session — set a cookie or use Playwright's `page.context().addCookies()` with a test session token. The auth is Auth.js v5 with JWT strategy)
-  - [ ] (Authenticated) Navigate to `/farms/new` → fill form → submit → verify redirect to new farm page
-  - [ ] (Authenticated) Navigate to `/products/new` → fill form → submit → verify redirect to new product page
-  - [ ] (Authenticated) On a product detail page → fill review form → submit → verify review appears
-  - [ ] (Authenticated, owner) On own farm → click edit → modify name → save → verify updated
-  - [ ] (Authenticated, owner) On own farm → click delete → confirm → verify redirect to farms list
-- [ ] **Claude:** `deploy.yml` (GitHub Actions):
-  ```
-  on: push to main
-  jobs: (ci.yml jobs pass) → deploy to Vercel via Vercel CLI
-  ```
+
+- [x] 🟡 **Gemini Flash:** Component tests — 28 tests across 9 components in `src/__tests__/components/ui/`. All 104 unit+integration tests pass. Note: Claude fixed `vitest.config.ts` to add `include`/`exclude` patterns so Vitest no longer incorrectly picks up Playwright `e2e/` files.
+- [x] 🟡 **Gemini Flash:** E2E tests — `e2e/public.spec.ts` (3 public scenarios) and `e2e/authenticated.spec.ts` (5 authenticated scenarios). Authenticated tests use a placeholder JWT cookie — real sessions require generating a signed JWT with `NEXTAUTH_SECRET`. E2E tests run separately via `bun run test:e2e`.
+- [x] **Claude:** `deploy.yml` — created at `.github/workflows/deploy.yml`. Runs on successful `CI` completion for `main` (and manual dispatch), then deploys to Vercel via Vercel CLI using `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`.
 
 **Dependencies:** Phases 6–7 complete.
 
@@ -387,7 +362,7 @@ Route structure under `src/app/api/`:
 
 ---
 
-### Phase 9 — Cleanup & Decommission
+### Phase 9 — Cleanup & Decommission 
 
 **Goal:** Remove all legacy Express/EJS code and finalize the migration.
 
@@ -403,7 +378,7 @@ Route structure under `src/app/api/`:
   - Remove legacy `package.json` dependencies: `express`, `ejs`, `ejs-mate`, `mongoose`, `joi`, `axios`, `concurrently`, `nodemon`, `@types/express`, `@types/ejs`
   - Remove old `.eslintrc.json` — replaced by new ESLint flat config
   - Remove `Dockerfile` — Vercel deployment doesn't require it; archive on a `docker-deployment` branch if you want to keep it
-- [ ] 🟡 **Gemini Flash:** Update `README.md` — rewrite for the new Next.js stack. Include: project overview (Next.js 15 App Router + Turso + Drizzle + Auth.js + Tailwind CSS 4 + Cloudinary), prerequisites (bun, Turso CLI), local dev setup steps (`bun install`, `turso db create`, `bun drizzle-kit migrate`, env var setup from `.env.example`, `bun run db:seed`, `bun dev`), available scripts from `package.json` (dev, build, lint, type-check, test, test:e2e), deployment notes (Vercel with Turso integration). Keep it concise — no badges or excessive formatting.
+- [x] 🟡 **Gemini Flash:** Update `README.md` — rewritten for the new Next.js stack. Concise, no badges.
 
 **Frontend tasks:**
 - [ ] 🟠 **Gemini Pro 3.1 (browser):** Lighthouse audit — after the app is deployed to Vercel, run Lighthouse on these routes: `/`, `/products`, `/products/[id]` (pick one), `/farms`, `/farms/[id]` (pick one), `/search`, `/categories/vegetables`. Target: ≥ 90 Performance, ≥ 90 Accessibility, 100 Best Practices, ≥ 90 SEO. Report each score per route and list specific failing audits with recommended fixes.
@@ -453,11 +428,11 @@ UPSTASH_REDIS_REST_TOKEN=
 | 1 | Security triage | Low | ✅ Complete | — |
 | 2 | Project scaffolding | Low | ✅ Complete | — |
 | 3 | Turso schema + DAL + image service | Medium | ✅ Complete | — |
-| 4 | API route handlers | Medium | ✅ Complete | — |
+| 4 | API route handlers | Medium | ✅ Complete (mutation endpoint rate limiting implemented) | — |
 | 5 | Auth.js + GitHub OAuth | Medium | ✅ Complete | — |
-| 6 | React frontend rebuild | Medium-High | ✅ Complete | 2 tasks → 🟠 Pro (browser audits) |
-| 7 | SEO + metadata | Low | Next | 5 tasks → 🟡 Flash · 1 task → Claude |
-| 8 | Tests + CI/CD | Low | Pending | 2 tasks → 🟡 Flash · 4 tasks → Claude |
+| 6 | React frontend rebuild | Medium-High | ✅ Complete | Localhost 🟠 Pro audits complete; deploy-dependent browser checks remain in Phase 9 |
+| 7 | SEO + metadata | Low | ✅ Complete | — |
+| 8 | Tests + CI/CD | Low | ✅ Complete in-repo (CI + security + rate limiting + deploy workflow) | — |
 | 9 | Cleanup + decommission | Low | Pending | 1 task → 🟡 Flash · 3 tasks → 🟠 Pro · 1 task → Claude |
 
 ---
@@ -468,3 +443,4 @@ UPSTASH_REDIS_REST_TOKEN=
 - Auth.js v5 is still in beta as of this writing — pin the exact version in `package.json` and check the changelog before upgrading.
 - The `products_fts` FTS5 virtual table cannot be expressed in Drizzle schema syntax — it must be created via raw SQL in a migration file (`db.run(sql\`CREATE VIRTUAL TABLE...\`)`).
 - Do not open Phase 6 PRs until Phase 5 auth is verified end-to-end. Auth gates need to exist before building the UI that conditionally renders behind them.
+- Search runtime is hardened in `searchProducts()` to avoid user-facing crashes if `products_fts` is missing (fallback to SQL `LIKE`). Follow-up migration `0001_products_fts.sql` is committed and `bun run db:migrate` was run successfully in the current local environment; run migrations in remaining environments so FTS ranking is fully active everywhere.

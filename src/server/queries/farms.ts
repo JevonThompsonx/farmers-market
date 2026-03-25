@@ -3,9 +3,10 @@ import { eq, isNull, desc } from "drizzle-orm";
 import { db } from "../db";
 import { farms, type NewFarm } from "../db/schema";
 import { NotFoundError } from "@/lib/errors";
+import { normalizeImageUrl } from "./image-url";
 
 export async function getFarms() {
-  return db
+  const rows = await db
     .select({
       id: farms.id,
       name: farms.name,
@@ -19,6 +20,11 @@ export async function getFarms() {
     .from(farms)
     .where(isNull(farms.deletedAt))
     .orderBy(desc(farms.createdAt));
+
+  return rows.map((farm) => ({
+    ...farm,
+    image: normalizeImageUrl(farm.image),
+  }));
 }
 
 export async function getFarmById(id: string) {
@@ -32,7 +38,10 @@ export async function getFarmById(id: string) {
   if (!farm || farm.deletedAt !== null) {
     throw new NotFoundError(`Farm ${id} not found`);
   }
-  return farm;
+  return {
+    ...farm,
+    image: normalizeImageUrl(farm.image),
+  };
 }
 
 export async function createFarm(data: NewFarm) {
@@ -44,7 +53,10 @@ export async function createFarm(data: NewFarm) {
     .limit(1);
   const farm = rows[0];
   if (!farm) throw new Error("Farm insert failed");
-  return farm;
+  return {
+    ...farm,
+    image: normalizeImageUrl(farm.image),
+  };
 }
 
 export async function updateFarm(

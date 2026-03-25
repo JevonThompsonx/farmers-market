@@ -2,12 +2,14 @@ import { type NextRequest, NextResponse } from "next/server";
 import { AppError } from "./errors";
 import { logger } from "./logger";
 
-type RouteHandler = (
+type RouteHandler<P extends Record<string, string> = Record<string, string>> = (
   req: NextRequest,
-  context: { params: Promise<Record<string, string>> },
+  context: { params: Promise<P> },
 ) => Promise<NextResponse>;
 
-export function apiHandler(handler: RouteHandler): RouteHandler {
+export function apiHandler<P extends Record<string, string> = Record<string, string>>(
+  handler: RouteHandler<P>,
+): RouteHandler<P> {
   return async (req, context) => {
     try {
       return await handler(req, context);
