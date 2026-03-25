@@ -3,6 +3,7 @@ import { apiHandler } from "@/lib/api-handler";
 import { getFarmById, updateFarm, softDeleteFarm } from "@/server/queries/farms";
 import { UpdateFarmSchema } from "@/schemas/farm.schema";
 import { ValidationError } from "@/lib/errors";
+import { assertRateLimit } from "@/lib/rate-limit";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -13,6 +14,8 @@ export const GET = apiHandler(async (_req: NextRequest, { params }: Params) => {
 });
 
 export const PATCH = apiHandler(async (req: NextRequest, { params }: Params) => {
+  await assertRateLimit(req, "api:farms:update");
+
   const { id } = await params;
   const body: unknown = await req.json();
   const parsed = UpdateFarmSchema.safeParse(body);
@@ -21,11 +24,13 @@ export const PATCH = apiHandler(async (req: NextRequest, { params }: Params) => 
       parsed.error.flatten().fieldErrors.toString(),
     );
   }
-  await updateFarm(id, parsed.data);
+  await updateFarm(id, Object.fromEntries(Object.entries(parsed.data).filter(([, v]) => v !== undefined)) as Parameters<typeof updateFarm>[1]);
   return NextResponse.json({ data: { updated: true } });
 });
 
-export const DELETE = apiHandler(async (_req: NextRequest, { params }: Params) => {
+export const DELETE = apiHandler(async (req: NextRequest, { params }: Params) => {
+  await assertRateLimit(req, "api:farms:delete");
+
   const { id } = await params;
   await softDeleteFarm(id);
   return NextResponse.json({ data: { deleted: true } });

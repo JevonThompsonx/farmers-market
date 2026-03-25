@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useActionState } from "react";
 import { useSearchParams } from "next/navigation";
 import { createProduct } from "@/server/actions/products";
@@ -16,7 +17,7 @@ const categoryOptions = CATEGORIES.map((cat) => ({
     .join(" & "),
 }));
 
-export default function NewProductPage() {
+function NewProductForm() {
   const searchParams = useSearchParams();
   const farmId = searchParams.get("farmId") ?? "";
   const [state, action, pending] = useActionState(createProduct, undefined);
@@ -86,5 +87,13 @@ export default function NewProductPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function NewProductPage() {
+  return (
+    <Suspense>
+      <NewProductForm />
+    </Suspense>
   );
 }

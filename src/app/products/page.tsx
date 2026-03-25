@@ -12,6 +12,17 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "All Products",
   description: "Browse all fresh, local products available at Farmers Market.",
+  openGraph: {
+    title: "All Products | Farmers Market",
+    description: "Browse all fresh, local products available at Farmers Market.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "All Products | Farmers Market",
+    description: "Browse all fresh, local products available at Farmers Market.",
+  },
+  alternates: { canonical: "./" },
 };
 
 async function ProductGrid({
@@ -100,11 +111,11 @@ export default async function ProductsPage({
       </h1>
 
       <nav aria-label="Category filter" className="mb-8">
-        <div className="flex flex-wrap gap-2">
+        <div className="flex gap-2 overflow-x-auto pb-1 md:flex-wrap md:overflow-visible">
           <Link
             href="/products"
             className={cn(
-              "rounded-[var(--radius-full)] px-4 py-1.5 text-sm font-medium transition-colors",
+              "inline-flex min-h-11 shrink-0 items-center rounded-[var(--radius-full)] px-4 text-sm font-medium transition-colors",
               !category
                 ? "bg-[var(--color-brand-600)] text-white"
                 : "border border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-[var(--color-brand-300)] hover:text-[var(--color-brand-700)]",
@@ -117,7 +128,7 @@ export default async function ProductsPage({
               key={cat}
               href={`/products?category=${cat}`}
               className={cn(
-                "rounded-[var(--radius-full)] px-4 py-1.5 text-sm font-medium transition-colors",
+                "inline-flex min-h-11 shrink-0 items-center rounded-[var(--radius-full)] px-4 text-sm font-medium transition-colors",
                 category === cat
                   ? "bg-[var(--color-brand-600)] text-white"
                   : "border border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-[var(--color-brand-300)] hover:text-[var(--color-brand-700)]",

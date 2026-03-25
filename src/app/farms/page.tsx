@@ -7,8 +7,19 @@ import { Rating } from "@/components/ui/Rating";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "All Farms",
+  title: "Local Farms",
   description: "Discover local farms and the producers behind your food.",
+  openGraph: {
+    title: "Local Farms | Farmers Market",
+    description: "Discover local farms and the producers behind your food.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Local Farms | Farmers Market",
+    description: "Discover local farms and the producers behind your food.",
+  },
+  alternates: { canonical: "./" },
 };
 
 async function FarmGrid() {

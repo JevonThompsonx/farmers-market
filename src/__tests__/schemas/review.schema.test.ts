@@ -50,13 +50,13 @@ describe("CreateReviewSchema", () => {
   });
 
   it("rejects missing body", () => {
-    const { body: _, ...rest } = valid;
+    const { body: _body, ...rest } = valid;
     const result = CreateReviewSchema.safeParse(rest);
     expect(result.success).toBe(false);
   });
 
   it("rejects missing rating", () => {
-    const { rating: _, ...rest } = valid;
+    const { rating: _rating, ...rest } = valid;
     const result = CreateReviewSchema.safeParse(rest);
     expect(result.success).toBe(false);
   });

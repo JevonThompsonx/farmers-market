@@ -9,6 +9,18 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Search Products",
+  description: "Search for fresh, local products from your favorite farms.",
+  openGraph: {
+    title: "Search Products | Farmers Market",
+    description: "Search for fresh, local products from your favorite farms.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Search Products | Farmers Market",
+    description: "Search for fresh, local products from your favorite farms.",
+  },
+  alternates: { canonical: "./" },
 };
 
 async function SearchResults({ query }: { query: string }) {

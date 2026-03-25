@@ -35,3 +35,10 @@ export class ValidationError extends AppError {
     this.name = "ValidationError";
   }
 }
+
+export class TooManyRequestsError extends AppError {
+  constructor(message = "Too many requests — please try again later") {
+    super(429, message);
+    this.name = "TooManyRequestsError";
+  }
+}

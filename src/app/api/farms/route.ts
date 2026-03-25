@@ -4,6 +4,7 @@ import { getFarms, createFarm } from "@/server/queries/farms";
 import { CreateFarmSchema } from "@/schemas/farm.schema";
 import { fetchAndStoreImage } from "@/server/services/image.service";
 import { ValidationError } from "@/lib/errors";
+import { assertRateLimit } from "@/lib/rate-limit";
 import { randomUUID } from "crypto";
 
 export const GET = apiHandler(async () => {
@@ -12,6 +13,8 @@ export const GET = apiHandler(async () => {
 });
 
 export const POST = apiHandler(async (req: NextRequest) => {
+  await assertRateLimit(req, "api:farms:create");
+
   const body: unknown = await req.json();
   const parsed = CreateFarmSchema.safeParse(body);
   if (!parsed.success) {

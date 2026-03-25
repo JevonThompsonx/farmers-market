@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@source "../**/*.{ts,tsx}";
+
 /* Design token system */
 :root {
   /* Brand colors */
@@ -20,7 +22,7 @@
   --color-surface: oklch(100% 0 0);
   --color-border: oklch(88% 0.01 145);
   --color-text: oklch(15% 0.02 145);
-  --color-text-muted: oklch(50% 0.02 145);
+  --color-text-muted: oklch(45% 0.02 145);
 
   /* Typography scale */
   --font-size-xs: 0.75rem;
@@ -47,7 +49,7 @@
     --color-surface: oklch(20% 0.02 145);
     --color-border: oklch(30% 0.03 145);
     --color-text: oklch(95% 0.01 145);
-    --color-text-muted: oklch(65% 0.02 145);
+    --color-text-muted: oklch(75% 0.02 145);
   }
 }
 
@@ -57,7 +59,7 @@
   --color-surface: oklch(20% 0.02 145);
   --color-border: oklch(30% 0.03 145);
   --color-text: oklch(95% 0.01 145);
-  --color-text-muted: oklch(65% 0.02 145);
+  --color-text-muted: oklch(75% 0.02 145);
 }
 
 [data-theme="light"] {
@@ -66,7 +68,7 @@
   --color-surface: oklch(100% 0 0);
   --color-border: oklch(88% 0.01 145);
   --color-text: oklch(15% 0.02 145);
-  --color-text-muted: oklch(50% 0.02 145);
+  --color-text-muted: oklch(45% 0.02 145);
 }
 
 @media (prefers-reduced-motion: reduce) {

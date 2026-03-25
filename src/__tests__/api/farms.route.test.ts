@@ -49,8 +49,8 @@ const mockFarm = {
   deletedAt: null,
 };
 
-function makeRequest(url: string, options?: RequestInit) {
-  return new NextRequest(url, options);
+function makeRequest(url: string, options?: Omit<RequestInit, "signal"> & { signal?: AbortSignal }) {
+  return new NextRequest(url, options as ConstructorParameters<typeof NextRequest>[1]);
 }
 
 describe("GET /api/farms", () => {

@@ -43,7 +43,7 @@ describe("CreateFarmSchema", () => {
   });
 
   it("rejects missing city", () => {
-    const { city: _, ...rest } = valid;
+    const { city: _city, ...rest } = valid;
     const result = CreateFarmSchema.safeParse(rest);
     expect(result.success).toBe(false);
   });

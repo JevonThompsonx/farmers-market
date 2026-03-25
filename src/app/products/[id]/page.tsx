@@ -34,6 +34,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         description: product.description.slice(0, 160),
         images: [{ url: product.image }],
       },
+      twitter: {
+        card: "summary_large_image",
+        title: product.name,
+        description: product.description.slice(0, 160),
+      },
+      alternates: { canonical: "./" },
     };
   } catch {
     return { title: "Product Not Found" };

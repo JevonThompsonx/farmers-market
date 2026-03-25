@@ -30,9 +30,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category } = await params;
   const label = categoryLabels[category];
   if (!label) return { title: "Category Not Found" };
+  const description = `Browse fresh, local ${label.toLowerCase()} from farms near you.`;
   return {
     title: label,
-    description: `Browse fresh, local ${label.toLowerCase()} from farms near you.`,
+    description,
+    openGraph: {
+      title: `${label} | Farmers Market`,
+      description,
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${label} | Farmers Market`,
+      description,
+    },
+    alternates: { canonical: "./" },
   };
 }
 
