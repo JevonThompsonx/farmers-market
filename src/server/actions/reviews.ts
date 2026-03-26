@@ -31,7 +31,7 @@ export async function createReview(
 
   const parsed = CreateReviewSchema.safeParse(raw);
   if (!parsed.success) {
-    return { error: parsed.error.errors[0]?.message ?? "Invalid input" };
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
   const id = crypto.randomUUID();

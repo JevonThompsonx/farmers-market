@@ -31,7 +31,7 @@ export async function createFarm(
 
   const parsed = CreateFarmSchema.safeParse(raw);
   if (!parsed.success) {
-    return { error: parsed.error.errors[0]?.message ?? "Invalid input" };
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
   let image: string;
@@ -77,7 +77,7 @@ export async function updateFarm(
 
   const parsed = UpdateFarmSchema.safeParse(raw);
   if (!parsed.success) {
-    return { error: parsed.error.errors[0]?.message ?? "Invalid input" };
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
   const updateData: Record<string, string | null> = {};

@@ -31,7 +31,7 @@ export async function createProduct(
 
   const parsed = CreateProductSchema.safeParse(raw);
   if (!parsed.success) {
-    return { error: parsed.error.errors[0]?.message ?? "Invalid input" };
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
   // Verify user owns the farm
@@ -78,7 +78,7 @@ export async function updateProduct(
 
   const parsed = UpdateProductSchema.safeParse(raw);
   if (!parsed.success) {
-    return { error: parsed.error.errors[0]?.message ?? "Invalid input" };
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
   const updateData: Record<string, string | number | null> = {};
