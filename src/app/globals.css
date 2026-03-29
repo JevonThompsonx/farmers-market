@@ -2,73 +2,86 @@
 
 @source "../**/*.{ts,tsx}";
 
-/* Design token system */
-:root {
-  /* Brand colors */
-  --color-brand-50: oklch(97% 0.03 145);
-  --color-brand-100: oklch(94% 0.07 145);
-  --color-brand-200: oklch(88% 0.12 145);
-  --color-brand-300: oklch(80% 0.17 145);
-  --color-brand-400: oklch(70% 0.20 145);
-  --color-brand-500: oklch(60% 0.22 145);
-  --color-brand-600: oklch(50% 0.20 145);
-  --color-brand-700: oklch(40% 0.17 145);
-  --color-brand-800: oklch(30% 0.12 145);
-  --color-brand-900: oklch(22% 0.08 145);
+@layer base {
+  /* LIGHT — always the default */
+  :root,
+  [data-theme="light"] {
+    --color-bg: #f9fdfa;
+    --color-bg-subtle: #edf5ee;
+    --color-text: #12261a; /* Contrast: 16.5:1 — Deep forest green */
+    --color-text-muted: #4a6358;
+    --color-border: #dae5dd;
+    --color-accent: #e14f35;
+    --color-brand-50: #f0fdf4;
+    --color-brand-100: #dcfce7;
+    --color-brand-200: #bbf7d0;
+    --color-brand-300: #86efac;
+    --color-brand-400: #4ade80;
+    --color-brand-500: #22c55e;
+    --color-brand-600: #16a34a;
+    --color-brand-700: #15803d;
+    --color-brand-800: #166534;
+    --color-brand-900: #14532d;
 
-  /* Semantic colors */
-  --color-bg: oklch(99% 0.005 145);
-  --color-bg-subtle: oklch(96% 0.01 145);
-  --color-surface: oklch(100% 0 0);
-  --color-border: oklch(88% 0.01 145);
-  --color-text: oklch(15% 0.02 145);
-  --color-text-muted: oklch(45% 0.02 145);
+    /* Typography scale */
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 1.875rem;
+    --font-size-4xl: 2.25rem;
 
-  /* Typography scale */
-  --font-size-xs: 0.75rem;
-  --font-size-sm: 0.875rem;
-  --font-size-base: 1rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.25rem;
-  --font-size-2xl: 1.5rem;
-  --font-size-3xl: 1.875rem;
-  --font-size-4xl: 2.25rem;
-
-  /* Border radius */
-  --radius-sm: 0.25rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --radius-full: 9999px;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: oklch(14% 0.02 145);
-    --color-bg-subtle: oklch(18% 0.02 145);
-    --color-surface: oklch(20% 0.02 145);
-    --color-border: oklch(30% 0.03 145);
-    --color-text: oklch(95% 0.01 145);
-    --color-text-muted: oklch(75% 0.02 145);
+    /* Border radius */
+    --radius-sm: 0.25rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --radius-full: 9999px;
   }
-}
 
-[data-theme="dark"] {
-  --color-bg: oklch(14% 0.02 145);
-  --color-bg-subtle: oklch(18% 0.02 145);
-  --color-surface: oklch(20% 0.02 145);
-  --color-border: oklch(30% 0.03 145);
-  --color-text: oklch(95% 0.01 145);
-  --color-text-muted: oklch(75% 0.02 145);
-}
+  /* DARK via system preference */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --color-bg: #07120a;
+      --color-bg-subtle: #0f1f14;
+      --color-text: #ecfdf3; /* Contrast: 17.2:1 — Pale mint cream */
+      --color-text-muted: #94a39b;
+      --color-border: #1a2e21;
+      --color-accent: #ff6b52;
+      --color-brand-50: #022c22;
+      --color-brand-100: #064e3b;
+      --color-brand-200: #065f46;
+      --color-brand-300: #047857;
+      --color-brand-400: #10b981;
+      --color-brand-500: #34d399;
+      --color-brand-600: #6ee7b7;
+      --color-brand-700: #a7f3d0;
+      --color-brand-800: #d1fae5;
+      --color-brand-900: #ecfdf5;
+    }
+  }
 
-[data-theme="light"] {
-  --color-bg: oklch(99% 0.005 145);
-  --color-bg-subtle: oklch(96% 0.01 145);
-  --color-surface: oklch(100% 0 0);
-  --color-border: oklch(88% 0.01 145);
-  --color-text: oklch(15% 0.02 145);
-  --color-text-muted: oklch(45% 0.02 145);
+  /* DARK via manual toggle — highest specificity, no media query dependency */
+  [data-theme="dark"] {
+    --color-bg: #07120a;
+    --color-bg-subtle: #0f1f14;
+    --color-text: #ecfdf3;
+    --color-text-muted: #94a39b;
+    --color-border: #1a2e21;
+    --color-accent: #ff6b52;
+    --color-brand-50: #022c22;
+    --color-brand-100: #064e3b;
+    --color-brand-200: #065f46;
+    --color-brand-300: #047857;
+    --color-brand-400: #10b981;
+    --color-brand-500: #34d399;
+    --color-brand-600: #6ee7b7;
+    --color-brand-700: #a7f3d0;
+    --color-brand-800: #d1fae5;
+    --color-brand-900: #ecfdf5;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

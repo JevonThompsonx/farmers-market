@@ -1,34 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 type Theme = "light" | "dark";
 
-function getInitialTheme(): Theme {
-  const stored = localStorage.getItem("theme");
-  if (stored === "light" || stored === "dark") return stored;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
-
 export function ThemeToggle({ className }: { className?: string }) {
-  const [theme, setTheme] = useState<Theme>(() => {
-    const initial = getInitialTheme();
-    document.documentElement.setAttribute("data-theme", initial);
-    return initial;
-  });
+  const [theme, setTheme] = useState<Theme | null>(null);
 
-  function applyTheme(nextTheme: Theme) {
+  // Initialize theme on mount from the DOM attribute (set by the head script)
+  useEffect(() => {
+    const currentTheme = document.documentElement.getAttribute("data-theme") as Theme;
+    setTheme(currentTheme || "light");
+  }, []);
+
+  function toggleTheme() {
+    if (!theme) return;
+    
+    const nextTheme: Theme = theme === "light" ? "dark" : "light";
+    setTheme(nextTheme);
     document.documentElement.setAttribute("data-theme", nextTheme);
     localStorage.setItem("theme", nextTheme);
   }
 
-  function toggleTheme() {
-    setTheme((currentTheme) => {
-      const nextTheme: Theme = currentTheme === "light" ? "dark" : "light";
-      applyTheme(nextTheme);
-      return nextTheme;
-    });
+  // Prevent flash of wrong icon by waiting for mount
+  if (!theme) {
+    return (
+      <div className={cn("h-9 w-9 p-2", className)} aria-hidden="true" />
+    );
   }
 
   const icons: Record<Theme, string> = {

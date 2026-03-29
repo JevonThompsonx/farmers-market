@@ -26,6 +26,7 @@ Gemini Flash tasks for Phases 7, 8, and 9 are complete:
 
 **Latest Claude fixes in this run:**
 - Fixed theme switcher one-click behavior by changing it to deterministic light/dark toggling with persisted state (`src/components/ui/ThemeToggle.tsx`), eliminating the apparent double-click issue from previous system/light/dark cycling.
+- Fixed `localStorage is not defined` runtime crash by making `ThemeToggle` initialization and persistence SSR-safe with explicit `window`/`document` guards (`src/components/ui/ThemeToggle.tsx`).
 - Added resilient image fallbacks across all core product/farm surfaces by standardizing on `ImageWithFallback` in listing/detail pages (`src/app/page.tsx`, `src/app/products/page.tsx`, `src/app/categories/[category]/page.tsx`, `src/app/search/page.tsx`, `src/app/products/[id]/page.tsx`, `src/app/farms/page.tsx`, `src/app/farms/[id]/page.tsx`).
 - Upgraded `ImageWithFallback` to include a loading skeleton overlay and stronger local default fallback (`src/components/ui/ImageWithFallback.tsx`), and aligned the component test assertion (`src/__tests__/components/ui/ImageWithFallback.test.tsx`).
 - Added dedicated local skeleton image assets for failed image states (`public/placeholders/product-skeleton.svg`, `public/placeholders/farm-skeleton.svg`).
