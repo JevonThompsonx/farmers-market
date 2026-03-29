@@ -1,86 +1,61 @@
-# Gemini Handoff — Farmers Market
+# Project Handoff — Farmers Market
 
-> **Date:** 2026-03-25
-> **From:** Claude (Sonnet 4.6)
-> **To:** Gemini Flash 2.0 (static tasks) · Gemini Pro 3.1 (browser tasks)
+> **Date:** 2026-03-29
+> **From:** Claude (Cascade)
 > **Project:** Next.js 15 App Router · Turso (LibSQL) · Drizzle ORM · Auth.js v5 · Tailwind CSS 4
 
 ---
 
 ## Status
 
-**Gemini Pro localhost browser QA tasks are complete.**
+The migration is now in finalization stage:
 
-Gemini Flash tasks for Phases 7, 8, and 9 are complete:
+- Phases 1–8 are complete in-repo (schema, DAL, API, auth, frontend rebuild, SEO, tests, CI/security, deploy workflow).
+- Phase 9 backend cleanup is complete: legacy `dev/`, `scripts/`, `views/`, `css/`, `images/`, `.eslintrc.json`, and `Dockerfile` were removed after reference audit.
+- Remaining work is deploy rollout plus deploy-dependent browser QA (Lighthouse, CWV, cross-browser) on the live Vercel URL.
 
-| Phase | Task | Status |
-|---|---|---|
-| 7 | Metadata on all pages (static + dynamic) | ✅ |
-| 7 | `src/app/sitemap.ts` | ✅ |
-| 7 | `src/app/robots.ts` | ✅ |
-| 7 | Canonical URLs on all pages | ✅ |
-| 7 | Alt text audit | ✅ |
-| 8 | Component unit tests (9 components, 28 tests) | ✅ |
-| 8 | E2E test scaffolding (`e2e/public.spec.ts`, `e2e/authenticated.spec.ts`) | ✅ |
-| 9 | README rewrite | ✅ |
+Recent completion highlights:
 
-**Latest Claude fixes in this run:**
-- Fixed theme switcher one-click behavior by changing it to deterministic light/dark toggling with persisted state (`src/components/ui/ThemeToggle.tsx`), eliminating the apparent double-click issue from previous system/light/dark cycling.
-- Fixed `localStorage is not defined` runtime crash by making `ThemeToggle` initialization and persistence SSR-safe with explicit `window`/`document` guards (`src/components/ui/ThemeToggle.tsx`).
-- Added resilient image fallbacks across all core product/farm surfaces by standardizing on `ImageWithFallback` in listing/detail pages (`src/app/page.tsx`, `src/app/products/page.tsx`, `src/app/categories/[category]/page.tsx`, `src/app/search/page.tsx`, `src/app/products/[id]/page.tsx`, `src/app/farms/page.tsx`, `src/app/farms/[id]/page.tsx`).
-- Upgraded `ImageWithFallback` to include a loading skeleton overlay and stronger local default fallback (`src/components/ui/ImageWithFallback.tsx`), and aligned the component test assertion (`src/__tests__/components/ui/ImageWithFallback.test.tsx`).
-- Added dedicated local skeleton image assets for failed image states (`public/placeholders/product-skeleton.svg`, `public/placeholders/farm-skeleton.svg`).
-- Normalized legacy `placehold.co` URLs directly to local skeleton assets in query normalization (`src/server/queries/image-url.ts`) to prevent repeated Next image optimizer upstream 404 errors.
-- Added a minimal no-op service worker file (`public/sw.js`) to satisfy existing browser registrations and stop local `/sw.js` 404 noise.
-- Expanded seed generation to 100+ products (currently 120) via variant expansion logic, switched seed fallback images to local skeleton assets, and made reseeding deterministic by clearing existing seeded entities before insert (`src/server/db/seed.ts`).
-- Upgraded seed content quality so entries are full-featured: every product now seeds with a deterministic photo URL (`picsum.photos`), rich description text, and multiple comments from multiple seeded users; farm-level comments are also seeded for populated farm detail pages (`src/server/db/seed.ts`, `next.config.ts`).
-- Hardened `searchProducts()` to gracefully fallback to SQL `LIKE` when `products_fts` is missing, preventing runtime search crashes.
-- Corrected FTS join shape to use SQLite `rowid` semantics when FTS exists.
-- Implemented mobile header hamburger navigation (`src/components/layout/Nav.tsx`) and increased header touch targets (`src/components/layout/Header.tsx`).
-- Updated contrast tokens in `src/app/globals.css` (`--color-text-muted` light/dark) to address WCAG findings from Gemini QA.
-- Fixed mobile search overflow and control sizing (`src/components/ui/SearchBar.tsx`).
-- Improved mobile category filter usability via horizontal scrolling + 44px tap targets (`src/app/products/page.tsx`, `src/app/page.tsx`).
-- Improved farm detail mobile behavior and resilience (`src/app/farms/[id]/page.tsx`) with breadcrumb wrapping, responsive action layout, and hero image fallback.
-- Added follow-up Drizzle migration for FTS (`src/server/db/migrations/0001_products_fts.sql`) and migration journal entry (`src/server/db/migrations/meta/_journal.json`) to create/sync `products_fts` with guarded SQL + triggers.
-- Migrated API mutation rate limiting to distributed Upstash-backed limiter in `src/lib/rate-limit.ts` (`@upstash/ratelimit` + `@upstash/redis`) with automatic in-memory fallback when Upstash env vars are absent; wired guards into all current `POST`/`PATCH`/`DELETE` handlers in `src/app/api/farms*` and `src/app/api/products*`.
-- Added focused mobile QA regression smoke test `e2e/mobile-qa.spec.ts` and verified it passes on Chromium (`2 passed`) for viewport overflow and 44px touch-target checks.
-- Created deploy workflow `.github/workflows/deploy.yml` (triggers after successful `CI` on `main`, plus manual dispatch) to deploy with Vercel CLI using repository secrets.
-- Ran `bun run db:migrate` successfully in the current local environment; migration set is applied locally.
-
-**Gemini task queue before backend completion:**
-- No active Gemini tasks remain on localhost before backend/deploy work is complete.
-- Next Gemini Pro tasks are deploy-dependent (Phase 9): Lighthouse, Core Web Vitals, and cross-browser validation after Vercel deploy.
+- Theme toggle behavior and SSR-safety fixes are in place.
+- Seed content now includes richer product/farm data and comments.
+- FTS migration exists and is applied locally; search has fallback handling.
+- Upstash-backed distributed mutation rate limiting is wired with in-memory fallback.
+- Mobile/responsive/contrast localhost QA findings were fixed; `e2e/mobile-qa.spec.ts` exists.
+- Deploy workflow exists at `.github/workflows/deploy.yml`.
 
 ---
 
-## What Claude needs to do next
+## Next Steps
 
-### 1. Apply migration in non-local environments
+### 1. Complete environment rollout
 
-Local migration is complete. Run `bun run db:migrate` in remaining target environments (staging/production) to activate `products_fts` and triggers everywhere.
+- Run `bun run db:migrate` in non-local target environments (staging/production) so `products_fts` and triggers are active everywhere.
 
-### 2. Configure deploy secrets + trigger first deploy
+### 2. Complete first Vercel deployment
 
-Ensure GitHub repository secrets exist: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`. Then trigger deploy via push to `main` (after CI succeeds) or `workflow_dispatch`.
+- Ensure GitHub repository secrets are set: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`.
+- Trigger deploy (`main` push after CI success or manual `workflow_dispatch`) and confirm live URL health.
 
-### 3. Continue remaining Phase 9 Claude cleanup tasks
+### 3. Run deploy-dependent Phase 9 QA
 
-Legacy cleanup/decommission tasks are still pending (remove old Express/EJS assets and legacy dependencies when ready).
+- Lighthouse on key routes.
+- Core Web Vitals verification (home + products listing).
+- Cross-browser validation (Chrome/Firefox/Safari).
 
 ---
 
-## Gemini Pro 3.1 tasks (browser)
+## Browser QA Queue
 
-### Localhost tasks (completed)
+### Localhost (already completed)
 
 Completed against `http://localhost:3000`:
 
-1. **WCAG contrast audit** — completed across target routes/themes.
-2. **Mobile responsiveness audit** — completed at 375px, 768px, 1280px, 1440px with screenshots and remediation guidance.
+1. **WCAG contrast audit**
+2. **Mobile responsiveness audit**
 
-### After Vercel deploy
+### After Vercel deploy (pending)
 
-These require the live deployed app. Do not run until deployment is confirmed.
+These require the live deployed app and should only run after deployment is confirmed.
 
 1. **Lighthouse audit** — run on `/`, `/products`, `/products/[id]`, `/farms`, `/farms/[id]`, `/search`, `/categories/vegetables`. Targets: ≥90 Performance, ≥90 Accessibility, 100 Best Practices, ≥90 SEO.
 2. **Core Web Vitals** — on home page and product listing: LCP <2.5s, INP <200ms, CLS <0.1.

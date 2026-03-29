@@ -1,6 +1,6 @@
 # Farmers Market — Migration Plan
 
-> **Status:** Phase 8 implementation is complete in-repo — CI, security, rate limiting, and deploy workflow are all in place. `products_fts` follow-up migration is committed and applied locally; run migrations in remaining target environments as part of release rollout. Gemini Pro localhost QA audits (contrast + responsive) are complete, P0 UI fixes are applied, and a focused mobile smoke pass is passing. Latest local stability pass fixed theme-toggle double-click behavior, added local skeleton image fallbacks (including legacy `placehold.co` normalization + `public/sw.js`), and expanded reseeding to 120 products. Seed content is now full-featured with deterministic photo URLs plus multi-user comments on products and farms.
+> **Status:** Phase 8 implementation is complete in-repo — CI, security, rate limiting, and deploy workflow are all in place. `products_fts` follow-up migration is committed and applied locally; run migrations in remaining target environments as part of release rollout. Gemini Pro localhost QA audits (contrast + responsive) are complete, P0 UI fixes are applied, and a focused mobile smoke pass is passing. Phase 9 backend legacy cleanup is complete (`dev/`, `scripts/`, `views/`, `css/`, `images/`, `.eslintrc.json`, and `Dockerfile` removed; legacy Express/EJS dependencies already absent from `package.json`). Remaining work is deploy rollout and deploy-dependent Phase 9 browser QA.
 > **Target stack:** Next.js (App Router) · Turso (LibSQL) · Drizzle ORM · Auth.js v5 · Tailwind CSS 4 · Cloudinary · Vercel · bun
 
 ---
@@ -369,7 +369,7 @@ Route structure under `src/app/api/`:
 > **Assignment key:** 🟡 = Gemini Flash 2.0 · 🟠 = Gemini Pro 3.1 (browser) · unmarked = Claude
 
 **Backend tasks:**
-- [ ] **Claude:** Remove legacy directories and dependencies — this is destructive cleanup that requires understanding what's still referenced:
+- [x] **Claude:** Remove legacy directories and dependencies — completed after reference audit:
   - Remove `dev/` directory (Express TypeScript source)
   - Remove `scripts/` directory (compiled JS output)
   - Remove `views/` directory (EJS templates)
@@ -385,7 +385,7 @@ Route structure under `src/app/api/`:
 - [ ] 🟠 **Gemini Pro 3.1 (browser):** Core Web Vitals verification — on the deployed Vercel app, check LCP < 2.5s, INP < 200ms, CLS < 0.1 on the home page and product listing page. Use Chrome DevTools Performance tab or web.dev/measure. Report actual values.
 - [ ] 🟠 **Gemini Pro 3.1 (browser):** Cross-browser test — verify the deployed app renders correctly in Chrome, Firefox, and Safari (if accessible). Check: layout integrity, theme toggle works, forms submit, images load, navigation works. Report any browser-specific rendering issues.
 
-**Dependencies:** All previous phases complete and verified on Vercel production.
+**Dependencies:** Backend cleanup is complete. Remaining browser QA tasks require first successful Vercel deploy.
 
 **Risk:** Low if all phases are functional. Keep the pre-cleanup state on a `legacy/express` branch before deleting files.
 
@@ -425,15 +425,15 @@ UPSTASH_REDIS_REST_TOKEN=
 
 | Phase | Focus | Risk | Status | AI Split |
 |---|---|---|---|---|
-| 1 | Security triage | Low | ✅ Complete | — |
-| 2 | Project scaffolding | Low | ✅ Complete | — |
-| 3 | Turso schema + DAL + image service | Medium | ✅ Complete | — |
-| 4 | API route handlers | Medium | ✅ Complete (mutation endpoint rate limiting implemented) | — |
-| 5 | Auth.js + GitHub OAuth | Medium | ✅ Complete | — |
-| 6 | React frontend rebuild | Medium-High | ✅ Complete | Localhost 🟠 Pro audits complete; deploy-dependent browser checks remain in Phase 9 |
-| 7 | SEO + metadata | Low | ✅ Complete | — |
-| 8 | Tests + CI/CD | Low | ✅ Complete in-repo (CI + security + rate limiting + deploy workflow) | — |
-| 9 | Cleanup + decommission | Low | Pending | 1 task → 🟡 Flash · 3 tasks → 🟠 Pro · 1 task → Claude |
+| 1 | Security triage | Low | Complete | — |
+| 2 | Project scaffolding | Low | Complete | — |
+| 3 | Turso schema + DAL + image service | Medium | Complete | — |
+| 4 | API route handlers | Medium | Complete (mutation endpoint rate limiting implemented) | — |
+| 5 | Auth.js + GitHub OAuth | Medium | Complete | — |
+| 6 | React frontend rebuild | Medium-High | Complete | Localhost Pro audits complete; deploy-dependent browser checks remain in Phase 9 |
+| 7 | SEO + metadata | Low | Complete | — |
+| 8 | Tests + CI/CD | Low | Complete in-repo (CI + security + rate limiting + deploy workflow) | — |
+| 9 | Cleanup + decommission | Low | In progress — backend cleanup complete; deploy-dependent browser QA pending | Remaining: 3 tasks → Pro |
 
 ---
 
