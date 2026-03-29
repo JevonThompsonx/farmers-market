@@ -22,6 +22,7 @@ Recent completion highlights:
 - Upstash-backed distributed mutation rate limiting is wired with in-memory fallback.
 - Mobile/responsive/contrast localhost QA findings were fixed; `e2e/mobile-qa.spec.ts` exists.
 - Deploy workflow exists at `.github/workflows/deploy.yml`.
+- Security workflow remediation applied: `.github/workflows/security.yml` now uses `aquasecurity/trivy-action@0.35.0` to address Dependabot alert `GHSA-69fq-xp46-6x23` / `CVE-2026-33634`.
 
 ---
 
