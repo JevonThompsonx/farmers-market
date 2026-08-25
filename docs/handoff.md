@@ -88,6 +88,28 @@ Set this value as the `next-auth.session-token` cookie in `authenticated.spec.ts
 
 ---
 
+## Wave 2 (2026-08-24) — P0 Security Hardening
+
+**Branch:** `feature/modernization/2026-08-24`
+
+Completed and verified (`bun run type-check && bun run lint && bun run test` all green; 144 tests passing):
+
+1. **Auth enforced on all 8 API mutation routes.** Each handler now calls `getUserId()` (throws `UnauthorizedError`/401 when no session). Routes: `POST /api/farms`, `POST /api/products`, `PATCH|DELETE /api/farms/[id]`, `PATCH|DELETE /api/products/[id]`, `POST /api/farms/[id]/reviews`, `POST /api/products/[id]/reviews`.
+2. **Ownership enforced.** `PATCH|DELETE` on a farm/product, `POST /api/products` (verifies the target farm's owner), and review writes use `assertOwnership(userId, farm.ownerId)` → `ForbiddenError`/403 when the caller is not the resource owner.
+3. **Placeholder IDs removed.** `ownerId`/`authorId` no longer use `"placeholder-will-be-replaced-by-auth"`; they are set from the authenticated session user id.
+4. **`allowDangerousEmailAccountLinking` set to `false`** in `src/lib/auth.ts` (account-takeover risk removed).
+5. **Content-Security-Policy added** in `next.config.ts` (strict: `default-src 'self'`, `frame-ancestors 'none'`, `object-src 'none'`, `img-src 'self' https: data: blob:`, `upgrade-insecure-requests`, etc.).
+6. **X-Forwarded-For hardened.** `getClientKey` in `src/lib/rate-limit.ts` now trusts the *rightmost* (proxy-appended) hop rather than the spoofable leftmost entry, closing the rate-limit bypass.
+7. **`pino-pretty` added** as a devDependency (was a runtime crash in dev).
+
+New behavioral tests in `src/__tests__/security/` cover: anonymous mutation rejected (401), authenticated mutation accepted (real user id used), cross-user mutation forbidden (403), public reads still work (200), auth callbacks wiring, and the XFF hardening.
+
+Note: a pre-existing lint error in `src/components/ui/ThemeToggle.tsx` (`react-hooks/set-state-in-effect`) was also fixed so the `lint` gate passes.
+
+Remaining open (out of P0 scope): Upstash-mandatory/fail-closed for rate limiting, Server-Action rate limiting, caching/ISR, synchronous image generation off the request path, JSON-LD dynamic URLs, `.toString()` validation error envelope.
+
+---
+
 ## Key files reference
 
 ```

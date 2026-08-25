@@ -5,6 +5,10 @@ vi.mock("@/lib/logger", () => ({
   logger: { info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }));
 
+vi.mock("@/server/queries/farms", () => ({
+  getFarmById: vi.fn(),
+}));
+
 vi.mock("@/server/queries/products", () => ({
   getProducts: vi.fn(),
   createProduct: vi.fn(),
@@ -22,13 +26,25 @@ vi.mock("@/server/services/image.service", () => ({
 
 vi.mock("server-only", () => ({}));
 
-vi.mock("@/lib/auth", () => ({
-  auth: vi.fn().mockResolvedValue(null),
-  assertOwnership: vi.fn(),
-}));
+vi.mock("@/lib/auth", () => {
+  const assertOwnership = vi.fn((userId: string, resourceOwnerId: string) => {
+    if (userId !== resourceOwnerId) {
+      throw new ForbiddenError("You do not own this resource");
+    }
+  });
+  return {
+    auth: vi.fn(),
+    assertOwnership,
+    getUserId: vi.fn(),
+  };
+});
 
 import { GET, POST } from "@/app/api/products/route";
 import { getProducts, createProduct } from "@/server/queries/products";
+import { getFarmById } from "@/server/queries/farms";
+import { getUserId } from "@/lib/auth";
+import { type Farm } from "@/server/db/schema";
+import { ForbiddenError, UnauthorizedError } from "@/lib/errors";
 
 const mockProduct = {
   id: "product-1",
@@ -94,6 +110,9 @@ describe("GET /api/products", () => {
 
 describe("POST /api/products", () => {
   beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(getUserId).mockResolvedValue("user-1");
+    vi.mocked(getFarmById).mockResolvedValue({ ownerId: "user-1" } as unknown as Farm);
     vi.mocked(createProduct).mockResolvedValue(mockProduct);
   });
 
@@ -105,7 +124,33 @@ describe("POST /api/products", () => {
     farmId: "farm-1",
   };
 
-  it("returns 201 with created product on valid input", async () => {
+  it("returns 401 when unauthenticated", async () => {
+    vi.mocked(getUserId).mockRejectedValue(new UnauthorizedError());
+    const req = makeRequest("http://localhost:3000/api/products", {
+      method: "POST",
+      body: JSON.stringify(validBody),
+      headers: { "Content-Type": "application/json" },
+    });
+    const res = await POST(req, { params: Promise.resolve({}) });
+
+    expect(res.status).toBe(401);
+    expect(createProduct).not.toHaveBeenCalled();
+  });
+
+  it("returns 403 when user does not own the farm", async () => {
+    vi.mocked(getFarmById).mockResolvedValue({ ownerId: "other-user" } as unknown as Farm);
+    const req = makeRequest("http://localhost:3000/api/products", {
+      method: "POST",
+      body: JSON.stringify(validBody),
+      headers: { "Content-Type": "application/json" },
+    });
+    const res = await POST(req, { params: Promise.resolve({}) });
+
+    expect(res.status).toBe(403);
+    expect(createProduct).not.toHaveBeenCalled();
+  });
+
+  it("returns 201 with created product on valid input for farm owner", async () => {
     const req = makeRequest("http://localhost:3000/api/products", {
       method: "POST",
       body: JSON.stringify(validBody),

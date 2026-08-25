@@ -5,6 +5,7 @@ import { CreateFarmSchema } from "@/schemas/farm.schema";
 import { fetchAndStoreImage } from "@/server/services/image.service";
 import { ValidationError } from "@/lib/errors";
 import { assertRateLimit } from "@/lib/rate-limit";
+import { getUserId } from "@/lib/auth";
 import { randomUUID } from "crypto";
 
 export const GET = apiHandler(async () => {
@@ -14,6 +15,8 @@ export const GET = apiHandler(async () => {
 
 export const POST = apiHandler(async (req: NextRequest) => {
   await assertRateLimit(req, "api:farms:create");
+
+  const userId = await getUserId();
 
   const body: unknown = await req.json();
   const parsed = CreateFarmSchema.safeParse(body);
@@ -33,7 +36,7 @@ export const POST = apiHandler(async (req: NextRequest) => {
     email: email ?? null,
     website: website ?? null,
     image,
-    ownerId: "placeholder-will-be-replaced-by-auth",
+    ownerId: userId,
   });
   return NextResponse.json({ data: farm }, { status: 201 });
 });

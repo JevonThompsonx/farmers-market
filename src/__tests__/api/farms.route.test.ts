@@ -26,12 +26,15 @@ vi.mock("server-only", () => ({}));
 
 // Mock next-auth so auth() doesn't attempt real session lookup
 vi.mock("@/lib/auth", () => ({
-  auth: vi.fn().mockResolvedValue(null),
+  auth: vi.fn(),
   assertOwnership: vi.fn(),
+  getUserId: vi.fn(),
 }));
 
 import { GET, POST } from "@/app/api/farms/route";
 import { getFarms, createFarm } from "@/server/queries/farms";
+import { getUserId } from "@/lib/auth";
+import { UnauthorizedError } from "@/lib/errors";
 
 const mockFarm = {
   id: "farm-1",
@@ -83,6 +86,7 @@ describe("GET /api/farms", () => {
 describe("POST /api/farms", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(getUserId).mockResolvedValue("user-1");
     vi.mocked(createFarm).mockResolvedValue(mockFarm);
   });
 
@@ -93,7 +97,20 @@ describe("POST /api/farms", () => {
     description: "A lovely organic farm in the Pacific Northwest.",
   };
 
-  it("returns 201 with created farm on valid input", async () => {
+  it("returns 401 when unauthenticated", async () => {
+    vi.mocked(getUserId).mockRejectedValue(new UnauthorizedError());
+    const req = makeRequest("http://localhost:3000/api/farms", {
+      method: "POST",
+      body: JSON.stringify(validBody),
+      headers: { "Content-Type": "application/json" },
+    });
+    const res = await POST(req, { params: Promise.resolve({}) });
+
+    expect(res.status).toBe(401);
+    expect(createFarm).not.toHaveBeenCalled();
+  });
+
+  it("returns 201 with created farm on valid input for authenticated user", async () => {
     const req = makeRequest("http://localhost:3000/api/farms", {
       method: "POST",
       body: JSON.stringify(validBody),
@@ -104,6 +121,9 @@ describe("POST /api/farms", () => {
     expect(res.status).toBe(201);
     const body = await res.json() as { data: typeof mockFarm };
     expect(body.data.name).toBe("Sunrise Farm");
+    expect(createFarm).toHaveBeenCalledWith(
+      expect.objectContaining({ ownerId: "user-1" }),
+    );
   });
 
   it("returns 400 on invalid input", async () => {

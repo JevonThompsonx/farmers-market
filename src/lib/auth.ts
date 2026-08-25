@@ -3,7 +3,7 @@ import GitHub from "next-auth/providers/github";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/server/db";
 import { users, accounts, sessions, verificationTokens } from "@/server/db/schema";
-import { ForbiddenError } from "./errors";
+import { ForbiddenError, UnauthorizedError } from "./errors";
 
 // Schema tables have slight column differences from the adapter's expected types
 // due to exactOptionalPropertyTypes strictness — cast via unknown to satisfy adapter.
@@ -17,7 +17,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     GitHub({
       clientId: process.env["GITHUB_CLIENT_ID"] ?? "",
       clientSecret: process.env["GITHUB_CLIENT_SECRET"] ?? "",
-      allowDangerousEmailAccountLinking: true,
+      // Account-takeover risk: see MODERNIZATION_TODO. Linking is handled
+      // explicitly via the `linkAccount` callback instead of auto-linking by email.
+      allowDangerousEmailAccountLinking: false,
     }),
   ],
   session: { strategy: "jwt" },
@@ -42,4 +44,18 @@ export function assertOwnership(userId: string, resourceOwnerId: string) {
   if (userId !== resourceOwnerId) {
     throw new ForbiddenError("You do not own this resource");
   }
+}
+
+/**
+ * Resolve the authenticated user id for an API route handler.
+ * Throws `UnauthorizedError` (401) when no session is present, so callers
+ * can enforce auth + ownership at the trust boundary.
+ */
+export async function getUserId(): Promise<string> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) {
+    throw new UnauthorizedError("Authentication required");
+  }
+  return userId;
 }

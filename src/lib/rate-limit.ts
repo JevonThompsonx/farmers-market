@@ -20,9 +20,18 @@ const upstashRedis =
     : null;
 
 function getClientKey(req: NextRequest): string {
+  // X-Forwarded-For is client-controlled: it is a comma-separated list where the
+  // LEFT-most entry is the originating client (most easily spoofed) and the
+  // RIGHT-most entry is appended by our trusted proxy (Vercel/edge). To avoid
+  // letting clients reset their own rate-limit bucket, we trust the proxy-appended
+  // (rightmost) hop, falling back to x-real-ip, then "unknown".
   const forwardedFor = req.headers.get("x-forwarded-for");
-  const ip = forwardedFor?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "unknown";
-  return ip;
+  if (forwardedFor) {
+    const hops = forwardedFor.split(",").map((h) => h.trim()).filter(Boolean);
+    const trustedHop = hops[hops.length - 1];
+    if (trustedHop) return trustedHop;
+  }
+  return req.headers.get("x-real-ip") || "unknown";
 }
 
 function clearExpiredBuckets(now: number) {

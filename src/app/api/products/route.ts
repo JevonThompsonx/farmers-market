@@ -1,11 +1,14 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { apiHandler } from "@/lib/api-handler";
 import { getProducts, createProduct } from "@/server/queries/products";
+import { getFarmById } from "@/server/queries/farms";
+import { assertOwnership } from "@/lib/auth";
 import { CreateProductSchema } from "@/schemas/product.schema";
 import { fetchAndStoreImage } from "@/server/services/image.service";
 import { ValidationError } from "@/lib/errors";
 import { type Category } from "@/server/db/schema";
 import { assertRateLimit } from "@/lib/rate-limit";
+import { getUserId } from "@/lib/auth";
 import { randomUUID } from "crypto";
 
 export const GET = apiHandler(async (req: NextRequest) => {
@@ -24,6 +27,8 @@ export const GET = apiHandler(async (req: NextRequest) => {
 export const POST = apiHandler(async (req: NextRequest) => {
   await assertRateLimit(req, "api:products:create");
 
+  const userId = await getUserId();
+
   const body: unknown = await req.json();
   const parsed = CreateProductSchema.safeParse(body);
   if (!parsed.success) {
@@ -33,6 +38,11 @@ export const POST = apiHandler(async (req: NextRequest) => {
   }
   const { name, price, description, category, farmId } = parsed.data;
   const image = await fetchAndStoreImage(`${name} ${category} farm fresh`);
+
+  // Enforce that the product's farm belongs to the authenticated user.
+  const farm = await getFarmById(farmId);
+  assertOwnership(userId, farm.ownerId);
+
   const product = await createProduct({
     id: randomUUID(),
     name,

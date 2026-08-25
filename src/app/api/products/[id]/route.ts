@@ -8,6 +8,8 @@ import {
 import { UpdateProductSchema } from "@/schemas/product.schema";
 import { ValidationError } from "@/lib/errors";
 import { assertRateLimit } from "@/lib/rate-limit";
+import { getUserId, assertOwnership } from "@/lib/auth";
+import { getFarmById } from "@/server/queries/farms";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -20,7 +22,13 @@ export const GET = apiHandler(async (_req: NextRequest, { params }: Params) => {
 export const PATCH = apiHandler(async (req: NextRequest, { params }: Params) => {
   await assertRateLimit(req, "api:products:update");
 
+  const userId = await getUserId();
   const { id } = await params;
+
+  const product = await getProductById(id);
+  const farm = await getFarmById(product.farmId);
+  assertOwnership(userId, farm.ownerId);
+
   const body: unknown = await req.json();
   const parsed = UpdateProductSchema.safeParse(body);
   if (!parsed.success) {
@@ -35,7 +43,13 @@ export const PATCH = apiHandler(async (req: NextRequest, { params }: Params) => 
 export const DELETE = apiHandler(async (req: NextRequest, { params }: Params) => {
   await assertRateLimit(req, "api:products:delete");
 
+  const userId = await getUserId();
   const { id } = await params;
+
+  const product = await getProductById(id);
+  const farm = await getFarmById(product.farmId);
+  assertOwnership(userId, farm.ownerId);
+
   await softDeleteProduct(id);
   return NextResponse.json({ data: { deleted: true } });
 });
