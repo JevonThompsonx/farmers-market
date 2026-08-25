@@ -50,7 +50,9 @@ import { auth } from "@/lib/auth";
 import { createReview as insertReview } from "@/server/queries/reviews";
 import { UnauthorizedError } from "@/lib/errors";
 
-const mockSession = { user: { id: "user-1", name: "Test User", email: "test@example.com" } };
+const mockSession = {
+  user: { id: "user-1", name: "Test User", email: "test@example.com" },
+};
 
 function makeFormData(fields: Record<string, string>): FormData {
   const fd = new FormData();
@@ -62,7 +64,11 @@ function makeFormData(fields: Record<string, string>): FormData {
 
 describe("createReview action", () => {
   beforeEach(() => {
-    vi.mocked(auth).mockResolvedValue(mockSession as ReturnType<typeof auth> extends Promise<infer T> ? T : never);
+    vi.mocked(auth).mockResolvedValue(
+      mockSession as ReturnType<typeof auth> extends Promise<infer T>
+        ? T
+        : never,
+    );
     vi.mocked(insertReview).mockResolvedValue(undefined);
   });
 
@@ -70,9 +76,9 @@ describe("createReview action", () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(auth).mockResolvedValue(null as any);
     const fd = makeFormData({ body: "Great product!", rating: "5" });
-    await expect(createReview({ farmId: "farm-1" }, undefined, fd)).rejects.toBeInstanceOf(
-      UnauthorizedError,
-    );
+    await expect(
+      createReview({ farmId: "farm-1" }, undefined, fd),
+    ).rejects.toBeInstanceOf(UnauthorizedError);
   });
 
   it("returns error when validation fails", async () => {
@@ -82,7 +88,10 @@ describe("createReview action", () => {
   });
 
   it("returns error when rating is out of range", async () => {
-    const fd = makeFormData({ body: "This is a valid review body.", rating: "6" });
+    const fd = makeFormData({
+      body: "This is a valid review body.",
+      rating: "6",
+    });
     const result = await createReview({ farmId: "farm-1" }, undefined, fd);
     expect(result?.error).toBeDefined();
   });
@@ -102,7 +111,11 @@ describe("createReview action", () => {
       body: "Excellent quality tomatoes, will buy again.",
       rating: "4",
     });
-    const result = await createReview({ productId: "product-1" }, undefined, fd);
+    const result = await createReview(
+      { productId: "product-1" },
+      undefined,
+      fd,
+    );
     expect(result?.success).toBe(true);
   });
 });
@@ -111,6 +124,8 @@ describe("deleteReview action", () => {
   it("throws UnauthorizedError when not authenticated", async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(auth).mockResolvedValue(null as any);
-    await expect(deleteReview("review-1")).rejects.toBeInstanceOf(UnauthorizedError);
+    await expect(deleteReview("review-1")).rejects.toBeInstanceOf(
+      UnauthorizedError,
+    );
   });
 });

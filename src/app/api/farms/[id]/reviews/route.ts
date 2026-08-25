@@ -1,6 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { apiHandler } from "@/lib/api-handler";
-import { createReview, getReviewsForFarm, getAverageRatingForFarm } from "@/server/queries/reviews";
+import {
+  createReview,
+  getReviewsForFarm,
+  getAverageRatingForFarm,
+} from "@/server/queries/reviews";
 import { updateFarmRating } from "@/server/queries/farms";
 import { CreateReviewSchema } from "@/schemas/review.schema";
 import { ValidationError } from "@/lib/errors";
@@ -25,9 +29,7 @@ export const POST = apiHandler(async (req: NextRequest, { params }: Params) => {
   const body: unknown = await req.json();
   const parsed = CreateReviewSchema.safeParse(body);
   if (!parsed.success) {
-    throw new ValidationError(
-      parsed.error.flatten().fieldErrors.toString(),
-    );
+    throw new ValidationError(parsed.error.flatten().fieldErrors.toString());
   }
   await createReview({
     id: randomUUID(),

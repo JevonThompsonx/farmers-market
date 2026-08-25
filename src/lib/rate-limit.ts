@@ -12,7 +12,8 @@ const buckets = new Map<string, Bucket>();
 const upstashLimiters = new Map<string, Ratelimit>();
 
 const upstashRedis =
-  process.env["UPSTASH_REDIS_REST_URL"] && process.env["UPSTASH_REDIS_REST_TOKEN"]
+  process.env["UPSTASH_REDIS_REST_URL"] &&
+  process.env["UPSTASH_REDIS_REST_TOKEN"]
     ? new Redis({
         url: process.env["UPSTASH_REDIS_REST_URL"],
         token: process.env["UPSTASH_REDIS_REST_TOKEN"],
@@ -27,7 +28,10 @@ function getClientKey(req: NextRequest): string {
   // (rightmost) hop, falling back to x-real-ip, then "unknown".
   const forwardedFor = req.headers.get("x-forwarded-for");
   if (forwardedFor) {
-    const hops = forwardedFor.split(",").map((h) => h.trim()).filter(Boolean);
+    const hops = forwardedFor
+      .split(",")
+      .map((h) => h.trim())
+      .filter(Boolean);
     const trustedHop = hops[hops.length - 1];
     if (trustedHop) return trustedHop;
   }

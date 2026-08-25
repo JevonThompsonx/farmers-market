@@ -2,13 +2,24 @@ import NextAuth from "next-auth";
 import GitHub from "next-auth/providers/github";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/server/db";
-import { users, accounts, sessions, verificationTokens } from "@/server/db/schema";
+import {
+  users,
+  accounts,
+  sessions,
+  verificationTokens,
+} from "@/server/db/schema";
 import { ForbiddenError, UnauthorizedError } from "./errors";
 
 // Schema tables have slight column differences from the adapter's expected types
 // due to exactOptionalPropertyTypes strictness — cast via unknown to satisfy adapter.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
-const adapterSchema = { usersTable: users, accountsTable: accounts, sessionsTable: sessions, verificationTokensTable: verificationTokens } as any;
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+const adapterSchema = {
+  usersTable: users,
+  accountsTable: accounts,
+  sessionsTable: sessions,
+  verificationTokensTable: verificationTokens,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+} as any;
 const adapter = DrizzleAdapter(db, adapterSchema);
 
 export const { handlers, signIn, signOut, auth } = NextAuth({

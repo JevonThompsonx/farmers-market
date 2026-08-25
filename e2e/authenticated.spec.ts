@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-// Note: To run these tests with real Auth.jsv5, 
+// Note: To run these tests with real Auth.jsv5,
 // you need to set a valid next-auth.session-token cookie.
 // The value should be a signed JWT.
 
@@ -28,9 +28,11 @@ test.describe("Authenticated Actions", () => {
     await page.getByLabel("Farm Name").fill("Test E2E Farm");
     await page.getByLabel("City").fill("Test City");
     await page.getByLabel("State").fill("TS");
-    await page.getByLabel("Description").fill("This is a test farm created via Playwright.");
-    
-    // We can't easily upload images from here without additional setup, 
+    await page
+      .getByLabel("Description")
+      .fill("This is a test farm created via Playwright.");
+
+    // We can't easily upload images from here without additional setup,
     // but the form might handle the image query or placeholder.
     // If there's an image input, we'd handle it here.
 
@@ -46,7 +48,7 @@ test.describe("Authenticated Actions", () => {
     // Assuming we have a farm ID or can find one
     await page.goto("/farms");
     await page.locator("a[href^='/farms/']").first().click();
-    
+
     const farmUrl = page.url();
     const farmId = farmUrl.split("/").pop();
 
@@ -73,10 +75,14 @@ test.describe("Authenticated Actions", () => {
     await expect(reviewForm).toBeVisible();
 
     await page.getByLabel("3 stars").click(); // Using RatingInput labels
-    await page.getByLabel("Your Review").fill("Testing review submission via E2E.");
+    await page
+      .getByLabel("Your Review")
+      .fill("Testing review submission via E2E.");
     await page.getByRole("button", { name: "Submit Review" }).click();
 
-    await expect(page.getByText("Testing review submission via E2E.")).toBeVisible();
+    await expect(
+      page.getByText("Testing review submission via E2E."),
+    ).toBeVisible();
   });
 
   test("edit own farm", async ({ page }) => {
@@ -103,7 +109,7 @@ test.describe("Authenticated Actions", () => {
     // If there's a confirmation modal/button
     const confirmButton = page.getByRole("button", { name: "Confirm Delete" });
     if (await confirmButton.isVisible()) {
-        await confirmButton.click();
+      await confirmButton.click();
     }
 
     await expect(page).toHaveURL("/farms");

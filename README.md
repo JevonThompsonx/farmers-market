@@ -72,7 +72,6 @@ Optional:
 3. Fill `.env` with all required values listed above.
 
 4. Create/configure Turso DB (if you do not already have one):
-
    - `turso db create farmers-market`
    - `turso db show farmers-market --url`
    - `turso db tokens create farmers-market`

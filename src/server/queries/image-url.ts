@@ -13,7 +13,9 @@ export function normalizeImageUrl(imageUrl: string): string {
     return imageUrl;
   }
 
-  const segments = parsed.pathname.split("/").filter((segment) => segment.length > 0);
+  const segments = parsed.pathname
+    .split("/")
+    .filter((segment) => segment.length > 0);
   const dimensions = segments[0];
 
   if (dimensions === undefined) {

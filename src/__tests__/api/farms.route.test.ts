@@ -18,7 +18,9 @@ vi.mock("@/server/queries/farms", () => ({
 }));
 
 vi.mock("@/server/services/image.service", () => ({
-  fetchAndStoreImage: vi.fn().mockResolvedValue("https://res.cloudinary.com/test/image.webp"),
+  fetchAndStoreImage: vi
+    .fn()
+    .mockResolvedValue("https://res.cloudinary.com/test/image.webp"),
 }));
 
 // Mock server-only so it doesn't throw in test environment
@@ -52,17 +54,30 @@ const mockFarm = {
   deletedAt: null,
 };
 
-function makeRequest(url: string, options?: Omit<RequestInit, "signal"> & { signal?: AbortSignal }) {
-  return new NextRequest(url, options as ConstructorParameters<typeof NextRequest>[1]);
+function makeRequest(
+  url: string,
+  options?: Omit<RequestInit, "signal"> & { signal?: AbortSignal },
+) {
+  return new NextRequest(
+    url,
+    options as ConstructorParameters<typeof NextRequest>[1],
+  );
 }
 
 describe("GET /api/farms", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(getFarms).mockResolvedValue([
-      { id: mockFarm.id, name: mockFarm.name, city: mockFarm.city, state: mockFarm.state,
-        description: mockFarm.description, image: mockFarm.image, rating: mockFarm.rating,
-        createdAt: mockFarm.createdAt },
+      {
+        id: mockFarm.id,
+        name: mockFarm.name,
+        city: mockFarm.city,
+        state: mockFarm.state,
+        description: mockFarm.description,
+        image: mockFarm.image,
+        rating: mockFarm.rating,
+        createdAt: mockFarm.createdAt,
+      },
     ]);
   });
 
@@ -71,7 +86,7 @@ describe("GET /api/farms", () => {
     const res = await GET(req, { params: Promise.resolve({}) });
 
     expect(res.status).toBe(200);
-    const body = await res.json() as { data: unknown[] };
+    const body = (await res.json()) as { data: unknown[] };
     expect(Array.isArray(body.data)).toBe(true);
     expect(body.data).toHaveLength(1);
   });
@@ -119,7 +134,7 @@ describe("POST /api/farms", () => {
     const res = await POST(req, { params: Promise.resolve({}) });
 
     expect(res.status).toBe(201);
-    const body = await res.json() as { data: typeof mockFarm };
+    const body = (await res.json()) as { data: typeof mockFarm };
     expect(body.data.name).toBe("Sunrise Farm");
     expect(createFarm).toHaveBeenCalledWith(
       expect.objectContaining({ ownerId: "user-1" }),
@@ -135,7 +150,7 @@ describe("POST /api/farms", () => {
     const res = await POST(req, { params: Promise.resolve({}) });
 
     expect(res.status).toBe(400);
-    const body = await res.json() as { error: string };
+    const body = (await res.json()) as { error: string };
     expect(body.error).toBe("ValidationError");
   });
 });

@@ -28,11 +28,7 @@ export async function getFarms() {
 }
 
 export async function getFarmById(id: string) {
-  const rows = await db
-    .select()
-    .from(farms)
-    .where(eq(farms.id, id))
-    .limit(1);
+  const rows = await db.select().from(farms).where(eq(farms.id, id)).limit(1);
 
   const farm = rows[0];
   if (!farm || farm.deletedAt !== null) {
@@ -61,7 +57,12 @@ export async function createFarm(data: NewFarm) {
 
 export async function updateFarm(
   id: string,
-  data: Partial<Pick<NewFarm, "name" | "city" | "state" | "description" | "email" | "website" | "image">>,
+  data: Partial<
+    Pick<
+      NewFarm,
+      "name" | "city" | "state" | "description" | "email" | "website" | "image"
+    >
+  >,
 ) {
   await db
     .update(farms)
@@ -77,10 +78,7 @@ export async function softDeleteFarm(id: string) {
 }
 
 export async function getAllFarmIds() {
-  return db
-    .select({ id: farms.id })
-    .from(farms)
-    .where(isNull(farms.deletedAt));
+  return db.select({ id: farms.id }).from(farms).where(isNull(farms.deletedAt));
 }
 
 export async function updateFarmRating(farmId: string, rating: number) {

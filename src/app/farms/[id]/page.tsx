@@ -119,9 +119,8 @@ async function ReviewList({ farmId }: { farmId: string }) {
               <form
                 action={async () => {
                   "use server";
-                  const { deleteReview } = await import(
-                    "@/server/actions/reviews"
-                  );
+                  const { deleteReview } =
+                    await import("@/server/actions/reviews");
                   await deleteReview(review.id);
                 }}
               >
@@ -206,7 +205,9 @@ export default async function FarmDetailPage({ params }: Props) {
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(localBusinessJsonLd),
+        }}
       />
       <script
         type="application/ld+json"

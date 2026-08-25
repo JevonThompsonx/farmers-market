@@ -27,12 +27,18 @@ vi.mock("@/server/queries/farms", () => ({
 }));
 
 vi.mock("@/server/services/image.service", () => ({
-  fetchAndStoreImage: vi.fn().mockResolvedValue("https://res.cloudinary.com/test/image.webp"),
+  fetchAndStoreImage: vi
+    .fn()
+    .mockResolvedValue("https://res.cloudinary.com/test/image.webp"),
 }));
 
 import { createFarm, deleteFarm } from "@/server/actions/farms";
 import { auth, assertOwnership } from "@/lib/auth";
-import { createFarm as insertFarm, getFarmById, softDeleteFarm } from "@/server/queries/farms";
+import {
+  createFarm as insertFarm,
+  getFarmById,
+  softDeleteFarm,
+} from "@/server/queries/farms";
 import { fetchAndStoreImage } from "@/server/services/image.service";
 import { UnauthorizedError } from "@/lib/errors";
 import { redirect } from "next/navigation";
@@ -40,7 +46,9 @@ import { redirect } from "next/navigation";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnySession = any;
 
-const mockSession = { user: { id: "user-1", name: "Test User", email: "test@example.com" } };
+const mockSession = {
+  user: { id: "user-1", name: "Test User", email: "test@example.com" },
+};
 
 const mockFarm = {
   id: "farm-1",
@@ -71,7 +79,9 @@ describe("createFarm action", () => {
     vi.clearAllMocks();
     vi.mocked(auth).mockResolvedValue(mockSession as AnySession);
     vi.mocked(insertFarm).mockResolvedValue(mockFarm);
-    vi.mocked(fetchAndStoreImage).mockResolvedValue("https://res.cloudinary.com/test/image.webp");
+    vi.mocked(fetchAndStoreImage).mockResolvedValue(
+      "https://res.cloudinary.com/test/image.webp",
+    );
     vi.mocked(redirect).mockImplementation((url: string) => {
       throw new Error(`REDIRECT:${url}`);
     });
@@ -85,11 +95,18 @@ describe("createFarm action", () => {
       state: "OR",
       description: "A lovely organic farm.",
     });
-    await expect(createFarm(undefined, fd)).rejects.toBeInstanceOf(UnauthorizedError);
+    await expect(createFarm(undefined, fd)).rejects.toBeInstanceOf(
+      UnauthorizedError,
+    );
   });
 
   it("returns error when validation fails", async () => {
-    const fd = makeFormData({ name: "A", city: "Portland", state: "OR", description: "Short" });
+    const fd = makeFormData({
+      name: "A",
+      city: "Portland",
+      state: "OR",
+      description: "Short",
+    });
     const result = await createFarm(undefined, fd);
     expect(result?.error).toBeDefined();
   });
@@ -103,7 +120,9 @@ describe("createFarm action", () => {
       email: "",
       website: "",
     });
-    await expect(createFarm(undefined, fd)).rejects.toThrow(/REDIRECT:\/farms\//);
+    await expect(createFarm(undefined, fd)).rejects.toThrow(
+      /REDIRECT:\/farms\//,
+    );
     expect(insertFarm).toHaveBeenCalled();
   });
 });
@@ -122,7 +141,9 @@ describe("deleteFarm action", () => {
 
   it("throws UnauthorizedError when not authenticated", async () => {
     vi.mocked(auth).mockResolvedValue(null as unknown as AnySession);
-    await expect(deleteFarm("farm-1")).rejects.toBeInstanceOf(UnauthorizedError);
+    await expect(deleteFarm("farm-1")).rejects.toBeInstanceOf(
+      UnauthorizedError,
+    );
   });
 
   it("calls softDeleteFarm and redirects on success", async () => {

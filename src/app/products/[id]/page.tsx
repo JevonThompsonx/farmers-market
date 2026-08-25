@@ -71,9 +71,8 @@ async function ReviewList({ productId }: { productId: string }) {
               <form
                 action={async () => {
                   "use server";
-                  const { deleteReview } = await import(
-                    "@/server/actions/reviews"
-                  );
+                  const { deleteReview } =
+                    await import("@/server/actions/reviews");
                   await deleteReview(review.id);
                 }}
               >
@@ -206,7 +205,9 @@ export default async function ProductDetailPage({ params }: Props) {
             <h1 className="text-3xl font-bold text-[var(--color-text)]">
               {product.name}
             </h1>
-            <Badge>{categoryLabels[product.category] ?? product.category}</Badge>
+            <Badge>
+              {categoryLabels[product.category] ?? product.category}
+            </Badge>
           </div>
 
           <p className="mt-2 text-2xl font-bold text-[var(--color-brand-600)]">

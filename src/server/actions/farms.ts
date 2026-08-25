@@ -18,7 +18,8 @@ export async function createFarm(
   formData: FormData,
 ) {
   const session = await auth();
-  if (!session?.user?.id) throw new UnauthorizedError("Sign in to create a farm");
+  if (!session?.user?.id)
+    throw new UnauthorizedError("Sign in to create a farm");
 
   const raw = {
     name: formData.get("name"),
@@ -36,7 +37,9 @@ export async function createFarm(
 
   let image: string;
   try {
-    image = await fetchAndStoreImage(`${parsed.data.name} farm ${parsed.data.state}`);
+    image = await fetchAndStoreImage(
+      `${parsed.data.name} farm ${parsed.data.state}`,
+    );
   } catch {
     image = "/placeholder.svg";
   }
@@ -84,9 +87,12 @@ export async function updateFarm(
   if (parsed.data.name !== undefined) updateData["name"] = parsed.data.name;
   if (parsed.data.city !== undefined) updateData["city"] = parsed.data.city;
   if (parsed.data.state !== undefined) updateData["state"] = parsed.data.state;
-  if (parsed.data.description !== undefined) updateData["description"] = parsed.data.description;
-  if (parsed.data.email !== undefined) updateData["email"] = parsed.data.email || null;
-  if (parsed.data.website !== undefined) updateData["website"] = parsed.data.website || null;
+  if (parsed.data.description !== undefined)
+    updateData["description"] = parsed.data.description;
+  if (parsed.data.email !== undefined)
+    updateData["email"] = parsed.data.email || null;
+  if (parsed.data.website !== undefined)
+    updateData["website"] = parsed.data.website || null;
 
   await patchFarm(farmId, updateData);
 

@@ -99,7 +99,7 @@ Completed and verified (`bun run type-check && bun run lint && bun run test` all
 3. **Placeholder IDs removed.** `ownerId`/`authorId` no longer use `"placeholder-will-be-replaced-by-auth"`; they are set from the authenticated session user id.
 4. **`allowDangerousEmailAccountLinking` set to `false`** in `src/lib/auth.ts` (account-takeover risk removed).
 5. **Content-Security-Policy added** in `next.config.ts` (strict: `default-src 'self'`, `frame-ancestors 'none'`, `object-src 'none'`, `img-src 'self' https: data: blob:`, `upgrade-insecure-requests`, etc.).
-6. **X-Forwarded-For hardened.** `getClientKey` in `src/lib/rate-limit.ts` now trusts the *rightmost* (proxy-appended) hop rather than the spoofable leftmost entry, closing the rate-limit bypass.
+6. **X-Forwarded-For hardened.** `getClientKey` in `src/lib/rate-limit.ts` now trusts the _rightmost_ (proxy-appended) hop rather than the spoofable leftmost entry, closing the rate-limit bypass.
 7. **`pino-pretty` added** as a devDependency (was a runtime crash in dev).
 
 New behavioral tests in `src/__tests__/security/` cover: anonymous mutation rejected (401), authenticated mutation accepted (real user id used), cross-user mutation forbidden (403), public reads still work (200), auth callbacks wiring, and the XFF hardening.

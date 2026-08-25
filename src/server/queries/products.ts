@@ -11,7 +11,10 @@ function isMissingProductsFtsTableError(error: unknown): boolean {
   }
 
   const message = error.message;
-  return typeof message === "string" && message.includes("no such table: products_fts");
+  return (
+    typeof message === "string" &&
+    message.includes("no such table: products_fts")
+  );
 }
 
 function normalizeProductImage<T extends { image: string }>(product: T): T {
@@ -73,7 +76,9 @@ export async function getProductsByFarm(farmId: string) {
   const rows = await db
     .select()
     .from(products)
-    .where(sql`${products.farmId} = ${farmId} AND ${products.deletedAt} IS NULL`)
+    .where(
+      sql`${products.farmId} = ${farmId} AND ${products.deletedAt} IS NULL`,
+    )
     .orderBy(desc(products.createdAt));
 
   return rows.map(normalizeProductImage);
@@ -160,7 +165,9 @@ export async function createProduct(data: NewProduct) {
 
 export async function updateProduct(
   id: string,
-  data: Partial<Pick<NewProduct, "name" | "price" | "description" | "category" | "image">>,
+  data: Partial<
+    Pick<NewProduct, "name" | "price" | "description" | "category" | "image">
+  >,
 ) {
   await db
     .update(products)

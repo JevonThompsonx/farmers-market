@@ -44,7 +44,12 @@ vi.mock("@/lib/errors", () => ({
 }));
 
 const nextAuthMod = await import("next-auth");
-vi.mocked(nextAuthMod.default).mockImplementation(((config: { callbacks: { jwt: (a: JwtArgs) => Record<string, unknown>; session: (a: SessionArgs) => { user: { id?: string } } } }) => {
+vi.mocked(nextAuthMod.default).mockImplementation(((config: {
+  callbacks: {
+    jwt: (a: JwtArgs) => Record<string, unknown>;
+    session: (a: SessionArgs) => { user: { id?: string } };
+  };
+}) => {
   captured.jwt = config.callbacks.jwt;
   captured.session = config.callbacks.session;
   return {};
@@ -59,7 +64,10 @@ describe("auth callbacks still work", () => {
   });
 
   it("session callback copies token.userId into session.user.id", () => {
-    const session = captured.session!({ session: { user: { id: "" } }, token: { userId: "user-abc" } });
+    const session = captured.session!({
+      session: { user: { id: "" } },
+      token: { userId: "user-abc" },
+    });
     expect(session.user.id).toBe("user-abc");
   });
 

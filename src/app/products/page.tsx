@@ -14,13 +14,15 @@ export const metadata: Metadata = {
   description: "Browse all fresh, local products available at Farmers Market.",
   openGraph: {
     title: "All Products | Farmers Market",
-    description: "Browse all fresh, local products available at Farmers Market.",
+    description:
+      "Browse all fresh, local products available at Farmers Market.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "All Products | Farmers Market",
-    description: "Browse all fresh, local products available at Farmers Market.",
+    description:
+      "Browse all fresh, local products available at Farmers Market.",
   },
   alternates: { canonical: "./" },
 };

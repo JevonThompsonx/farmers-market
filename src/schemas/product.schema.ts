@@ -12,7 +12,9 @@ export const CreateProductSchema = z.object({
   farmId: z.string().min(1, "Farm is required"),
 });
 
-export const UpdateProductSchema = CreateProductSchema.omit({ farmId: true }).partial();
+export const UpdateProductSchema = CreateProductSchema.omit({
+  farmId: true,
+}).partial();
 
 export type CreateProductInput = z.infer<typeof CreateProductSchema>;
 export type UpdateProductInput = z.infer<typeof UpdateProductSchema>;

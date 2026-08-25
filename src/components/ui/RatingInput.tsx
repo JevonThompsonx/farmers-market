@@ -26,11 +26,7 @@ export function RatingInput({
       <span className="text-sm font-medium text-[var(--color-text)]">
         Rating
       </span>
-      <div
-        className="flex gap-1"
-        role="radiogroup"
-        aria-label="Rating"
-      >
+      <div className="flex gap-1" role="radiogroup" aria-label="Rating">
         {stars.map((star) => (
           <button
             key={star}
@@ -38,7 +34,7 @@ export function RatingInput({
             onClick={() => onChange?.(star)}
             onMouseEnter={() => setHovered(star)}
             onMouseLeave={() => setHovered(0)}
-            className="p-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-500)] rounded-sm"
+            className="rounded-sm p-0.5 focus-visible:ring-2 focus-visible:ring-[var(--color-brand-500)] focus-visible:outline-none"
             role="radio"
             aria-checked={value === star}
             aria-label={`${star} star${star > 1 ? "s" : ""}`}

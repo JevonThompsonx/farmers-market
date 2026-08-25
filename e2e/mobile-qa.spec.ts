@@ -3,7 +3,9 @@ import { test, expect } from "@playwright/test";
 test.describe("Mobile QA smoke", () => {
   test.use({ viewport: { width: 375, height: 812 } });
 
-  test("home and search stay within viewport with touch-sized controls", async ({ page }) => {
+  test("home and search stay within viewport with touch-sized controls", async ({
+    page,
+  }) => {
     await page.goto("/");
 
     const menuButton = page.getByRole("button", { name: /menu/i });
@@ -12,7 +14,9 @@ test.describe("Mobile QA smoke", () => {
     expect(menuBox?.height ?? 0).toBeGreaterThanOrEqual(44);
 
     await menuButton.click();
-    await expect(page.locator("#main-navigation-menu a[href='/products']")).toBeVisible();
+    await expect(
+      page.locator("#main-navigation-menu a[href='/products']"),
+    ).toBeVisible();
 
     const homeOverflow = await page.evaluate(
       () => document.documentElement.scrollWidth - window.innerWidth,

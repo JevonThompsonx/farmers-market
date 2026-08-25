@@ -21,9 +21,7 @@ export const POST = apiHandler(async (req: NextRequest) => {
   const body: unknown = await req.json();
   const parsed = CreateFarmSchema.safeParse(body);
   if (!parsed.success) {
-    throw new ValidationError(
-      parsed.error.flatten().fieldErrors.toString(),
-    );
+    throw new ValidationError(parsed.error.flatten().fieldErrors.toString());
   }
   const { name, city, state, description, email, website } = parsed.data;
   const image = await fetchAndStoreImage(`${name} farm ${city}`);

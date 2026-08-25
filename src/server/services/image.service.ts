@@ -53,9 +53,7 @@ export async function fetchAndStoreImage(query: string): Promise<string> {
 
   // Convert to WebP via sharp
   const sharp = (await import("sharp")).default;
-  const webpBuffer = await sharp(buffer)
-    .webp({ quality: 85 })
-    .toBuffer();
+  const webpBuffer = await sharp(buffer).webp({ quality: 85 }).toBuffer();
 
   // Upload to Cloudinary
   const uploadResult = await new Promise<{ secure_url: string }>(

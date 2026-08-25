@@ -5,7 +5,9 @@ import * as schema from "./schema";
 
 const client = createClient({
   url: process.env["TURSO_DATABASE_URL"] ?? "",
-  ...(process.env["TURSO_AUTH_TOKEN"] !== undefined && { authToken: process.env["TURSO_AUTH_TOKEN"] }),
+  ...(process.env["TURSO_AUTH_TOKEN"] !== undefined && {
+    authToken: process.env["TURSO_AUTH_TOKEN"],
+  }),
 });
 
 export const db = drizzle(client, { schema });

@@ -4,7 +4,10 @@ import { join } from "path";
 
 // next.config.ts is outside the src tree and not part of the app tsconfig, so we
 // assert behaviorally that the CSP header is configured in the security headers.
-const configSource = readFileSync(join(process.cwd(), "next.config.ts"), "utf8");
+const configSource = readFileSync(
+  join(process.cwd(), "next.config.ts"),
+  "utf8",
+);
 
 describe("Content-Security-Policy header configuration", () => {
   it("declares a Content-Security-Policy header", () => {

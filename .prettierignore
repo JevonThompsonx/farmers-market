@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Build / generated output
+.next/
+out/
+dist/
+build/
+
+# Test / coverage artifacts
+coverage/
+playwright-report/
+test-results/
+blob-report/
+
+# Lockfiles (binary / machine-managed)
+bun.lockb
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Misc generated
+*.min.js
+*.min.css

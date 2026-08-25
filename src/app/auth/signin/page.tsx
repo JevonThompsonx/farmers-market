@@ -3,16 +3,19 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Sign In",
-  description: "Sign in to Farmers Market to manage your farm or review products.",
+  description:
+    "Sign in to Farmers Market to manage your farm or review products.",
   openGraph: {
     title: "Sign In | Farmers Market",
-    description: "Sign in to Farmers Market to manage your farm or review products.",
+    description:
+      "Sign in to Farmers Market to manage your farm or review products.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "Sign In | Farmers Market",
-    description: "Sign in to Farmers Market to manage your farm or review products.",
+    description:
+      "Sign in to Farmers Market to manage your farm or review products.",
   },
   alternates: { canonical: "./" },
 };
@@ -30,7 +33,8 @@ export default async function SignInPage({
     Configuration:
       "Authentication is temporarily misconfigured. Please try again shortly.",
     AccessDenied: "Access was denied by the provider. Please try again.",
-    Verification: "Your sign-in link is invalid or expired. Please request a new one.",
+    Verification:
+      "Your sign-in link is invalid or expired. Please request a new one.",
     Default: "We couldn't sign you in. Please try again.",
   };
   const errorMessage = params.error
@@ -39,9 +43,7 @@ export default async function SignInPage({
 
   return (
     <div className="flex min-h-[60vh] items-center justify-center px-4">
-      <div
-        className="w-full max-w-sm rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 shadow-sm"
-      >
+      <div className="w-full max-w-sm rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 shadow-sm">
         <h1 className="mb-2 text-2xl font-bold text-[var(--color-text)]">
           Sign in
         </h1>

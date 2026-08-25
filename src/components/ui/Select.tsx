@@ -30,7 +30,7 @@ export function Select({
       <select
         id={id}
         className={cn(
-          "rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)] disabled:cursor-not-allowed disabled:opacity-50",
+          "rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] focus:ring-2 focus:ring-[var(--color-brand-500)] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
           error ? "border-red-500 focus:ring-red-500" : "",
           className,
         )}

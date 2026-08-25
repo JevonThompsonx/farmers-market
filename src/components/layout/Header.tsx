@@ -13,7 +13,7 @@ export async function Header() {
         <div className="flex min-h-16 items-center justify-between gap-2 py-2">
           <Link
             href="/"
-            className="whitespace-nowrap text-lg font-bold text-[var(--color-brand-700)] transition-colors hover:text-[var(--color-brand-600)] sm:text-xl"
+            className="text-lg font-bold whitespace-nowrap text-[var(--color-brand-700)] transition-colors hover:text-[var(--color-brand-600)] sm:text-xl"
           >
             Farmers Market
           </Link>
@@ -43,7 +43,7 @@ export async function Header() {
                 >
                   <button
                     type="submit"
-                    className="inline-flex min-h-11 items-center rounded-[var(--radius-md)] px-2 text-sm font-medium text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-500)]"
+                    className="inline-flex min-h-11 items-center rounded-[var(--radius-md)] px-2 text-sm font-medium text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text)] focus-visible:ring-2 focus-visible:ring-[var(--color-brand-500)] focus-visible:outline-none"
                   >
                     Sign out
                   </button>
@@ -52,7 +52,7 @@ export async function Header() {
             ) : (
               <Link
                 href="/auth/signin"
-                className="inline-flex min-h-11 items-center rounded-[var(--radius-md)] bg-[var(--color-brand-600)] px-4 text-sm font-medium text-white transition-colors hover:bg-[var(--color-brand-700)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-500)]"
+                className="inline-flex min-h-11 items-center rounded-[var(--radius-md)] bg-[var(--color-brand-600)] px-4 text-sm font-medium text-white transition-colors hover:bg-[var(--color-brand-700)] focus-visible:ring-2 focus-visible:ring-[var(--color-brand-500)] focus-visible:outline-none"
               >
                 Sign in
               </Link>

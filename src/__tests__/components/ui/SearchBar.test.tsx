@@ -17,7 +17,14 @@ describe("SearchBar", () => {
 
   it("fires router.push on form submit with valid query", () => {
     const pushMock = vi.fn();
-    (useRouter as MockedFunction<typeof useRouter>).mockReturnValue({ push: pushMock, back: vi.fn(), forward: vi.fn(), refresh: vi.fn(), replace: vi.fn(), prefetch: vi.fn() });
+    (useRouter as MockedFunction<typeof useRouter>).mockReturnValue({
+      push: pushMock,
+      back: vi.fn(),
+      forward: vi.fn(),
+      refresh: vi.fn(),
+      replace: vi.fn(),
+      prefetch: vi.fn(),
+    });
 
     render(<SearchBar />);
     const input = screen.getByLabelText("Search products");
@@ -29,7 +36,14 @@ describe("SearchBar", () => {
 
   it("does not fire router.push with query < 2 chars", () => {
     const pushMock = vi.fn();
-    (useRouter as MockedFunction<typeof useRouter>).mockReturnValue({ push: pushMock, back: vi.fn(), forward: vi.fn(), refresh: vi.fn(), replace: vi.fn(), prefetch: vi.fn() });
+    (useRouter as MockedFunction<typeof useRouter>).mockReturnValue({
+      push: pushMock,
+      back: vi.fn(),
+      forward: vi.fn(),
+      refresh: vi.fn(),
+      replace: vi.fn(),
+      prefetch: vi.fn(),
+    });
 
     render(<SearchBar />);
     const input = screen.getByLabelText("Search products");

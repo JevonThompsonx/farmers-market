@@ -19,37 +19,44 @@ export const GET = apiHandler(async (_req: NextRequest, { params }: Params) => {
   return NextResponse.json({ data });
 });
 
-export const PATCH = apiHandler(async (req: NextRequest, { params }: Params) => {
-  await assertRateLimit(req, "api:products:update");
+export const PATCH = apiHandler(
+  async (req: NextRequest, { params }: Params) => {
+    await assertRateLimit(req, "api:products:update");
 
-  const userId = await getUserId();
-  const { id } = await params;
+    const userId = await getUserId();
+    const { id } = await params;
 
-  const product = await getProductById(id);
-  const farm = await getFarmById(product.farmId);
-  assertOwnership(userId, farm.ownerId);
+    const product = await getProductById(id);
+    const farm = await getFarmById(product.farmId);
+    assertOwnership(userId, farm.ownerId);
 
-  const body: unknown = await req.json();
-  const parsed = UpdateProductSchema.safeParse(body);
-  if (!parsed.success) {
-    throw new ValidationError(
-      parsed.error.flatten().fieldErrors.toString(),
+    const body: unknown = await req.json();
+    const parsed = UpdateProductSchema.safeParse(body);
+    if (!parsed.success) {
+      throw new ValidationError(parsed.error.flatten().fieldErrors.toString());
+    }
+    await updateProduct(
+      id,
+      Object.fromEntries(
+        Object.entries(parsed.data).filter(([, v]) => v !== undefined),
+      ) as Parameters<typeof updateProduct>[1],
     );
-  }
-  await updateProduct(id, Object.fromEntries(Object.entries(parsed.data).filter(([, v]) => v !== undefined)) as Parameters<typeof updateProduct>[1]);
-  return NextResponse.json({ data: { updated: true } });
-});
+    return NextResponse.json({ data: { updated: true } });
+  },
+);
 
-export const DELETE = apiHandler(async (req: NextRequest, { params }: Params) => {
-  await assertRateLimit(req, "api:products:delete");
+export const DELETE = apiHandler(
+  async (req: NextRequest, { params }: Params) => {
+    await assertRateLimit(req, "api:products:delete");
 
-  const userId = await getUserId();
-  const { id } = await params;
+    const userId = await getUserId();
+    const { id } = await params;
 
-  const product = await getProductById(id);
-  const farm = await getFarmById(product.farmId);
-  assertOwnership(userId, farm.ownerId);
+    const product = await getProductById(id);
+    const farm = await getFarmById(product.farmId);
+    assertOwnership(userId, farm.ownerId);
 
-  await softDeleteProduct(id);
-  return NextResponse.json({ data: { deleted: true } });
-});
+    await softDeleteProduct(id);
+    return NextResponse.json({ data: { deleted: true } });
+  },
+);
