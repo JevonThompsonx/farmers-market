@@ -10,6 +10,7 @@ import { type Category } from "@/server/db/schema";
 import { assertRateLimit } from "@/lib/rate-limit";
 import { getUserId } from "@/lib/auth";
 import { randomUUID } from "crypto";
+import { CACHE_CONTROL_MEDIUM } from "@/lib/cache";
 
 export const GET = apiHandler(async (req: NextRequest) => {
   const { searchParams } = req.nextUrl;
@@ -21,7 +22,10 @@ export const GET = apiHandler(async (req: NextRequest) => {
   if (farmIdParam !== null) filters.farmId = farmIdParam;
   if (category !== null) filters.category = category;
   const data = await getProducts(filters);
-  return NextResponse.json({ data });
+  return NextResponse.json(
+    { data },
+    { headers: { "Cache-Control": CACHE_CONTROL_MEDIUM } },
+  );
 });
 
 export const POST = apiHandler(async (req: NextRequest) => {

@@ -10,13 +10,17 @@ import { ValidationError } from "@/lib/errors";
 import { assertRateLimit } from "@/lib/rate-limit";
 import { getUserId, assertOwnership } from "@/lib/auth";
 import { getFarmById } from "@/server/queries/farms";
+import { CACHE_CONTROL_MEDIUM } from "@/lib/cache";
 
 type Params = { params: Promise<{ id: string }> };
 
 export const GET = apiHandler(async (_req: NextRequest, { params }: Params) => {
   const { id } = await params;
   const data = await getProductById(id);
-  return NextResponse.json({ data });
+  return NextResponse.json(
+    { data },
+    { headers: { "Cache-Control": CACHE_CONTROL_MEDIUM } },
+  );
 });
 
 export const PATCH = apiHandler(

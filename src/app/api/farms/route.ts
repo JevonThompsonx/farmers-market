@@ -7,10 +7,14 @@ import { ValidationError } from "@/lib/errors";
 import { assertRateLimit } from "@/lib/rate-limit";
 import { getUserId } from "@/lib/auth";
 import { randomUUID } from "crypto";
+import { CACHE_CONTROL_MEDIUM } from "@/lib/cache";
 
 export const GET = apiHandler(async () => {
   const data = await getFarms();
-  return NextResponse.json({ data });
+  return NextResponse.json(
+    { data },
+    { headers: { "Cache-Control": CACHE_CONTROL_MEDIUM } },
+  );
 });
 
 export const POST = apiHandler(async (req: NextRequest) => {

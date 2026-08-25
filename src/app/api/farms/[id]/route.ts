@@ -9,13 +9,17 @@ import { UpdateFarmSchema } from "@/schemas/farm.schema";
 import { ValidationError } from "@/lib/errors";
 import { assertRateLimit } from "@/lib/rate-limit";
 import { getUserId, assertOwnership } from "@/lib/auth";
+import { CACHE_CONTROL_MEDIUM } from "@/lib/cache";
 
 type Params = { params: Promise<{ id: string }> };
 
 export const GET = apiHandler(async (_req: NextRequest, { params }: Params) => {
   const { id } = await params;
   const data = await getFarmById(id);
-  return NextResponse.json({ data });
+  return NextResponse.json(
+    { data },
+    { headers: { "Cache-Control": CACHE_CONTROL_MEDIUM } },
+  );
 });
 
 export const PATCH = apiHandler(
