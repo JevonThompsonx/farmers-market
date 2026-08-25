@@ -14,6 +14,9 @@ import { Rating } from "@/components/ui/Rating";
 import { ReviewForm } from "@/components/ReviewForm";
 import type { Metadata } from "next";
 
+export const revalidate = 300;
+export const dynamicParams = true;
+
 export async function generateStaticParams() {
   const ids = await getAllFarmIds();
   return ids.map(({ id }) => ({ id }));

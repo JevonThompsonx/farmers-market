@@ -9,6 +9,8 @@ import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { Rating } from "@/components/ui/Rating";
 import type { Metadata } from "next";
 
+export const revalidate = 300;
+
 const categoryLabels: Record<string, string> = {
   vegetables: "Vegetables",
   fruits: "Fruits",

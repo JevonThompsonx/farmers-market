@@ -6,6 +6,8 @@ import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { Rating } from "@/components/ui/Rating";
 import type { Metadata } from "next";
 
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: "Local Farms",
   description: "Discover local farms and the producers behind your food.",

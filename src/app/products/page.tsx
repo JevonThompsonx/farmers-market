@@ -9,6 +9,8 @@ import { Rating } from "@/components/ui/Rating";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: "All Products",
   description: "Browse all fresh, local products available at Farmers Market.",
