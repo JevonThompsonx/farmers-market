@@ -1,10 +1,18 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { apiHandler } from "@/lib/api-handler";
-import { getProducts, createProduct } from "@/server/queries/products";
+import {
+  getProducts,
+  createProduct,
+  updateProduct,
+} from "@/server/queries/products";
 import { getFarmById } from "@/server/queries/farms";
 import { assertOwnership } from "@/lib/auth";
 import { CreateProductSchema } from "@/schemas/product.schema";
-import { fetchAndStoreImage } from "@/server/services/image.service";
+import {
+  hydrateImageAsync,
+  PLACEHOLDER_IMAGE,
+} from "@/server/services/image.service";
 import { ValidationError } from "@/lib/errors";
 import { type Category } from "@/server/db/schema";
 import { assertRateLimit } from "@/lib/rate-limit";
@@ -39,20 +47,29 @@ export const POST = apiHandler(async (req: NextRequest) => {
     throw new ValidationError(parsed.error.flatten().fieldErrors.toString());
   }
   const { name, price, description, category, farmId } = parsed.data;
-  const image = await fetchAndStoreImage(`${name} ${category} farm fresh`);
 
   // Enforce that the product's farm belongs to the authenticated user.
   const farm = await getFarmById(farmId);
   assertOwnership(userId, farm.ownerId);
 
+  const id = randomUUID();
+  // Write the record immediately with a placeholder so the response never
+  // blocks on the Unsplash → sharp → Cloudinary image pipeline.
   const product = await createProduct({
-    id: randomUUID(),
+    id,
     name,
     price,
     description,
     category,
-    image,
+    image: PLACEHOLDER_IMAGE,
     farmId,
   });
+
+  // Hydrate the real image off the request path (after the response is sent).
+  hydrateImageAsync(`${name} ${category} farm fresh`, async (imageUrl) => {
+    await updateProduct(id, { image: imageUrl });
+    revalidateTag("products", { expire: 300 });
+  });
+
   return NextResponse.json({ data: product }, { status: 201 });
 });

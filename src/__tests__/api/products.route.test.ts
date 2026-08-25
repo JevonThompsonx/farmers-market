@@ -24,6 +24,8 @@ vi.mock("@/server/services/image.service", () => ({
   fetchAndStoreImage: vi
     .fn()
     .mockResolvedValue("https://res.cloudinary.com/test/image.webp"),
+  hydrateImageAsync: vi.fn(),
+  PLACEHOLDER_IMAGE: "/placeholder.svg",
 }));
 
 vi.mock("server-only", () => ({}));

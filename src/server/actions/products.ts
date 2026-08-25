@@ -15,7 +15,10 @@ import {
   getProductById,
 } from "@/server/queries/products";
 import { getFarmById } from "@/server/queries/farms";
-import { fetchAndStoreImage } from "@/server/services/image.service";
+import {
+  hydrateImageAsync,
+  PLACEHOLDER_IMAGE,
+} from "@/server/services/image.service";
 
 export async function createProduct(
   _prevState: { error?: string } | undefined,
@@ -42,21 +45,25 @@ export async function createProduct(
   const farm = await getFarmById(parsed.data.farmId);
   assertOwnership(session.user.id, farm.ownerId);
 
-  let image: string;
-  try {
-    image = await fetchAndStoreImage(
-      `${parsed.data.name} ${parsed.data.category} produce`,
-    );
-  } catch {
-    image = "/placeholder.svg";
-  }
-
   const id = crypto.randomUUID();
+  // Write the record immediately with a placeholder so the action never blocks
+  // on the Unsplash → sharp → Cloudinary image pipeline.
   await insertProduct({
     id,
     ...parsed.data,
-    image,
+    image: PLACEHOLDER_IMAGE,
   });
+
+  // Hydrate the real image off the request path (after the response is sent).
+  hydrateImageAsync(
+    `${parsed.data.name} ${parsed.data.category} produce`,
+    async (imageUrl) => {
+      await patchProduct(id, { image: imageUrl });
+      revalidatePath(`/products/${id}`);
+      revalidatePath(`/farms/${parsed.data.farmId}`);
+      revalidatePath("/products");
+    },
+  );
 
   revalidatePath(`/farms/${parsed.data.farmId}`);
   revalidatePath("/products");
