@@ -195,18 +195,18 @@ project-root/
 
 ### Critical TypeScript Rules
 
-| Rule                             | Why                                                    |
+| Rule | Why |
 | -------------------------------- | ------------------------------------------------------ | ---------- |
-| `strict: true`                   | Catches null/undefined errors, enforces type narrowing |
+| `strict: true` | Catches null/undefined errors, enforces type narrowing |
 | `noUncheckedIndexedAccess: true` | Array/object indexing returns `T                       | undefined` |
-| `exactOptionalPropertyTypes`     | Distinguishes `missing` from `undefined`               |
-| Never use `any`                  | Use `unknown` + type narrowing or define proper types  |
-| Never use `as`                   | Use type guards, `satisfies`, or schema validation     |
-| Never use `!` non-null assertion | Handle the null case explicitly                        |
-| Prefer `interface` for objects   | Better error messages, declaration merging             |
-| Prefer `type` for unions         | `type` handles computed types; `interface` cannot      |
-| Use `satisfies` for config       | Validates type while preserving narrowest inference    |
-| Use `as const` for literals      | Narrows string literals and makes arrays readonly      |
+| `exactOptionalPropertyTypes` | Distinguishes `missing` from `undefined` |
+| Never use `any` | Use `unknown` + type narrowing or define proper types |
+| Never use `as` | Use type guards, `satisfies`, or schema validation |
+| Never use `!` non-null assertion | Handle the null case explicitly |
+| Prefer `interface` for objects | Better error messages, declaration merging |
+| Prefer `type` for unions | `type` handles computed types; `interface` cannot |
+| Use `satisfies` for config | Validates type while preserving narrowest inference |
+| Use `as const` for literals | Narrows string literals and makes arrays readonly |
 
 ### Type Narrowing Patterns
 
