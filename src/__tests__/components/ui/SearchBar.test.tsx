@@ -24,6 +24,7 @@ describe("SearchBar", () => {
       refresh: vi.fn(),
       replace: vi.fn(),
       prefetch: vi.fn(),
+      bfcacheId: null as unknown as string,
     });
 
     render(<SearchBar />);
@@ -43,6 +44,7 @@ describe("SearchBar", () => {
       refresh: vi.fn(),
       replace: vi.fn(),
       prefetch: vi.fn(),
+      bfcacheId: null as unknown as string,
     });
 
     render(<SearchBar />);
