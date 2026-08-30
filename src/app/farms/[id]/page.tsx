@@ -18,8 +18,14 @@ export const revalidate = 300;
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  const ids = await getAllFarmIds();
-  return ids.map(({ id }) => ({ id }));
+  try {
+    const ids = await getAllFarmIds();
+    return ids.map(({ id }) => ({ id }));
+  } catch {
+    // DB may be unreachable at build time (e.g. CI). Fall back to on-demand
+    // rendering for any params — dynamicParams is enabled below.
+    return [];
+  }
 }
 
 interface Props {

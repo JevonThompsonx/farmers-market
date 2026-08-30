@@ -28,7 +28,13 @@ export const metadata: Metadata = {
 };
 
 async function FeaturedProducts() {
-  const products = await getProducts({ limit: 6 });
+  let products: Awaited<ReturnType<typeof getProducts>> = [];
+  try {
+    products = await getProducts({ limit: 6 });
+  } catch {
+    // DB may be unreachable at build time (e.g. CI). Render the empty
+    // state; ISR (revalidate) populates real data at request time in prod.
+  }
   return (
     <section aria-labelledby="featured-heading">
       <h2

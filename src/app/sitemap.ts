@@ -5,7 +5,14 @@ import { getProducts } from "@/server/queries/products";
 const BASE = "https://farmers-market.vercel.app";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [farms, products] = await Promise.all([getFarms(), getProducts()]);
+  let farms: Awaited<ReturnType<typeof getFarms>> = [];
+  let products: Awaited<ReturnType<typeof getProducts>> = [];
+  try {
+    [farms, products] = await Promise.all([getFarms(), getProducts()]);
+  } catch {
+    // DB may be unreachable at build time (e.g. CI). Emit base routes only;
+    // the sitemap regenerates on the next ISR cycle in production.
+  }
 
   const farmEntries = farms.map((f) => ({
     url: `${BASE}/farms/${f.id}`,

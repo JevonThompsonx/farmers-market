@@ -14,8 +14,14 @@ import { ReviewForm } from "@/components/ReviewForm";
 import type { Metadata } from "next";
 
 export async function generateStaticParams() {
-  const ids = await getAllProductIds();
-  return ids.map(({ id }) => ({ id }));
+  try {
+    const ids = await getAllProductIds();
+    return ids.map(({ id }) => ({ id }));
+  } catch {
+    // DB may be unreachable at build time (e.g. CI). Fall back to on-demand
+    // rendering for any params — dynamicParams defaults to true in Next.js.
+    return [];
+  }
 }
 
 interface Props {

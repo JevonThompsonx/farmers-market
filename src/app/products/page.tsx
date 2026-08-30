@@ -38,7 +38,13 @@ async function ProductGrid({
 }) {
   const filters: Parameters<typeof getProducts>[0] = { page, limit: 20 };
   if (category) filters.category = category;
-  const products = await getProducts(filters);
+  let products: Awaited<ReturnType<typeof getProducts>> = [];
+  try {
+    products = await getProducts(filters);
+  } catch {
+    // DB may be unreachable at build time (e.g. CI). Render the empty
+    // state; ISR (revalidate) populates real data at request time in prod.
+  }
 
   if (products.length === 0) {
     return (
