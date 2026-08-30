@@ -2,7 +2,7 @@
 
 > **Date:** 2026-03-29
 > **From:** Claude (Cascade)
-> **Project:** Next.js 15 App Router · Turso (LibSQL) · Drizzle ORM · Auth.js v5 · Tailwind CSS 4
+> **Project:** Next.js 16 App Router · Turso (LibSQL) · Drizzle ORM · Auth.js v4 (next-auth 4.24.15) · Tailwind CSS 4
 
 ---
 
@@ -112,6 +112,26 @@ Remaining open (out of P0 scope): Upstash-mandatory/fail-closed for rate limitin
 
 ---
 
+## Wave 3 (2026-08-30) — Trivy CRITICAL/HIGH remediation (next-auth downgrade)
+
+**Branch:** `feature/modernization/2026-08-24`
+
+Fixed Trivy-flagged vulnerabilities by moving off the next-auth v5 beta:
+
+1. **`next-auth` `5.0.0-beta.30` (CRITICAL) → `4.24.15` (stable).** Rewrote `src/lib/auth.ts` for the v4 API:
+   - Export `authOptions: NextAuthOptions` plus `auth = () => getServerSession(authOptions)` (server-component/route usage unchanged — `import { auth }` keeps working in pages & actions).
+   - Export `handler = NextAuth(authOptions)` for the App Router catch-all route.
+   - Added server-only `signIn(provider, { callbackUrl })` / `signOut({ callbackUrl })` redirect helpers (next-auth v4 has no server-side `signIn`/`signOut`). The signin page now uses `callbackUrl` instead of the v5 `redirectTo`.
+   - Augmented `next-auth` `Session` (adds `user.id`) and `next-auth/jwt` `JWT` (adds `userId`) so the id plumbing stays typed.
+2. **`sharp` `0.34.5` (HIGH) → `0.35.4`.**
+3. **`@auth/drizzle-adapter` kept at `1.11.3`** — type-check, lint, test (144), and build all pass with it, so no downgrade was required.
+4. **`middleware.ts`** now uses `getToken({ req, secret: env.NEXTAUTH_SECRET })` (v4) instead of the v5 `auth((req) => …)` wrapper; matcher config preserved.
+5. **`auth.callbacks.test.ts`** mock updated to capture callbacks from the v4 `NextAuth(options)` call.
+
+Verified: `bun run type-check`, `bun run lint` (max-warnings 0), `bun run test` (144/144), and `bun run build` (CI env) all pass. Committed and pushed to `feature/modernization/2026-08-24`; CI + Security Scanning runs triggered.
+
+---
+
 ## Key files reference
 
 ```
@@ -135,7 +155,7 @@ src/
     db/schema.ts                  — Drizzle schema + CATEGORIES enum
   schemas/                        — Zod schemas (farm, product, review)
   lib/
-    auth.ts                       — Auth.js v5 config
+    auth.ts                        — Auth.js v4 config (next-auth 4.24.15)
     env.ts                        — Zod-validated env vars
     errors.ts                     — AppError hierarchy
     utils.ts                      — cn()
