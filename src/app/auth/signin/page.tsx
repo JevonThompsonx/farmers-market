@@ -62,7 +62,7 @@ export default async function SignInPage({
           action={async () => {
             "use server";
             await signIn("github", {
-              redirectTo: callbackUrl,
+              callbackUrl,
             });
           }}
         >

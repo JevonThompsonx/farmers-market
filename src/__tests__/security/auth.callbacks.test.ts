@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 
 /**
  * Verifies the Auth.js callback wiring that maps a user id into the JWT and back
- * into the session. We mock next-auth so we can capture the callbacks the config
+ * into the session. We mock next-auth so we can capture the options the config
  * registers, then assert they thread `user.id` -> `token.userId` -> `session.user.id`.
  * This guards against regressions in the session<->user id plumbing (used by all
  * route-level `getUserId()` enforcement) without standing up a real Auth.js server.
@@ -25,6 +25,12 @@ const captured: {
 vi.mock("next-auth", () => ({
   __esModule: true,
   default: vi.fn(() => ({})),
+  // NextAuthOptions is a type; we capture the options object passed to NextAuth.
+}));
+
+vi.mock("next-auth/next", () => ({
+  __esModule: true,
+  getServerSession: vi.fn(),
 }));
 
 vi.mock("@auth/drizzle-adapter", () => ({
@@ -44,14 +50,14 @@ vi.mock("@/lib/errors", () => ({
 }));
 
 const nextAuthMod = await import("next-auth");
-vi.mocked(nextAuthMod.default).mockImplementation(((config: {
+vi.mocked(nextAuthMod.default).mockImplementation(((options: {
   callbacks: {
     jwt: (a: JwtArgs) => Record<string, unknown>;
     session: (a: SessionArgs) => { user: { id?: string } };
   };
 }) => {
-  captured.jwt = config.callbacks.jwt;
-  captured.session = config.callbacks.session;
+  captured.jwt = options.callbacks.jwt;
+  captured.session = options.callbacks.session;
   return {};
 }) as never);
 
