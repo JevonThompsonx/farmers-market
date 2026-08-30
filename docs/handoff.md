@@ -25,6 +25,7 @@ Recent completion highlights:
 - Security workflow remediation applied: `.github/workflows/security.yml` now uses `aquasecurity/trivy-action@0.35.0` to address Dependabot alert `GHSA-69fq-xp46-6x23` / `CVE-2026-33634`.
 - `README.md` has been refreshed to reflect the current Next.js/Turso/Auth.js stack, setup steps, CI/CD, deployment notes, and known caveats.
 - CI build (`next build`) hardened against an unreachable DB at build time: `generateStaticParams` in `farms/[id]` and `products/[id]`, plus the build-time data fetches in `page.tsx`, `farms/page.tsx`, `products/page.tsx`, and `sitemap.ts` now wrap DB calls in try/catch and fall back to on-demand/ISR rendering. This fixes the `generateStaticParams` DB-unreachable crash that broke the CI `Build` job.
+- Force-dynamic rendering enforced for auth-dependent routes: `src/app/page.tsx`, `src/app/farms/page.tsx`, and `src/app/sitemap.ts` now export `dynamic = 'force-dynamic'` to ensure correct dynamic behavior for authenticated sessions and avoid stale cached responses.
 - Semgrep false positives on JSON-LD `dangerouslySetInnerHTML` suppressed: `// nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml` added to all four JSON-LD `<script>` usages in `src/app/farms/[id]/page.tsx` and `src/app/products/[id]/page.tsx` (server-built structured data, not user input). `semgrep scan --config=auto --error src/` now reports 0 findings.
 
 ---

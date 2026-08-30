@@ -1,6 +1,6 @@
 # Farmers Market — Modernization Todo List
 
-> Audit of `/home/hermes/Projects/farmers-market` (Next.js 16 App Router · TS 6 · Drizzle ORM · Turso/LibSQL · Auth.js v5 · Tailwind 4 · Vitest · Playwright).
+> Audit of `/home/hermes/Projects/farmers-market` (Next.js 16 App Router · TS 6 · Drizzle ORM · Turso/LibSQL · Auth.js v4 · Tailwind 4 · Vitest · Playwright).
 > Grouped by **Security**, **Efficiency**, **Speed**, **QoL/DX**. `[!]` = confirmed issue found during audit.
 > **Wave 1 status (2026-08-24)**: branch `feature/modernization/2026-08-24` @ `401d6c8d96f1f5d254c2bcd5ca3545ebb182b9a8` — 2 source commits landed (eslint repair + `@testing-library/dom`). See "🏁 Wave 1 Status" below.
 
@@ -33,7 +33,7 @@
 
 - [x] **Missing dependency: `pino-pretty`.** `src/lib/logger.ts` configures `transport: { target: "pino-pretty" }`, but `pino-pretty` is **not** in `package.json` (`dependencies` or `devDependencies`). In dev this transport load will throw at runtime. Add `pino-pretty` as a devDependency (and pin it). _(Wave 1 fixed the *other* missing peer — `@testing-library/dom` — but `pino-pretty` is still absent. Still open.)_ **→ DONE (Wave 2, P0): added `pino-pretty@^13.1.3` devDependency (bun.lock updated).**
 - [ ] **[!] Dependency pinning contradicts AGENTS.md.** Rule #9 says "Pin dependency versions," yet `package.json` uses caret ranges for nearly everything (`next: ^16.2.1`, `react: ^19.2.4`, `drizzle-orm: 0.45.1` is exact but many others are not). Either pin exact versions or update the convention — reproducible builds depend on this.
-- [ ] **[ ] CI does not enforce formatting.** `.github/workflows/ci.yml` runs type-check, lint, test, build but no `prettier --check`. Add a format gate (or a `prettier` job) to keep the repo consistent.
+- [x] **[ ] CI does not enforce formatting.** `.github/workflows/ci.yml` runs type-check, lint, test, build but no `prettier --check`. Add a format gate (or a `prettier` job) to keep the repo consistent. **→ DONE: Prettier format gate now enforced in CI (`format` job + `format:check`).**
 - [ ] **[!] `e2e/authenticated.spec.ts` uses a placeholder JWT** (`"mock-session-token"`) and will fail until replaced with a real signed token (documented in `docs/handoff.md` but still a broken test). Generate a fixture token in test setup.
 - [ ] **[ ] Duplicated `categoryLabels` map.** The same `{ vegetables: "Vegetables", ... }` object is repeated in `page.tsx`, `products/page.tsx`, and `categories/[category]/page.tsx`. Extract to a shared constant (e.g. `src/lib/categories.ts`).
 - [ ] **[ ] No `Cache-Control: no-store` on authenticated/admin data** paths — minor, but ensure private data isn't cached at the edge.

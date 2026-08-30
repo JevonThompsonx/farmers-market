@@ -7,7 +7,7 @@ Modern full-stack farmers market app built with Next.js, Turso, Drizzle, and Aut
 - `next@16` (App Router) + `react@19`
 - TypeScript (`strict`) + Tailwind CSS 4
 - Turso (LibSQL) + Drizzle ORM
-- Auth.js v5 (GitHub OAuth)
+- Auth.js v4 (next-auth 4.24.15) (GitHub OAuth)
 - Cloudinary + Unsplash integration for product/farm imagery
 - Vitest (unit/integration) + Playwright (E2E)
 

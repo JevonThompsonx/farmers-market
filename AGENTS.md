@@ -17,7 +17,7 @@ Before changing code, read these docs in order:
 
 ## Project Snapshot
 
-- Stack: Next.js 15 App Router, TypeScript, Tailwind CSS 4, Drizzle ORM, Turso (LibSQL), Auth.js v5
+- Stack: Next.js 16 App Router, TypeScript, Tailwind CSS 4, Drizzle ORM, Turso (LibSQL), Auth.js v4 (next-auth 4.24.15)
 - Testing: Vitest (unit/integration), Playwright (E2E)
 - CI/CD: GitHub Actions (`ci.yml`, `security.yml`, `deploy.yml`)
 

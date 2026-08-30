@@ -62,7 +62,7 @@ Every application must be **secure, idempotent, portable, resilient, and readabl
 | **Styling**     | Tailwind CSS 4                                            |
 | **State**       | React Server Components first; zustand for complex client |
 | **Database**    | PostgreSQL via Drizzle ORM (type-safe, zero-abstraction)  |
-| **Auth**        | Auth.js (NextAuth) v5 or Clerk                            |
+| **Auth**        | Auth.js (NextAuth) v4 (next-auth 4.24.15) or Clerk        |
 | **Validation**  | Zod (shared schemas between client and server)            |
 | **Testing**     | Vitest (unit/integration), Playwright (E2E)               |
 | **Package Mgr** | bun (assume `bun run` with autorefresh in background)     |
