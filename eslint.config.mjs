@@ -1,10 +1,14 @@
 import nextConfig from "eslint-config-next/core-web-vitals";
 import nextTypescript from "eslint-config-next/typescript";
 
-export default [
+const config = [
   ...nextConfig,
   ...nextTypescript,
   {
+    ignores: ["public/sw.js", ".next/**", "coverage/**", "node_modules/**"],
+  },
+  {
+    files: ["**/*.{ts,tsx,mts,cts}"],
     languageOptions: {
       parserOptions: {
         project: true,
@@ -27,4 +31,14 @@ export default [
       "@typescript-eslint/no-unsafe-return": "error",
     },
   },
+  {
+    files: ["**/*.{js,mjs,cjs}"],
+    languageOptions: {
+      parserOptions: {
+        project: false,
+      },
+    },
+  },
 ];
+
+export default config;
