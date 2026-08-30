@@ -7,33 +7,33 @@ tags:
 
 > **These rules override everything below. If context is compressed, these survive. Re-read before every response.**
 
-| #  | Rule                                                                                                                       | Non-Negotiable |
-| -- | -------------------------------------------------------------------------------------------------------------------------- | -------------- |
-| 1  | PowerShell 5.1 is the baseline for RMM scripts. No PS 7+ syntax (ternary, `??`, `?.`, `-Parallel`) without version guards. | YES            |
-| 2  | ASCII only in script files. No em dashes, curly quotes, or Unicode symbols.                                                | YES            |
-| 3  | Never hardcode secrets -- env vars, credential managers, or NinjaOne Secure Strings only.                                  | YES            |
-| 4  | Every script must be idempotent -- safe to run N times with no side effects.                                               | YES            |
-| 5  | Validate before acting -- check deps, perms, connectivity, disk before changes.                                            | YES            |
-| 6  | NinjaOne Script Variables are `$env:VarName`, NOT parameters. Always check both.                                           | YES            |
-| 7  | Never use reserved variable names (`$input`, `$args`, `$this`, `$Error`, `$Host`, `$_`, `$null`).                          | YES            |
-| 8  | Explicit exit codes: 0=success, 1=partial, 2=critical, 100=nothing-to-do, 3010=reboot.                                    | YES            |
-| 9  | Never use `Invoke-Expression` or execute untrusted string input as code.                                                   | YES            |
-| 10 | Checkbox values are strings `"true"`/`"false"` -- always use `Convert-ToBoolean`.                                          | YES            |
-| 11 | Dropdown custom fields require GUIDs -- never set by display label directly.                                               | YES            |
-| 12 | `Ninja-Property-Options` returns `Object[]`, NOT `string` -- force to string first, parse with `[regex]::Matches()`.       | YES            |
-| 13 | `$null` on the left of comparisons: `$null -eq $var` (avoids array pitfalls).                                              | YES            |
-| 14 | If ambiguous, **ask before writing** -- especially on security-sensitive details.                                           | YES            |
-| 15 | Search for current versions/CVEs before responding -- don't guess versions.                                                | YES            |
-| 16 | Explain non-obvious design decisions -- security trade-offs, why X over Y.                                                 | YES            |
-| 17 | File Staging: suggest GitHub for publicly accessible file hosting.                                                         | YES            |
-| 18 | `[CmdletBinding()]` on every function. No exceptions.                                                                      | YES            |
-| 19 | `-ErrorAction Stop` on every cmdlet inside `try` blocks. Capture `$_` immediately in `catch`.                              | YES            |
-| 20 | No aliases in scripts -- full cmdlet names and named parameters always.                                                    | YES            |
-| 21 | Filter at source (`-Filter`, `-FilterHashtable`), not pipeline `Where-Object`.                                             | YES            |
-| 22 | No `$array += $item` in loops -- use `[List[PSObject]]` or `foreach` capture.                                              | YES            |
-| 23 | Every security finding must pair the vulnerability with a concrete remediation.                                             | YES            |
-| 24 | Code reviews use priority markers: blocker, suggestion, nit. One review = complete feedback.                                | YES            |
-| 25 | Default deployment status to **NEEDS WORK** -- require overwhelming evidence for production readiness.                      | YES            |
+| #   | Rule                                                                                                                       | Non-Negotiable |
+| --- | -------------------------------------------------------------------------------------------------------------------------- | -------------- |
+| 1   | PowerShell 5.1 is the baseline for RMM scripts. No PS 7+ syntax (ternary, `??`, `?.`, `-Parallel`) without version guards. | YES            |
+| 2   | ASCII only in script files. No em dashes, curly quotes, or Unicode symbols.                                                | YES            |
+| 3   | Never hardcode secrets -- env vars, credential managers, or NinjaOne Secure Strings only.                                  | YES            |
+| 4   | Every script must be idempotent -- safe to run N times with no side effects.                                               | YES            |
+| 5   | Validate before acting -- check deps, perms, connectivity, disk before changes.                                            | YES            |
+| 6   | NinjaOne Script Variables are `$env:VarName`, NOT parameters. Always check both.                                           | YES            |
+| 7   | Never use reserved variable names (`$input`, `$args`, `$this`, `$Error`, `$Host`, `$_`, `$null`).                          | YES            |
+| 8   | Explicit exit codes: 0=success, 1=partial, 2=critical, 100=nothing-to-do, 3010=reboot.                                     | YES            |
+| 9   | Never use `Invoke-Expression` or execute untrusted string input as code.                                                   | YES            |
+| 10  | Checkbox values are strings `"true"`/`"false"` -- always use `Convert-ToBoolean`.                                          | YES            |
+| 11  | Dropdown custom fields require GUIDs -- never set by display label directly.                                               | YES            |
+| 12  | `Ninja-Property-Options` returns `Object[]`, NOT `string` -- force to string first, parse with `[regex]::Matches()`.       | YES            |
+| 13  | `$null` on the left of comparisons: `$null -eq $var` (avoids array pitfalls).                                              | YES            |
+| 14  | If ambiguous, **ask before writing** -- especially on security-sensitive details.                                          | YES            |
+| 15  | Search for current versions/CVEs before responding -- don't guess versions.                                                | YES            |
+| 16  | Explain non-obvious design decisions -- security trade-offs, why X over Y.                                                 | YES            |
+| 17  | File Staging: suggest GitHub for publicly accessible file hosting.                                                         | YES            |
+| 18  | `[CmdletBinding()]` on every function. No exceptions.                                                                      | YES            |
+| 19  | `-ErrorAction Stop` on every cmdlet inside `try` blocks. Capture `$_` immediately in `catch`.                              | YES            |
+| 20  | No aliases in scripts -- full cmdlet names and named parameters always.                                                    | YES            |
+| 21  | Filter at source (`-Filter`, `-FilterHashtable`), not pipeline `Where-Object`.                                             | YES            |
+| 22  | No `$array += $item` in loops -- use `[List[PSObject]]` or `foreach` capture.                                              | YES            |
+| 23  | Every security finding must pair the vulnerability with a concrete remediation.                                            | YES            |
+| 24  | Code reviews use priority markers: blocker, suggestion, nit. One review = complete feedback.                               | YES            |
+| 25  | Default deployment status to **NEEDS WORK** -- require overwhelming evidence for production readiness.                     | YES            |
 
 ---
 
@@ -70,8 +70,8 @@ Every script must be **secure, idempotent, portable, resilient, and readable**. 
 
 ## Context Detection
 
-| Signal                                                                           | Context                | Defaults                                                                                |
-| -------------------------------------------------------------------------------- | ---------------------- | --------------------------------------------------------------------------------------- |
+| Signal                                                                           | Context                 | Defaults                                                                                |
+| -------------------------------------------------------------------------------- | ----------------------- | --------------------------------------------------------------------------------------- |
 | NinjaOne, RMM, custom fields, SYSTEM context, endpoint deployment, policy script | **Enterprise/NinjaOne** | PS 5.1, `Write-Host` for Activities feed, exit codes per NinjaOne table, SYSTEM context |
 | Proxmox, Docker, Bash, homelab, self-hosted, Linux, Tailscale, ZFS               | **Local/Homelab**       | Bash/Python preferred, PS 7+ acceptable, systemd integration, Tailscale networking      |
 | General PowerShell module, reusable function, CI/CD pipeline                     | **General PowerShell**  | PS 7+ preferred with 5.1 compat, output objects (not Write-Host), pipeline-friendly     |
@@ -103,7 +103,7 @@ When context is ambiguous, default to **Enterprise/NinjaOne**.
 | **Architecture**   | All (unless targeting x86/x64)      | All                                                                  | All                   |
 | **String Inputs**  | Base64 decode for arbitrary strings | Validate with attributes                                             | `%~1` tilde strip     |
 | **Encoding**       | UTF-8 with BOM for PS scripts       | UTF-8 without BOM                                                    | ASCII with CRLF       |
-| **PS Version**     | 5.1 baseline                        | 7+ preferred, 5.1 compat                                            | N/A                   |
+| **PS Version**     | 5.1 baseline                        | 7+ preferred, 5.1 compat                                             | N/A                   |
 | **Strict Mode**    | `$ErrorActionPreference = 'Stop'`   | `Set-StrictMode -Version Latest` + `$ErrorActionPreference = 'Stop'` | N/A                   |
 | **Output Method**  | `Write-Host` (Activities feed)      | Output objects (pipeline)                                            | `ECHO`                |
 | **File Extension** | `.ps1`                              | `.ps1` / `.psm1`                                                     | `.cmd` (never `.bat`) |
@@ -370,9 +370,9 @@ exit 0
 
 | Mechanism                             | Use When                                 | Caller Experience                                   |
 | ------------------------------------- | ---------------------------------------- | --------------------------------------------------- |
-| `Write-Error`                         | Recoverable, per-item failure in a loop  | Non-terminating; caller decides with `-ErrorAction`  |
-| `$PSCmdlet.ThrowTerminatingError($_)` | Fatal failure; function cannot continue  | Terminating; caller must catch                       |
-| `throw "message"`                     | Quick scripts, not in advanced functions | Terminating, but error source shows `throw` line     |
+| `Write-Error`                         | Recoverable, per-item failure in a loop  | Non-terminating; caller decides with `-ErrorAction` |
+| `$PSCmdlet.ThrowTerminatingError($_)` | Fatal failure; function cannot continue  | Terminating; caller must catch                      |
+| `throw "message"`                     | Quick scripts, not in advanced functions | Terminating, but error source shows `throw` line    |
 
 **Retry logic for transient failures:**
 
@@ -414,14 +414,14 @@ function Invoke-WithRetry {
 
 ### Exit Codes
 
-| Code  | Meaning                                          |
-| ----- | ------------------------------------------------ |
-| 0     | Success                                          |
-| 1     | Partial success / Warning                        |
-| 2     | Critical failure                                 |
-| 3-99  | Custom failure codes (document in script header) |
-| 100   | Skipped / Nothing to do (idempotent)             |
-| 3010  | Success, reboot required                         |
+| Code | Meaning                                          |
+| ---- | ------------------------------------------------ |
+| 0    | Success                                          |
+| 1    | Partial success / Warning                        |
+| 2    | Critical failure                                 |
+| 3-99 | Custom failure codes (document in script header) |
+| 100  | Skipped / Nothing to do (idempotent)             |
+| 3010 | Success, reboot required                         |
 
 NinjaOne's Script Result Conditions evaluate **both** exit code and stdout output. Design output for pattern matching:
 
@@ -439,19 +439,19 @@ Always explicitly exit -- never let a script "fall off the end."
 
 ### PowerShell 5.1 Compatibility (CRITICAL for RMM)
 
-| Gotcha                                     | Fix                                                                                                     |
-| ------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
-| `Join-Path` only accepts 2 args            | Nest calls: `Join-Path (Join-Path $Base $Folder) $File`                                                 |
-| `Where-Object` single item = scalar        | Wrap in `@()`: `$results = @($items \| Where-Object {...})`                                             |
-| Inline `if/else` as expressions = `$null`  | Use statement blocks (assign inside `if`/`else`)                                                        |
-| `[Math]::Max(0, $double)` truncates        | Use `[Math]::Max([double]0, $val)`                                                                      |
-| No `??` null coalescing                    | `if ($null -eq $x) { $default } else { $x }`                                                           |
-| No `?.` null conditional                   | Explicit null checks                                                                                    |
-| No `ForEach-Object -Parallel`              | `Start-Job` or runspace pools                                                                           |
-| No ternary `$x ? $a : $b`                  | `if ($x) { $a } else { $b }`                                                                           |
-| `ConvertFrom-Json` returns PSCustomObjects | Not hashtables                                                                                          |
-| `-is [string]` fails for `Object[]`        | Force to string: `($val \| Out-String).Trim()`                                                         |
-| `{0:F2}` vs `[Math]::Round`               | Different rounding at midpoints -- use `[MidpointRounding]::AwayFromZero` explicitly for financial calcs |
+| Gotcha                                     | Fix                                                                                                      |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| `Join-Path` only accepts 2 args            | Nest calls: `Join-Path (Join-Path $Base $Folder) $File`                                                  |
+| `Where-Object` single item = scalar        | Wrap in `@()`: `$results = @($items \| Where-Object {...})`                                              |
+| Inline `if/else` as expressions = `$null`  | Use statement blocks (assign inside `if`/`else`)                                                         |
+| `[Math]::Max(0, $double)` truncates        | Use `[Math]::Max([double]0, $val)`                                                                       |
+| No `??` null coalescing                    | `if ($null -eq $x) { $default } else { $x }`                                                             |
+| No `?.` null conditional                   | Explicit null checks                                                                                     |
+| No `ForEach-Object -Parallel`              | `Start-Job` or runspace pools                                                                            |
+| No ternary `$x ? $a : $b`                  | `if ($x) { $a } else { $b }`                                                                             |
+| `ConvertFrom-Json` returns PSCustomObjects | Not hashtables                                                                                           |
+| `-is [string]` fails for `Object[]`        | Force to string: `($val \| Out-String).Trim()`                                                           |
+| `{0:F2}` vs `[Math]::Round`                | Different rounding at midpoints -- use `[MidpointRounding]::AwayFromZero` explicitly for financial calcs |
 
 ### String Formatting
 
@@ -830,12 +830,12 @@ Test `IF %ERRORLEVEL% GEQ 8` for actual robocopy failures.
 
 **Never do:**
 
-| Anti-Pattern                                    | Fix                                                           |
-| ----------------------------------------------- | ------------------------------------------------------------- |
+| Anti-Pattern                                    | Fix                                                            |
+| ----------------------------------------------- | -------------------------------------------------------------- |
 | `SET ERRORLEVEL=0`                              | Creates static shadow variable -- use `(CALL )` or `EXIT /B 0` |
-| `::` comments inside FOR/IF blocks              | Use `REM` inside blocks                                       |
-| Unquoted `%variable%` in commands               | Always quote                                                  |
-| Relying on current directory = script directory  | Use `%~dp0` or `PUSHD "%~dp0"`                               |
+| `::` comments inside FOR/IF blocks              | Use `REM` inside blocks                                        |
+| Unquoted `%variable%` in commands               | Always quote                                                   |
+| Relying on current directory = script directory | Use `%~dp0` or `PUSHD "%~dp0"`                                 |
 
 ### Batch Template (NinjaOne)
 
@@ -886,7 +886,7 @@ When reviewing or designing systems, assess each component against:
 | Threat                     | Question                                                    | Typical Mitigation                                  |
 | -------------------------- | ----------------------------------------------------------- | --------------------------------------------------- |
 | **S**poofing               | Can an attacker impersonate a legitimate user/system?       | MFA, token binding, cert pinning                    |
-| **T**ampering              | Can data be modified in transit or at rest?                  | HMAC signatures, input validation, integrity checks |
+| **T**ampering              | Can data be modified in transit or at rest?                 | HMAC signatures, input validation, integrity checks |
 | **R**epudiation            | Can a user deny performing an action?                       | Immutable audit logging                             |
 | **I**nfo Disclosure        | Can sensitive data leak via errors, logs, or side channels? | Generic error responses, log sanitization           |
 | **D**enial of Service      | Can the service be overwhelmed?                             | Rate limiting, WAF, resource quotas                 |
@@ -949,9 +949,9 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.35.0
         with:
-          scan-type: 'fs'
-          severity: 'CRITICAL,HIGH'
-          exit-code: '1'
+          scan-type: "fs"
+          severity: "CRITICAL,HIGH"
+          exit-code: "1"
 
   secrets-scan:
     name: Secrets Detection
@@ -994,11 +994,11 @@ if ($UserName -notmatch '^[a-zA-Z0-9._-]+$') {
 
 ### Priority Markers
 
-| Marker             | Meaning                                                                                                             | Action Required       |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------- | --------------------- |
-| 🔴 **Blocker**    | Security vulnerabilities, data loss risks, race conditions, breaking API contracts, missing critical error handling  | Must fix before merge |
-| 🟡 **Suggestion** | Missing input validation, unclear naming, missing tests, performance issues, code duplication                        | Should fix            |
-| 💭 **Nit**        | Style inconsistencies, minor naming improvements, documentation gaps, alternative approaches                         | Nice to have          |
+| Marker            | Meaning                                                                                                             | Action Required       |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------- | --------------------- |
+| 🔴 **Blocker**    | Security vulnerabilities, data loss risks, race conditions, breaking API contracts, missing critical error handling | Must fix before merge |
+| 🟡 **Suggestion** | Missing input validation, unclear naming, missing tests, performance issues, code duplication                       | Should fix            |
+| 💭 **Nit**        | Style inconsistencies, minor naming improvements, documentation gaps, alternative approaches                        | Nice to have          |
 
 ### Review Comment Format
 
@@ -1063,15 +1063,19 @@ When evaluating test results:
 **Confidence Level**: [Statistical basis for assessment]
 
 ### What Works
+
 - [Specific positive findings with evidence]
 
 ### Critical Issues (Must Fix)
+
 1. [Issue with evidence and remediation steps]
 
 ### Suggested Improvements
+
 1. [Improvement with rationale]
 
 ### Next Steps
+
 - [Specific actions with realistic timeline]
 ```
 
@@ -1079,25 +1083,25 @@ When evaluating test results:
 
 ## NinjaOne Gotchas Quick Reference
 
-| Issue                                         | Solution                                                                             |
-| --------------------------------------------- | ------------------------------------------------------------------------------------ |
-| Checkbox not working                          | NinjaOne passes as `$env:VarName` not parameter -- check both                        |
-| `Ninja-Property-Set` silently fails           | Verify custom field has **Write** permission for Automations                         |
-| Dropdown field won't update                   | Must use GUID value, not display label                                               |
+| Issue                                         | Solution                                                                              |
+| --------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Checkbox not working                          | NinjaOne passes as `$env:VarName` not parameter -- check both                         |
+| `Ninja-Property-Set` silently fails           | Verify custom field has **Write** permission for Automations                          |
+| Dropdown field won't update                   | Must use GUID value, not display label                                                |
 | `Ninja-Property-Options` returns `Object[]`   | Force to string first: `($optionsRaw \| Out-String).Trim()` then `[regex]::Matches()` |
-| `Ninja-Property-Get` on dropdown returns GUID | Returns internal GUID, not display label                                             |
-| Script shows "Timed Out"                      | Default timeout is 600s -- increase in script settings                               |
-| Reboot from script breaks agent               | Use `exit 3010` or NinjaOne's native reboot                                          |
-| Script runs but output empty                  | Use `Write-Host` (not `Write-Output`) for Activities feed                            |
-| NinjaOne re-runs script                       | Policy reapplication -- ensure idempotency                                           |
-| 64-bit vs 32-bit                              | "All" architecture runs native; check both registry paths                            |
-| Non-ASCII chars in scripts                    | Em dashes, Unicode cause PS 5.1 parse failures -- ASCII only                         |
-| `$input` as variable name                     | Reserved automatic variable -- use `$rawInput`                                       |
-| Inline if/else as expressions                 | Does NOT work in PS 5.1 -- use statement blocks                                     |
-| Process hangs past timeout                    | Use `WaitForExit(milliseconds)` with explicit kill                                   |
-| MSI in progress                               | Only one MSI at a time -- retry logic for exit code 1618                             |
-| TLS errors on downloads                       | Set `SecurityProtocol` before web calls                                              |
-| Driver/service registration                   | Add 2-3 second sleep after install before checking                                   |
+| `Ninja-Property-Get` on dropdown returns GUID | Returns internal GUID, not display label                                              |
+| Script shows "Timed Out"                      | Default timeout is 600s -- increase in script settings                                |
+| Reboot from script breaks agent               | Use `exit 3010` or NinjaOne's native reboot                                           |
+| Script runs but output empty                  | Use `Write-Host` (not `Write-Output`) for Activities feed                             |
+| NinjaOne re-runs script                       | Policy reapplication -- ensure idempotency                                            |
+| 64-bit vs 32-bit                              | "All" architecture runs native; check both registry paths                             |
+| Non-ASCII chars in scripts                    | Em dashes, Unicode cause PS 5.1 parse failures -- ASCII only                          |
+| `$input` as variable name                     | Reserved automatic variable -- use `$rawInput`                                        |
+| Inline if/else as expressions                 | Does NOT work in PS 5.1 -- use statement blocks                                       |
+| Process hangs past timeout                    | Use `WaitForExit(milliseconds)` with explicit kill                                    |
+| MSI in progress                               | Only one MSI at a time -- retry logic for exit code 1618                              |
+| TLS errors on downloads                       | Set `SecurityProtocol` before web calls                                               |
+| Driver/service registration                   | Add 2-3 second sleep after install before checking                                    |
 
 ---
 

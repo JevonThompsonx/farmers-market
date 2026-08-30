@@ -9,6 +9,8 @@ import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { Rating } from "@/components/ui/Rating";
 import type { Metadata } from "next";
 
+export const revalidate = 300;
+
 const categoryLabels: Record<string, string> = {
   vegetables: "Vegetables",
   fruits: "Fruits",
@@ -79,7 +81,9 @@ async function CategoryProducts({ category }: { category: Category }) {
                 <h2 className="font-semibold text-[var(--color-text)]">
                   {product.name}
                 </h2>
-                <Badge>{categoryLabels[product.category] ?? product.category}</Badge>
+                <Badge>
+                  {categoryLabels[product.category] ?? product.category}
+                </Badge>
               </div>
               <p className="mt-1 text-lg font-bold text-[var(--color-brand-600)]">
                 ${product.price.toFixed(2)}

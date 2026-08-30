@@ -40,12 +40,18 @@ describe("CreateReviewSchema", () => {
   });
 
   it("rejects body shorter than 10 characters", () => {
-    const result = CreateReviewSchema.safeParse({ ...valid, body: "Too short" });
+    const result = CreateReviewSchema.safeParse({
+      ...valid,
+      body: "Too short",
+    });
     expect(result.success).toBe(false);
   });
 
   it("rejects body longer than 1000 characters", () => {
-    const result = CreateReviewSchema.safeParse({ ...valid, body: "A".repeat(1001) });
+    const result = CreateReviewSchema.safeParse({
+      ...valid,
+      body: "A".repeat(1001),
+    });
     expect(result.success).toBe(false);
   });
 

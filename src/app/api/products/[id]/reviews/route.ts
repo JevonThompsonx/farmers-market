@@ -1,10 +1,15 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { apiHandler } from "@/lib/api-handler";
-import { createReview, getReviewsForProduct, getAverageRatingForProduct } from "@/server/queries/reviews";
+import {
+  createReview,
+  getReviewsForProduct,
+  getAverageRatingForProduct,
+} from "@/server/queries/reviews";
 import { updateProductRating } from "@/server/queries/products";
 import { CreateReviewSchema } from "@/schemas/review.schema";
 import { ValidationError } from "@/lib/errors";
 import { assertRateLimit } from "@/lib/rate-limit";
+import { getUserId } from "@/lib/auth";
 import { randomUUID } from "crypto";
 
 type Params = { params: Promise<{ id: string }> };
@@ -18,19 +23,19 @@ export const GET = apiHandler(async (_req: NextRequest, { params }: Params) => {
 export const POST = apiHandler(async (req: NextRequest, { params }: Params) => {
   await assertRateLimit(req, "api:products:reviews:create");
 
+  const userId = await getUserId();
   const { id } = await params;
+
   const body: unknown = await req.json();
   const parsed = CreateReviewSchema.safeParse(body);
   if (!parsed.success) {
-    throw new ValidationError(
-      parsed.error.flatten().fieldErrors.toString(),
-    );
+    throw new ValidationError(parsed.error.flatten().fieldErrors.toString());
   }
   await createReview({
     id: randomUUID(),
     body: parsed.data.body,
     rating: parsed.data.rating,
-    authorId: "placeholder-will-be-replaced-by-auth",
+    authorId: userId,
     productId: id,
   });
   const newRating = await getAverageRatingForProduct(id);

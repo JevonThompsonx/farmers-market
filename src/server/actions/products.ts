@@ -4,7 +4,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { auth, assertOwnership } from "@/lib/auth";
 import { UnauthorizedError } from "@/lib/errors";
-import { CreateProductSchema, UpdateProductSchema } from "@/schemas/product.schema";
+import {
+  CreateProductSchema,
+  UpdateProductSchema,
+} from "@/schemas/product.schema";
 import {
   createProduct as insertProduct,
   updateProduct as patchProduct,
@@ -12,14 +15,18 @@ import {
   getProductById,
 } from "@/server/queries/products";
 import { getFarmById } from "@/server/queries/farms";
-import { fetchAndStoreImage } from "@/server/services/image.service";
+import {
+  hydrateImageAsync,
+  PLACEHOLDER_IMAGE,
+} from "@/server/services/image.service";
 
 export async function createProduct(
   _prevState: { error?: string } | undefined,
   formData: FormData,
 ) {
   const session = await auth();
-  if (!session?.user?.id) throw new UnauthorizedError("Sign in to create a product");
+  if (!session?.user?.id)
+    throw new UnauthorizedError("Sign in to create a product");
 
   const raw = {
     name: formData.get("name"),
@@ -38,19 +45,25 @@ export async function createProduct(
   const farm = await getFarmById(parsed.data.farmId);
   assertOwnership(session.user.id, farm.ownerId);
 
-  let image: string;
-  try {
-    image = await fetchAndStoreImage(`${parsed.data.name} ${parsed.data.category} produce`);
-  } catch {
-    image = "/placeholder.svg";
-  }
-
   const id = crypto.randomUUID();
+  // Write the record immediately with a placeholder so the action never blocks
+  // on the Unsplash → sharp → Cloudinary image pipeline.
   await insertProduct({
     id,
     ...parsed.data,
-    image,
+    image: PLACEHOLDER_IMAGE,
   });
+
+  // Hydrate the real image off the request path (after the response is sent).
+  hydrateImageAsync(
+    `${parsed.data.name} ${parsed.data.category} produce`,
+    async (imageUrl) => {
+      await patchProduct(id, { image: imageUrl });
+      revalidatePath(`/products/${id}`);
+      revalidatePath(`/farms/${parsed.data.farmId}`);
+      revalidatePath("/products");
+    },
+  );
 
   revalidatePath(`/farms/${parsed.data.farmId}`);
   revalidatePath("/products");
@@ -84,10 +97,15 @@ export async function updateProduct(
   const updateData: Record<string, string | number | null> = {};
   if (parsed.data.name !== undefined) updateData["name"] = parsed.data.name;
   if (parsed.data.price !== undefined) updateData["price"] = parsed.data.price;
-  if (parsed.data.description !== undefined) updateData["description"] = parsed.data.description;
-  if (parsed.data.category !== undefined) updateData["category"] = parsed.data.category;
+  if (parsed.data.description !== undefined)
+    updateData["description"] = parsed.data.description;
+  if (parsed.data.category !== undefined)
+    updateData["category"] = parsed.data.category;
 
-  await patchProduct(productId, updateData as Parameters<typeof patchProduct>[1]);
+  await patchProduct(
+    productId,
+    updateData as Parameters<typeof patchProduct>[1],
+  );
 
   revalidatePath(`/products/${productId}`);
   redirect(`/products/${productId}`);

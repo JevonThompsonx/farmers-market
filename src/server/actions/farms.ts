@@ -11,14 +11,18 @@ import {
   softDeleteFarm,
   getFarmById,
 } from "@/server/queries/farms";
-import { fetchAndStoreImage } from "@/server/services/image.service";
+import {
+  hydrateImageAsync,
+  PLACEHOLDER_IMAGE,
+} from "@/server/services/image.service";
 
 export async function createFarm(
   _prevState: { error?: string } | undefined,
   formData: FormData,
 ) {
   const session = await auth();
-  if (!session?.user?.id) throw new UnauthorizedError("Sign in to create a farm");
+  if (!session?.user?.id)
+    throw new UnauthorizedError("Sign in to create a farm");
 
   const raw = {
     name: formData.get("name"),
@@ -34,22 +38,27 @@ export async function createFarm(
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  let image: string;
-  try {
-    image = await fetchAndStoreImage(`${parsed.data.name} farm ${parsed.data.state}`);
-  } catch {
-    image = "/placeholder.svg";
-  }
-
   const id = crypto.randomUUID();
+  // Write the record immediately with a placeholder so the action never blocks
+  // on the Unsplash → sharp → Cloudinary image pipeline.
   await insertFarm({
     id,
     ...parsed.data,
     email: parsed.data.email || null,
     website: parsed.data.website || null,
-    image,
+    image: PLACEHOLDER_IMAGE,
     ownerId: session.user.id,
   });
+
+  // Hydrate the real image off the request path (after the response is sent).
+  hydrateImageAsync(
+    `${parsed.data.name} farm ${parsed.data.state}`,
+    async (imageUrl) => {
+      await patchFarm(id, { image: imageUrl });
+      revalidatePath(`/farms/${id}`);
+      revalidatePath("/farms");
+    },
+  );
 
   revalidatePath("/farms");
   redirect(`/farms/${id}`);
@@ -84,9 +93,12 @@ export async function updateFarm(
   if (parsed.data.name !== undefined) updateData["name"] = parsed.data.name;
   if (parsed.data.city !== undefined) updateData["city"] = parsed.data.city;
   if (parsed.data.state !== undefined) updateData["state"] = parsed.data.state;
-  if (parsed.data.description !== undefined) updateData["description"] = parsed.data.description;
-  if (parsed.data.email !== undefined) updateData["email"] = parsed.data.email || null;
-  if (parsed.data.website !== undefined) updateData["website"] = parsed.data.website || null;
+  if (parsed.data.description !== undefined)
+    updateData["description"] = parsed.data.description;
+  if (parsed.data.email !== undefined)
+    updateData["email"] = parsed.data.email || null;
+  if (parsed.data.website !== undefined)
+    updateData["website"] = parsed.data.website || null;
 
   await patchFarm(farmId, updateData);
 

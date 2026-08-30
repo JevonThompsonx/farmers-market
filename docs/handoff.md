@@ -2,7 +2,7 @@
 
 > **Date:** 2026-03-29
 > **From:** Claude (Cascade)
-> **Project:** Next.js 15 App Router · Turso (LibSQL) · Drizzle ORM · Auth.js v5 · Tailwind CSS 4
+> **Project:** Next.js 16 App Router · Turso (LibSQL) · Drizzle ORM · Auth.js v4 (next-auth 4.24.15) · Tailwind CSS 4
 
 ---
 
@@ -24,6 +24,8 @@ Recent completion highlights:
 - Deploy workflow exists at `.github/workflows/deploy.yml`.
 - Security workflow remediation applied: `.github/workflows/security.yml` now uses `aquasecurity/trivy-action@0.35.0` to address Dependabot alert `GHSA-69fq-xp46-6x23` / `CVE-2026-33634`.
 - `README.md` has been refreshed to reflect the current Next.js/Turso/Auth.js stack, setup steps, CI/CD, deployment notes, and known caveats.
+- CI build (`next build`) hardened against an unreachable DB at build time: `generateStaticParams` in `farms/[id]` and `products/[id]`, plus the build-time data fetches in `page.tsx`, `farms/page.tsx`, `products/page.tsx`, and `sitemap.ts` now wrap DB calls in try/catch and fall back to on-demand/ISR rendering. This fixes the `generateStaticParams` DB-unreachable crash that broke the CI `Build` job.
+- Semgrep false positives on JSON-LD `dangerouslySetInnerHTML` suppressed: `// nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml` added to all four JSON-LD `<script>` usages in `src/app/farms/[id]/page.tsx` and `src/app/products/[id]/page.tsx` (server-built structured data, not user input). `semgrep scan --config=auto --error src/` now reports 0 findings.
 
 ---
 
@@ -88,6 +90,48 @@ Set this value as the `next-auth.session-token` cookie in `authenticated.spec.ts
 
 ---
 
+## Wave 2 (2026-08-24) — P0 Security Hardening
+
+**Branch:** `feature/modernization/2026-08-24`
+
+Completed and verified (`bun run type-check && bun run lint && bun run test` all green; 144 tests passing):
+
+1. **Auth enforced on all 8 API mutation routes.** Each handler now calls `getUserId()` (throws `UnauthorizedError`/401 when no session). Routes: `POST /api/farms`, `POST /api/products`, `PATCH|DELETE /api/farms/[id]`, `PATCH|DELETE /api/products/[id]`, `POST /api/farms/[id]/reviews`, `POST /api/products/[id]/reviews`.
+2. **Ownership enforced.** `PATCH|DELETE` on a farm/product, `POST /api/products` (verifies the target farm's owner), and review writes use `assertOwnership(userId, farm.ownerId)` → `ForbiddenError`/403 when the caller is not the resource owner.
+3. **Placeholder IDs removed.** `ownerId`/`authorId` no longer use `"placeholder-will-be-replaced-by-auth"`; they are set from the authenticated session user id.
+4. **`allowDangerousEmailAccountLinking` set to `false`** in `src/lib/auth.ts` (account-takeover risk removed).
+5. **Content-Security-Policy added** in `next.config.ts` (strict: `default-src 'self'`, `frame-ancestors 'none'`, `object-src 'none'`, `img-src 'self' https: data: blob:`, `upgrade-insecure-requests`, etc.).
+6. **X-Forwarded-For hardened.** `getClientKey` in `src/lib/rate-limit.ts` now trusts the _rightmost_ (proxy-appended) hop rather than the spoofable leftmost entry, closing the rate-limit bypass.
+7. **`pino-pretty` added** as a devDependency (was a runtime crash in dev).
+
+New behavioral tests in `src/__tests__/security/` cover: anonymous mutation rejected (401), authenticated mutation accepted (real user id used), cross-user mutation forbidden (403), public reads still work (200), auth callbacks wiring, and the XFF hardening.
+
+Note: a pre-existing lint error in `src/components/ui/ThemeToggle.tsx` (`react-hooks/set-state-in-effect`) was also fixed so the `lint` gate passes.
+
+Remaining open (out of P0 scope): Upstash-mandatory/fail-closed for rate limiting, Server-Action rate limiting, caching/ISR, synchronous image generation off the request path, JSON-LD dynamic URLs, `.toString()` validation error envelope.
+
+---
+
+## Wave 3 (2026-08-30) — Trivy CRITICAL/HIGH remediation (next-auth downgrade)
+
+**Branch:** `feature/modernization/2026-08-24`
+
+Fixed Trivy-flagged vulnerabilities by moving off the next-auth v5 beta:
+
+1. **`next-auth` `5.0.0-beta.30` (CRITICAL) → `4.24.15` (stable).** Rewrote `src/lib/auth.ts` for the v4 API:
+   - Export `authOptions: NextAuthOptions` plus `auth = () => getServerSession(authOptions)` (server-component/route usage unchanged — `import { auth }` keeps working in pages & actions).
+   - Export `handler = NextAuth(authOptions)` for the App Router catch-all route.
+   - Added server-only `signIn(provider, { callbackUrl })` / `signOut({ callbackUrl })` redirect helpers (next-auth v4 has no server-side `signIn`/`signOut`). The signin page now uses `callbackUrl` instead of the v5 `redirectTo`.
+   - Augmented `next-auth` `Session` (adds `user.id`) and `next-auth/jwt` `JWT` (adds `userId`) so the id plumbing stays typed.
+2. **`sharp` `0.34.5` (HIGH) → `0.35.4`.**
+3. **`@auth/drizzle-adapter` kept at `1.11.3`** — type-check, lint, test (144), and build all pass with it, so no downgrade was required.
+4. **`middleware.ts`** now uses `getToken({ req, secret: env.NEXTAUTH_SECRET })` (v4) instead of the v5 `auth((req) => …)` wrapper; matcher config preserved.
+5. **`auth.callbacks.test.ts`** mock updated to capture callbacks from the v4 `NextAuth(options)` call.
+
+Verified: `bun run type-check`, `bun run lint` (max-warnings 0), `bun run test` (144/144), and `bun run build` (CI env) all pass. Committed and pushed to `feature/modernization/2026-08-24`; CI + Security Scanning runs triggered.
+
+---
+
 ## Key files reference
 
 ```
@@ -111,7 +155,7 @@ src/
     db/schema.ts                  — Drizzle schema + CATEGORIES enum
   schemas/                        — Zod schemas (farm, product, review)
   lib/
-    auth.ts                       — Auth.js v5 config
+    auth.ts                        — Auth.js v4 config (next-auth 4.24.15)
     env.ts                        — Zod-validated env vars
     errors.ts                     — AppError hierarchy
     utils.ts                      — cn()

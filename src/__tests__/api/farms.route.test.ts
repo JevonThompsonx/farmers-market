@@ -18,7 +18,11 @@ vi.mock("@/server/queries/farms", () => ({
 }));
 
 vi.mock("@/server/services/image.service", () => ({
-  fetchAndStoreImage: vi.fn().mockResolvedValue("https://res.cloudinary.com/test/image.webp"),
+  fetchAndStoreImage: vi
+    .fn()
+    .mockResolvedValue("https://res.cloudinary.com/test/image.webp"),
+  hydrateImageAsync: vi.fn(),
+  PLACEHOLDER_IMAGE: "/placeholder.svg",
 }));
 
 // Mock server-only so it doesn't throw in test environment
@@ -26,12 +30,15 @@ vi.mock("server-only", () => ({}));
 
 // Mock next-auth so auth() doesn't attempt real session lookup
 vi.mock("@/lib/auth", () => ({
-  auth: vi.fn().mockResolvedValue(null),
+  auth: vi.fn(),
   assertOwnership: vi.fn(),
+  getUserId: vi.fn(),
 }));
 
 import { GET, POST } from "@/app/api/farms/route";
 import { getFarms, createFarm } from "@/server/queries/farms";
+import { getUserId } from "@/lib/auth";
+import { UnauthorizedError } from "@/lib/errors";
 
 const mockFarm = {
   id: "farm-1",
@@ -49,17 +56,30 @@ const mockFarm = {
   deletedAt: null,
 };
 
-function makeRequest(url: string, options?: Omit<RequestInit, "signal"> & { signal?: AbortSignal }) {
-  return new NextRequest(url, options as ConstructorParameters<typeof NextRequest>[1]);
+function makeRequest(
+  url: string,
+  options?: Omit<RequestInit, "signal"> & { signal?: AbortSignal },
+) {
+  return new NextRequest(
+    url,
+    options as ConstructorParameters<typeof NextRequest>[1],
+  );
 }
 
 describe("GET /api/farms", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(getFarms).mockResolvedValue([
-      { id: mockFarm.id, name: mockFarm.name, city: mockFarm.city, state: mockFarm.state,
-        description: mockFarm.description, image: mockFarm.image, rating: mockFarm.rating,
-        createdAt: mockFarm.createdAt },
+      {
+        id: mockFarm.id,
+        name: mockFarm.name,
+        city: mockFarm.city,
+        state: mockFarm.state,
+        description: mockFarm.description,
+        image: mockFarm.image,
+        rating: mockFarm.rating,
+        createdAt: mockFarm.createdAt,
+      },
     ]);
   });
 
@@ -68,7 +88,7 @@ describe("GET /api/farms", () => {
     const res = await GET(req, { params: Promise.resolve({}) });
 
     expect(res.status).toBe(200);
-    const body = await res.json() as { data: unknown[] };
+    const body = (await res.json()) as { data: unknown[] };
     expect(Array.isArray(body.data)).toBe(true);
     expect(body.data).toHaveLength(1);
   });
@@ -83,6 +103,7 @@ describe("GET /api/farms", () => {
 describe("POST /api/farms", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(getUserId).mockResolvedValue("user-1");
     vi.mocked(createFarm).mockResolvedValue(mockFarm);
   });
 
@@ -93,7 +114,20 @@ describe("POST /api/farms", () => {
     description: "A lovely organic farm in the Pacific Northwest.",
   };
 
-  it("returns 201 with created farm on valid input", async () => {
+  it("returns 401 when unauthenticated", async () => {
+    vi.mocked(getUserId).mockRejectedValue(new UnauthorizedError());
+    const req = makeRequest("http://localhost:3000/api/farms", {
+      method: "POST",
+      body: JSON.stringify(validBody),
+      headers: { "Content-Type": "application/json" },
+    });
+    const res = await POST(req, { params: Promise.resolve({}) });
+
+    expect(res.status).toBe(401);
+    expect(createFarm).not.toHaveBeenCalled();
+  });
+
+  it("returns 201 with created farm on valid input for authenticated user", async () => {
     const req = makeRequest("http://localhost:3000/api/farms", {
       method: "POST",
       body: JSON.stringify(validBody),
@@ -102,8 +136,11 @@ describe("POST /api/farms", () => {
     const res = await POST(req, { params: Promise.resolve({}) });
 
     expect(res.status).toBe(201);
-    const body = await res.json() as { data: typeof mockFarm };
+    const body = (await res.json()) as { data: typeof mockFarm };
     expect(body.data.name).toBe("Sunrise Farm");
+    expect(createFarm).toHaveBeenCalledWith(
+      expect.objectContaining({ ownerId: "user-1" }),
+    );
   });
 
   it("returns 400 on invalid input", async () => {
@@ -115,7 +152,7 @@ describe("POST /api/farms", () => {
     const res = await POST(req, { params: Promise.resolve({}) });
 
     expect(res.status).toBe(400);
-    const body = await res.json() as { error: string };
+    const body = (await res.json()) as { error: string };
     expect(body.error).toBe("ValidationError");
   });
 });

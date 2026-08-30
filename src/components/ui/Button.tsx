@@ -35,7 +35,7 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center rounded-[var(--radius-md)] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-500)] disabled:pointer-events-none disabled:opacity-50",
+        "inline-flex items-center justify-center rounded-[var(--radius-md)] font-medium transition-colors focus-visible:ring-2 focus-visible:ring-[var(--color-brand-500)] focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
         variantClasses[variant],
         sizeClasses[size],
         className,

@@ -11,9 +11,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env["NEXTAUTH_URL"] ?? "http://localhost:3000",
-  ),
+  metadataBase: new URL(process.env["NEXTAUTH_URL"] ?? "http://localhost:3000"),
   title: {
     default: "Farmers Market",
     template: "%s | Farmers Market",
@@ -49,7 +47,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-screen flex flex-col">
+      <body className="flex min-h-screen flex-col">
         <Header />
         <main id="main-content" className="flex-1">
           {children}

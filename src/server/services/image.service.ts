@@ -1,5 +1,7 @@
 import "server-only";
+import { after } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
+import { logger } from "@/lib/logger";
 
 cloudinary.config({
   cloud_name: process.env["CLOUDINARY_CLOUD_NAME"] ?? "",
@@ -8,6 +10,9 @@ cloudinary.config({
 });
 
 const UNSPLASH_ACCESS_KEY = process.env["UNSPLASH_ACCESS_KEY"];
+
+/** Placeholder written immediately so creation never blocks on image I/O. */
+export const PLACEHOLDER_IMAGE = "/placeholder.svg";
 
 interface UnsplashPhoto {
   urls: { regular: string };
@@ -53,9 +58,7 @@ export async function fetchAndStoreImage(query: string): Promise<string> {
 
   // Convert to WebP via sharp
   const sharp = (await import("sharp")).default;
-  const webpBuffer = await sharp(buffer)
-    .webp({ quality: 85 })
-    .toBuffer();
+  const webpBuffer = await sharp(buffer).webp({ quality: 85 }).toBuffer();
 
   // Upload to Cloudinary
   const uploadResult = await new Promise<{ secure_url: string }>(
@@ -79,4 +82,37 @@ export async function fetchAndStoreImage(query: string): Promise<string> {
   );
 
   return uploadResult.secure_url;
+}
+
+/**
+ * Hydrate an entity's image off the request path.
+ *
+ * The caller should write the record first with `PLACEHOLDER_IMAGE`, then
+ * call this so the (slow, network-bound) Unsplash → sharp → Cloudinary
+ * pipeline runs *after* the response is sent. If the pipeline fails the
+ * placeholder is kept. `update` is responsible for persisting the URL and
+ * revalidating any caches.
+ *
+ * Callers must run inside a request scope (Server Action / Route Handler);
+ * outside one `after` throws and hydration is skipped (placeholder remains).
+ */
+export function hydrateImageAsync(
+  query: string,
+  update: (imageUrl: string) => Promise<void>,
+): void {
+  try {
+    after(async () => {
+      try {
+        const imageUrl = await fetchAndStoreImage(query);
+        await update(imageUrl);
+      } catch (error) {
+        logger.warn(
+          { query, error },
+          "Image hydration failed; keeping placeholder",
+        );
+      }
+    });
+  } catch {
+    // `after` unavailable outside a request scope — leave the placeholder.
+  }
 }

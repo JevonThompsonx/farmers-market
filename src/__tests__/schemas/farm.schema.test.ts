@@ -38,7 +38,10 @@ describe("CreateFarmSchema", () => {
   });
 
   it("rejects name longer than 100 characters", () => {
-    const result = CreateFarmSchema.safeParse({ ...valid, name: "A".repeat(101) });
+    const result = CreateFarmSchema.safeParse({
+      ...valid,
+      name: "A".repeat(101),
+    });
     expect(result.success).toBe(false);
   });
 
@@ -49,22 +52,34 @@ describe("CreateFarmSchema", () => {
   });
 
   it("rejects description shorter than 10 characters", () => {
-    const result = CreateFarmSchema.safeParse({ ...valid, description: "Too short" });
+    const result = CreateFarmSchema.safeParse({
+      ...valid,
+      description: "Too short",
+    });
     expect(result.success).toBe(false);
   });
 
   it("rejects description longer than 2000 characters", () => {
-    const result = CreateFarmSchema.safeParse({ ...valid, description: "A".repeat(2001) });
+    const result = CreateFarmSchema.safeParse({
+      ...valid,
+      description: "A".repeat(2001),
+    });
     expect(result.success).toBe(false);
   });
 
   it("rejects invalid email", () => {
-    const result = CreateFarmSchema.safeParse({ ...valid, email: "not-an-email" });
+    const result = CreateFarmSchema.safeParse({
+      ...valid,
+      email: "not-an-email",
+    });
     expect(result.success).toBe(false);
   });
 
   it("rejects invalid URL for website", () => {
-    const result = CreateFarmSchema.safeParse({ ...valid, website: "not-a-url" });
+    const result = CreateFarmSchema.safeParse({
+      ...valid,
+      website: "not-a-url",
+    });
     expect(result.success).toBe(false);
   });
 });

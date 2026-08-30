@@ -5,6 +5,10 @@ vi.mock("@/lib/logger", () => ({
   logger: { info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }));
 
+vi.mock("@/server/queries/farms", () => ({
+  getFarmById: vi.fn(),
+}));
+
 vi.mock("@/server/queries/products", () => ({
   getProducts: vi.fn(),
   createProduct: vi.fn(),
@@ -17,18 +21,34 @@ vi.mock("@/server/queries/products", () => ({
 }));
 
 vi.mock("@/server/services/image.service", () => ({
-  fetchAndStoreImage: vi.fn().mockResolvedValue("https://res.cloudinary.com/test/image.webp"),
+  fetchAndStoreImage: vi
+    .fn()
+    .mockResolvedValue("https://res.cloudinary.com/test/image.webp"),
+  hydrateImageAsync: vi.fn(),
+  PLACEHOLDER_IMAGE: "/placeholder.svg",
 }));
 
 vi.mock("server-only", () => ({}));
 
-vi.mock("@/lib/auth", () => ({
-  auth: vi.fn().mockResolvedValue(null),
-  assertOwnership: vi.fn(),
-}));
+vi.mock("@/lib/auth", () => {
+  const assertOwnership = vi.fn((userId: string, resourceOwnerId: string) => {
+    if (userId !== resourceOwnerId) {
+      throw new ForbiddenError("You do not own this resource");
+    }
+  });
+  return {
+    auth: vi.fn(),
+    assertOwnership,
+    getUserId: vi.fn(),
+  };
+});
 
 import { GET, POST } from "@/app/api/products/route";
 import { getProducts, createProduct } from "@/server/queries/products";
+import { getFarmById } from "@/server/queries/farms";
+import { getUserId } from "@/lib/auth";
+import { type Farm } from "@/server/db/schema";
+import { ForbiddenError, UnauthorizedError } from "@/lib/errors";
 
 const mockProduct = {
   id: "product-1",
@@ -44,17 +64,30 @@ const mockProduct = {
   deletedAt: null,
 };
 
-function makeRequest(url: string, options?: Omit<RequestInit, "signal"> & { signal?: AbortSignal }) {
-  return new NextRequest(url, options as ConstructorParameters<typeof NextRequest>[1]);
+function makeRequest(
+  url: string,
+  options?: Omit<RequestInit, "signal"> & { signal?: AbortSignal },
+) {
+  return new NextRequest(
+    url,
+    options as ConstructorParameters<typeof NextRequest>[1],
+  );
 }
 
 describe("GET /api/products", () => {
   beforeEach(() => {
     vi.mocked(getProducts).mockResolvedValue([
-      { id: mockProduct.id, name: mockProduct.name, price: mockProduct.price,
-        description: mockProduct.description, category: mockProduct.category,
-        image: mockProduct.image, farmId: mockProduct.farmId, rating: mockProduct.rating,
-        createdAt: mockProduct.createdAt },
+      {
+        id: mockProduct.id,
+        name: mockProduct.name,
+        price: mockProduct.price,
+        description: mockProduct.description,
+        category: mockProduct.category,
+        image: mockProduct.image,
+        farmId: mockProduct.farmId,
+        rating: mockProduct.rating,
+        createdAt: mockProduct.createdAt,
+      },
     ]);
   });
 
@@ -63,12 +96,14 @@ describe("GET /api/products", () => {
     const res = await GET(req, { params: Promise.resolve({}) });
 
     expect(res.status).toBe(200);
-    const body = await res.json() as { data: unknown[] };
+    const body = (await res.json()) as { data: unknown[] };
     expect(Array.isArray(body.data)).toBe(true);
   });
 
   it("passes category filter to getProducts", async () => {
-    const req = makeRequest("http://localhost:3000/api/products?category=vegetables");
+    const req = makeRequest(
+      "http://localhost:3000/api/products?category=vegetables",
+    );
     await GET(req, { params: Promise.resolve({}) });
     expect(getProducts).toHaveBeenCalledWith(
       expect.objectContaining({ category: "vegetables" }),
@@ -84,7 +119,9 @@ describe("GET /api/products", () => {
   });
 
   it("passes pagination params to getProducts", async () => {
-    const req = makeRequest("http://localhost:3000/api/products?page=2&limit=10");
+    const req = makeRequest(
+      "http://localhost:3000/api/products?page=2&limit=10",
+    );
     await GET(req, { params: Promise.resolve({}) });
     expect(getProducts).toHaveBeenCalledWith(
       expect.objectContaining({ page: 2, limit: 10 }),
@@ -94,6 +131,11 @@ describe("GET /api/products", () => {
 
 describe("POST /api/products", () => {
   beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(getUserId).mockResolvedValue("user-1");
+    vi.mocked(getFarmById).mockResolvedValue({
+      ownerId: "user-1",
+    } as unknown as Farm);
     vi.mocked(createProduct).mockResolvedValue(mockProduct);
   });
 
@@ -105,7 +147,35 @@ describe("POST /api/products", () => {
     farmId: "farm-1",
   };
 
-  it("returns 201 with created product on valid input", async () => {
+  it("returns 401 when unauthenticated", async () => {
+    vi.mocked(getUserId).mockRejectedValue(new UnauthorizedError());
+    const req = makeRequest("http://localhost:3000/api/products", {
+      method: "POST",
+      body: JSON.stringify(validBody),
+      headers: { "Content-Type": "application/json" },
+    });
+    const res = await POST(req, { params: Promise.resolve({}) });
+
+    expect(res.status).toBe(401);
+    expect(createProduct).not.toHaveBeenCalled();
+  });
+
+  it("returns 403 when user does not own the farm", async () => {
+    vi.mocked(getFarmById).mockResolvedValue({
+      ownerId: "other-user",
+    } as unknown as Farm);
+    const req = makeRequest("http://localhost:3000/api/products", {
+      method: "POST",
+      body: JSON.stringify(validBody),
+      headers: { "Content-Type": "application/json" },
+    });
+    const res = await POST(req, { params: Promise.resolve({}) });
+
+    expect(res.status).toBe(403);
+    expect(createProduct).not.toHaveBeenCalled();
+  });
+
+  it("returns 201 with created product on valid input for farm owner", async () => {
     const req = makeRequest("http://localhost:3000/api/products", {
       method: "POST",
       body: JSON.stringify(validBody),
@@ -114,7 +184,7 @@ describe("POST /api/products", () => {
     const res = await POST(req, { params: Promise.resolve({}) });
 
     expect(res.status).toBe(201);
-    const body = await res.json() as { data: typeof mockProduct };
+    const body = (await res.json()) as { data: typeof mockProduct };
     expect(body.data.name).toBe("Heirloom Tomatoes");
   });
 
@@ -138,7 +208,7 @@ describe("POST /api/products", () => {
     const res = await POST(req, { params: Promise.resolve({}) });
 
     expect(res.status).toBe(400);
-    const body = await res.json() as { error: string };
+    const body = (await res.json()) as { error: string };
     expect(body.error).toBe("ValidationError");
   });
 });

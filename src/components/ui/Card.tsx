@@ -17,9 +17,7 @@ export function CardHeader({
   className,
   ...props
 }: HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div className={cn("p-4 pb-0 font-semibold", className)} {...props} />
-  );
+  return <div className={cn("p-4 pb-0 font-semibold", className)} {...props} />;
 }
 
 export function CardBody({

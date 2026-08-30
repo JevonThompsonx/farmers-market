@@ -11,7 +11,9 @@ import * as schema from "./schema";
 
 const client = createClient({
   url: process.env["TURSO_DATABASE_URL"] ?? "",
-  ...(process.env["TURSO_AUTH_TOKEN"] !== undefined && { authToken: process.env["TURSO_AUTH_TOKEN"] }),
+  ...(process.env["TURSO_AUTH_TOKEN"] !== undefined && {
+    authToken: process.env["TURSO_AUTH_TOKEN"],
+  }),
 });
 const db = drizzle(client, { schema });
 
@@ -372,8 +374,7 @@ const PRODUCT_VARIANTS = [
   {
     label: "Harvest Select",
     priceMultiplier: 1,
-    descriptionSuffix:
-      "Harvested this week and packed for peak freshness.",
+    descriptionSuffix: "Harvested this week and packed for peak freshness.",
     imageSuffix: "harvest fresh",
   },
   {
@@ -386,22 +387,19 @@ const PRODUCT_VARIANTS = [
   {
     label: "Chef's Pick",
     priceMultiplier: 1.12,
-    descriptionSuffix:
-      "Hand-selected for restaurant-quality prep and plating.",
+    descriptionSuffix: "Hand-selected for restaurant-quality prep and plating.",
     imageSuffix: "chef prep",
   },
   {
     label: "Family Pack",
     priceMultiplier: 1.18,
-    descriptionSuffix:
-      "A larger, value-oriented pack for weekly meal prep.",
+    descriptionSuffix: "A larger, value-oriented pack for weekly meal prep.",
     imageSuffix: "bulk pack",
   },
   {
     label: "Weekend Special",
     priceMultiplier: 0.95,
-    descriptionSuffix:
-      "Limited-run weekend batch priced for quick pickup.",
+    descriptionSuffix: "Limited-run weekend batch priced for quick pickup.",
     imageSuffix: "weekend market",
   },
 ] as const;
@@ -512,11 +510,17 @@ async function main() {
     });
 
     const farmCommentOffset = i * FARM_COMMENTS_PER_FARM;
-    for (let commentIndex = 0; commentIndex < FARM_COMMENTS_PER_FARM; commentIndex += 1) {
-      const comment = FARM_COMMENT_TEMPLATES[
-        (farmCommentOffset + commentIndex) % FARM_COMMENT_TEMPLATES.length
-      ];
-      const author = SEED_USERS[(farmCommentOffset + commentIndex) % SEED_USERS.length];
+    for (
+      let commentIndex = 0;
+      commentIndex < FARM_COMMENTS_PER_FARM;
+      commentIndex += 1
+    ) {
+      const comment =
+        FARM_COMMENT_TEMPLATES[
+          (farmCommentOffset + commentIndex) % FARM_COMMENT_TEMPLATES.length
+        ];
+      const author =
+        SEED_USERS[(farmCommentOffset + commentIndex) % SEED_USERS.length];
 
       if (!comment || !author) {
         continue;
@@ -551,14 +555,22 @@ async function main() {
         farmId,
       });
 
-      const commentBaseOffset = i * TARGET_PRODUCTS_PER_FARM + farmProducts.indexOf(productData);
-      for (let commentIndex = 0; commentIndex < PRODUCT_COMMENTS_PER_PRODUCT; commentIndex += 1) {
-        const comment = PRODUCT_COMMENT_TEMPLATES[
-          (commentBaseOffset + commentIndex) % PRODUCT_COMMENT_TEMPLATES.length
-        ];
-        const author = SEED_USERS[
-          (commentBaseOffset + commentIndex + 1) % SEED_USERS.length
-        ];
+      const commentBaseOffset =
+        i * TARGET_PRODUCTS_PER_FARM + farmProducts.indexOf(productData);
+      for (
+        let commentIndex = 0;
+        commentIndex < PRODUCT_COMMENTS_PER_PRODUCT;
+        commentIndex += 1
+      ) {
+        const comment =
+          PRODUCT_COMMENT_TEMPLATES[
+            (commentBaseOffset + commentIndex) %
+              PRODUCT_COMMENT_TEMPLATES.length
+          ];
+        const author =
+          SEED_USERS[
+            (commentBaseOffset + commentIndex + 1) % SEED_USERS.length
+          ];
 
         if (!comment || !author) {
           continue;

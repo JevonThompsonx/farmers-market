@@ -10,7 +10,9 @@ describe("Badge", () => {
 
   it("applies variant classes", () => {
     const { rerender } = render(<Badge variant="default">Default</Badge>);
-    expect(screen.getByText("Default")).toHaveClass("bg-[var(--color-brand-100)]");
+    expect(screen.getByText("Default")).toHaveClass(
+      "bg-[var(--color-brand-100)]",
+    );
 
     rerender(<Badge variant="outline">Outline</Badge>);
     expect(screen.getByText("Outline")).toHaveClass("border");

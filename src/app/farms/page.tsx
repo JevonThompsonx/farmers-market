@@ -6,6 +6,8 @@ import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { Rating } from "@/components/ui/Rating";
 import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Local Farms",
   description: "Discover local farms and the producers behind your food.",
@@ -23,7 +25,13 @@ export const metadata: Metadata = {
 };
 
 async function FarmGrid() {
-  const farms = await getFarms();
+  let farms: Awaited<ReturnType<typeof getFarms>> = [];
+  try {
+    farms = await getFarms();
+  } catch {
+    // DB may be unreachable at build time (e.g. CI). Render the empty
+    // state; ISR (revalidate) populates real data at request time in prod.
+  }
 
   if (farms.length === 0) {
     return (

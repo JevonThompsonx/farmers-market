@@ -32,7 +32,7 @@ async function SearchResults({ query }: { query: string }) {
     );
   }
 
-  const results = await searchProducts(query) as Array<{
+  const results = (await searchProducts(query)) as Array<{
     id: string;
     name: string;
     price: number;
@@ -93,7 +93,9 @@ export default async function SearchPage({
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <h1 className="mb-6 text-3xl font-bold text-[var(--color-text)]">Search</h1>
+      <h1 className="mb-6 text-3xl font-bold text-[var(--color-text)]">
+        Search
+      </h1>
       <SearchBar initialValue={query} className="mb-8" />
       {query ? (
         <>

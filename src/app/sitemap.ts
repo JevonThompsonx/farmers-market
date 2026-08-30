@@ -4,6 +4,8 @@ import { getProducts } from "@/server/queries/products";
 
 const BASE = "https://farmers-market.vercel.app";
 
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [farms, products] = await Promise.all([getFarms(), getProducts()]);
 

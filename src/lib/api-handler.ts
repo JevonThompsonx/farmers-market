@@ -7,9 +7,9 @@ type RouteHandler<P extends Record<string, string> = Record<string, string>> = (
   context: { params: Promise<P> },
 ) => Promise<NextResponse>;
 
-export function apiHandler<P extends Record<string, string> = Record<string, string>>(
-  handler: RouteHandler<P>,
-): RouteHandler<P> {
+export function apiHandler<
+  P extends Record<string, string> = Record<string, string>,
+>(handler: RouteHandler<P>): RouteHandler<P> {
   return async (req, context) => {
     try {
       return await handler(req, context);
@@ -26,7 +26,11 @@ export function apiHandler<P extends Record<string, string> = Record<string, str
       }
       logger.error(error, "Unhandled route error");
       return NextResponse.json(
-        { error: "InternalServerError", message: "Something went wrong", statusCode: 500 },
+        {
+          error: "InternalServerError",
+          message: "Something went wrong",
+          statusCode: 500,
+        },
         { status: 500 },
       );
     }

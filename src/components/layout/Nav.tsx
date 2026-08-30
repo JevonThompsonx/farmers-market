@@ -21,7 +21,7 @@ export function Nav() {
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--color-border)] px-3 text-sm font-medium text-[var(--color-text)] transition-colors hover:bg-[var(--color-bg-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-500)] md:hidden"
+        className="inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--color-border)] px-3 text-sm font-medium text-[var(--color-text)] transition-colors hover:bg-[var(--color-bg-subtle)] focus-visible:ring-2 focus-visible:ring-[var(--color-brand-500)] focus-visible:outline-none md:hidden"
         aria-expanded={isOpen}
         aria-controls="main-navigation-menu"
       >
@@ -52,7 +52,7 @@ export function Nav() {
           <li key={href}>
             <Link
               href={href}
-              className="inline-flex min-h-11 items-center rounded-[var(--radius-md)] px-3 text-sm font-medium text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-500)]"
+              className="inline-flex min-h-11 items-center rounded-[var(--radius-md)] px-3 text-sm font-medium text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text)] focus-visible:ring-2 focus-visible:ring-[var(--color-brand-500)] focus-visible:outline-none"
             >
               {label}
             </Link>
@@ -63,14 +63,14 @@ export function Nav() {
       {isOpen ? (
         <ul
           id="main-navigation-menu"
-          className="absolute right-0 top-full z-20 mt-2 w-52 list-none rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] p-2 shadow-lg md:hidden"
+          className="absolute top-full right-0 z-20 mt-2 w-52 list-none rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] p-2 shadow-lg md:hidden"
         >
           {links.map(({ href, label }) => (
             <li key={href}>
               <Link
                 href={href}
                 onClick={closeMenu}
-                className="flex min-h-11 items-center rounded-[var(--radius-md)] px-3 text-sm font-medium text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-500)]"
+                className="flex min-h-11 items-center rounded-[var(--radius-md)] px-3 text-sm font-medium text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text)] focus-visible:ring-2 focus-visible:ring-[var(--color-brand-500)] focus-visible:outline-none"
               >
                 {label}
               </Link>

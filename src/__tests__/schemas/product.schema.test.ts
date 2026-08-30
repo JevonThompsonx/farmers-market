@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { CreateProductSchema, UpdateProductSchema } from "@/schemas/product.schema";
+import {
+  CreateProductSchema,
+  UpdateProductSchema,
+} from "@/schemas/product.schema";
 
 describe("CreateProductSchema", () => {
   const valid = {
@@ -41,28 +44,47 @@ describe("CreateProductSchema", () => {
   });
 
   it("rejects name longer than 150 characters", () => {
-    const result = CreateProductSchema.safeParse({ ...valid, name: "A".repeat(151) });
+    const result = CreateProductSchema.safeParse({
+      ...valid,
+      name: "A".repeat(151),
+    });
     expect(result.success).toBe(false);
   });
 
   it("rejects description shorter than 10 characters", () => {
-    const result = CreateProductSchema.safeParse({ ...valid, description: "Short" });
+    const result = CreateProductSchema.safeParse({
+      ...valid,
+      description: "Short",
+    });
     expect(result.success).toBe(false);
   });
 
   it("rejects invalid category", () => {
-    const result = CreateProductSchema.safeParse({ ...valid, category: "snacks" });
+    const result = CreateProductSchema.safeParse({
+      ...valid,
+      category: "snacks",
+    });
     expect(result.success).toBe(false);
   });
 
   it("accepts all valid categories", () => {
     const categories = [
-      "vegetables", "fruits", "dairy-eggs", "meat-poultry", "herbs-spices",
-      "honey-preserves", "baked-goods", "flowers-plants", "grains-legumes", "beverages",
+      "vegetables",
+      "fruits",
+      "dairy-eggs",
+      "meat-poultry",
+      "herbs-spices",
+      "honey-preserves",
+      "baked-goods",
+      "flowers-plants",
+      "grains-legumes",
+      "beverages",
     ];
     for (const category of categories) {
       const result = CreateProductSchema.safeParse({ ...valid, category });
-      expect(result.success, `category "${category}" should be valid`).toBe(true);
+      expect(result.success, `category "${category}" should be valid`).toBe(
+        true,
+      );
     }
   });
 

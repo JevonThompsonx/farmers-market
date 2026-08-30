@@ -21,7 +21,14 @@ vi.mock("next/image", () => ({
 
 describe("ImageWithFallback", () => {
   it("renders with initial source", () => {
-    render(<ImageWithFallback src="/test.jpg" alt="Test image" width={100} height={100} />);
+    render(
+      <ImageWithFallback
+        src="/test.jpg"
+        alt="Test image"
+        width={100}
+        height={100}
+      />,
+    );
     const img = screen.getByRole("img");
     expect(img).toHaveAttribute("src", "/test.jpg");
     expect(img).toHaveAttribute("alt", "Test image");
@@ -35,7 +42,7 @@ describe("ImageWithFallback", () => {
         alt="Test image"
         width={100}
         height={100}
-      />
+      />,
     );
     const img = screen.getByRole("img");
 

@@ -7,26 +7,26 @@
 
 ## Project Snapshot
 
-| Aspect | Current | Target |
-|---|---|---|
-| Framework | Express.js + EJS server-rendered templates | Next.js 15 App Router |
-| Language | TypeScript (loose — `any`, `@ts-ignore`, `as`) | TypeScript `strict: true`, no `any`/`as`/`!` |
-| Runtime | Node.js, `tsc -w` → `scripts/` | Node.js LTS via Next.js bundler |
-| Database | MongoDB/Mongoose (Atlas) | Turso (LibSQL) via Drizzle ORM |
-| Validation | Joi (server-side only) | Zod (shared client/server) |
-| Auth | None — all CRUD is public | Auth.js v5 · GitHub OAuth · users in Turso |
-| Frontend | EJS templates · Bootstrap 5 CDN | React (RSC-first) · Tailwind CSS 4 |
-| Styling | Bootstrap 5 CDN + 13 lines custom CSS | Tailwind CSS 4 · design token system · dark/light theme |
-| API Surface | Express route handlers (GET/POST, form submissions) | Next.js route handlers + Server Actions |
-| Images | Bing/Unsplash auto-fetch via Mongoose pre-save | Auto-fetch service → convert to WebP → store on Cloudinary |
-| Error Handling | `AppError` with `any` types, EJS error pages | `AppError` hierarchy (NotFound, Unauthorized, etc.) |
-| Testing | None | Vitest (unit/integration) · Playwright (E2E) |
-| CI/CD | None | GitHub Actions |
-| Deployment | Single-stage Dockerfile | Vercel |
-| Package Manager | pnpm | bun |
-| Env Management | `dotenv`, credentials partially hardcoded | Zod-validated env vars · `.env.example` · no secrets in source |
-| Logging | `console.log` only | Structured logger |
-| SEO | None | Metadata API · JSON-LD · sitemap · robots.txt |
+| Aspect          | Current                                             | Target                                                         |
+| --------------- | --------------------------------------------------- | -------------------------------------------------------------- |
+| Framework       | Express.js + EJS server-rendered templates          | Next.js 15 App Router                                          |
+| Language        | TypeScript (loose — `any`, `@ts-ignore`, `as`)      | TypeScript `strict: true`, no `any`/`as`/`!`                   |
+| Runtime         | Node.js, `tsc -w` → `scripts/`                      | Node.js LTS via Next.js bundler                                |
+| Database        | MongoDB/Mongoose (Atlas)                            | Turso (LibSQL) via Drizzle ORM                                 |
+| Validation      | Joi (server-side only)                              | Zod (shared client/server)                                     |
+| Auth            | None — all CRUD is public                           | Auth.js v5 · GitHub OAuth · users in Turso                     |
+| Frontend        | EJS templates · Bootstrap 5 CDN                     | React (RSC-first) · Tailwind CSS 4                             |
+| Styling         | Bootstrap 5 CDN + 13 lines custom CSS               | Tailwind CSS 4 · design token system · dark/light theme        |
+| API Surface     | Express route handlers (GET/POST, form submissions) | Next.js route handlers + Server Actions                        |
+| Images          | Bing/Unsplash auto-fetch via Mongoose pre-save      | Auto-fetch service → convert to WebP → store on Cloudinary     |
+| Error Handling  | `AppError` with `any` types, EJS error pages        | `AppError` hierarchy (NotFound, Unauthorized, etc.)            |
+| Testing         | None                                                | Vitest (unit/integration) · Playwright (E2E)                   |
+| CI/CD           | None                                                | GitHub Actions                                                 |
+| Deployment      | Single-stage Dockerfile                             | Vercel                                                         |
+| Package Manager | pnpm                                                | bun                                                            |
+| Env Management  | `dotenv`, credentials partially hardcoded           | Zod-validated env vars · `.env.example` · no secrets in source |
+| Logging         | `console.log` only                                  | Structured logger                                              |
+| SEO             | None                                                | Metadata API · JSON-LD · sitemap · robots.txt                  |
 
 ---
 
@@ -44,10 +44,12 @@ GitHub as the sole OAuth provider. Sessions and user records stored in Turso via
 The fetch-on-create pattern stays. The Mongoose pre-save hook becomes an explicit server-side service (`src/server/services/image.service.ts`). The service: fetches from Unsplash API (preferred over Bing scraping) → converts to WebP via `sharp` → uploads to Cloudinary. All stored URLs are WebP. A small CLI utility (`scripts/convert-to-webp.ts`) will be built for any batch conversion needs during seeding.
 
 **Categories (replacing `fruit`, `vegetable`, `dairy`)**
+
 ```
 vegetables | fruits | dairy-eggs | meat-poultry | herbs-spices
 honey-preserves | baked-goods | flowers-plants | grains-legumes | beverages
 ```
+
 Stored as a `category` enum in the Drizzle schema. Extensible — adding a new value is a schema migration.
 
 **Search — LibSQL FTS5**
@@ -63,11 +65,11 @@ Switch in Phase 2. `bun.lockb` replaces `pnpm-lock.yaml`. All CI scripts use `bu
 
 ## AI Assignment Key
 
-| Icon | Model | Use for | Notes |
-|---|---|---|---|
-| 🟡 | Gemini Flash 2.0 | Repetitive frontend tasks, boilerplate, metadata, component tests, README | Primary Gemini model — give it explicit file paths, import names, and output structure to avoid mistakes |
-| 🟠 | Gemini Pro 3.1 | Visual/browser tasks — Lighthouse, responsive testing, contrast audits, cross-browser | Use Antigravity app's browser access for live page inspection |
-| *(unmarked)* | Claude | Backend logic, server actions, JSON-LD, CI/CD, destructive cleanup, integration tests | Complex logic, multi-file reasoning, security-sensitive work |
+| Icon         | Model            | Use for                                                                               | Notes                                                                                                    |
+| ------------ | ---------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| 🟡           | Gemini Flash 2.0 | Repetitive frontend tasks, boilerplate, metadata, component tests, README             | Primary Gemini model — give it explicit file paths, import names, and output structure to avoid mistakes |
+| 🟠           | Gemini Pro 3.1   | Visual/browser tasks — Lighthouse, responsive testing, contrast audits, cross-browser | Use Antigravity app's browser access for live page inspection                                            |
+| _(unmarked)_ | Claude           | Backend logic, server actions, JSON-LD, CI/CD, destructive cleanup, integration tests | Complex logic, multi-file reasoning, security-sensitive work                                             |
 
 **Flash optimization tips:** Each Flash task is self-contained with exact file paths, import names, and expected output shape. Batch related tasks (e.g., all metadata exports) into a single prompt. Avoid giving Flash tasks that require cross-file reasoning or understanding auth/DB internals.
 
@@ -77,11 +79,12 @@ Switch in Phase 2. `bun.lockb` replaces `pnpm-lock.yaml`. All CI scripts use `bu
 
 ---
 
-### Phase 1 — Security Triage & Cleanup 
+### Phase 1 — Security Triage & Cleanup
 
 **Goal:** Remove hardcoded secrets and fix critical security issues in the existing Express app before any migration work begins.
 
 **Backend tasks:**
+
 - [x] Move full MongoDB connection string to `MONGODB_URI` env var — remove `connectionString.ts` credentials
 - [x] Create `.env.example` documenting all required variables
 - [x] Verify `.env` is in `.gitignore`; if not, add it and purge from git history (`git filter-branch` or `git filter-repo`)
@@ -99,11 +102,12 @@ Switch in Phase 2. `bun.lockb` replaces `pnpm-lock.yaml`. All CI scripts use `bu
 
 ---
 
-### Phase 2 — Project Scaffolding 
+### Phase 2 — Project Scaffolding
 
 **Goal:** Initialize the Next.js 15 App Router project with all tooling, Tailwind CSS 4, and base structure alongside the still-running Express app.
 
 **Backend tasks:**
+
 - [x] Initialize Next.js 15 project: `bun create next-app@latest` with App Router, TypeScript, Tailwind, `src/` directory, `@/*` path alias
 - [x] Configure `tsconfig.json`:
   ```json
@@ -128,6 +132,7 @@ Switch in Phase 2. `bun.lockb` replaces `pnpm-lock.yaml`. All CI scripts use `bu
 - [x] Switch package manager to bun — delete `pnpm-lock.yaml`, run `bun install`, commit `bun.lockb`
 
 **Frontend tasks:**
+
 - [x] Configure Tailwind CSS 4 with `@import "tailwindcss"` in global CSS
 - [x] Define design token system in `src/app/globals.css` — CSS custom properties for color (brand, neutral, semantic), spacing scale, typography scale, radius
 - [x] Create `src/app/layout.tsx` with `next/font` (Geist or Inter), metadata defaults, and `<html lang="en">` with `suppressHydrationWarning` for theme toggle
@@ -141,19 +146,21 @@ Switch in Phase 2. `bun.lockb` replaces `pnpm-lock.yaml`. All CI scripts use `bu
 
 ---
 
-### Phase 3 — Database & Schema (Turso + Drizzle) 
+### Phase 3 — Database & Schema (Turso + Drizzle)
 
 **Goal:** Define the new schema in Turso via Drizzle ORM, implement the Data Access Layer, and build the image service and WebP converter.
 
 **Backend tasks:**
 
 **Turso setup:**
+
 - [x] Create Turso database — `turso db create farmers-market`
 - [x] Install Turso Vercel integration (automatic env injection for `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`)
 - [x] Install deps: `bun add drizzle-orm @libsql/client` + `bun add -d drizzle-kit`
 - [x] Create `drizzle.config.ts` pointing to `src/server/db/schema.ts`
 
 **Schema design (`src/server/db/schema.ts`):**
+
 ```
 users         — id (text PK), name, email, image, githubId, createdAt, updatedAt
 farms         — id (text PK), name, city, state, description, email, website, image, ownerId (FK users), createdAt, updatedAt, deletedAt
@@ -168,21 +175,25 @@ products_fts  — FTS5 virtual table over (name, description) synced by trigger
 - [x] **Claude:** Add follow-up migration for `products_fts` + sync triggers (`INSERT`/`UPDATE`/`DELETE`) with `IF NOT EXISTS`/guarded SQL (`src/server/db/migrations/0001_products_fts.sql` + journal entry)
 
 **Data Access Layer (`src/server/queries/`):**
+
 - [x] `farms.ts` — `getFarms()`, `getFarmById()`, `createFarm()`, `updateFarm()`, `softDeleteFarm()`
 - [x] `products.ts` — `getProducts(filters)`, `getProductById()`, `getProductsByFarm()`, `getProductsByCategory()`, `searchProducts(query)`, `createProduct()`, `updateProduct()`, `softDeleteProduct()`
 - [x] `reviews.ts` — `getReviewsForFarm()`, `getReviewsForProduct()`, `createReview()`, `deleteReview()`
 - [x] All query files: `import 'server-only'` at top, explicit column selection (no `SELECT *`), return typed results
 
 **Image service (`src/server/services/image.service.ts`):**
+
 - [x] Install: `bun add sharp cloudinary`
 - [x] `fetchAndStoreImage(query: string): Promise<string>` — fetches from Unsplash API (requires `UNSPLASH_ACCESS_KEY` env var), converts buffer to WebP via `sharp`, uploads to Cloudinary, returns CDN URL
 - [x] Build `scripts/convert-to-webp.ts` — batch CLI for converting any existing local images to WebP and uploading to Cloudinary during seed
 
 **Seed script:**
+
 - [x] `src/server/db/seed.ts` — populates farms, products, reviews using DAL functions and image service; runs with `bun run db:seed`
 - [x] Data: 5–8 farms across multiple states, 3–5 products per farm spread across all 10 categories, 2–3 reviews per product
 
 **Zod schemas (`src/schemas/`):**
+
 - [x] `farm.schema.ts` — `CreateFarmSchema`, `UpdateFarmSchema`
 - [x] `product.schema.ts` — `CreateProductSchema`, `UpdateProductSchema` (category validated against enum)
 - [x] `review.schema.ts` — `CreateReviewSchema` (rating: `z.number().int().min(1).max(5)`)
@@ -195,13 +206,14 @@ products_fts  — FTS5 virtual table over (name, description) synced by trigger
 
 ---
 
-### Phase 4 — API Layer (Next.js Route Handlers) 
+### Phase 4 — API Layer (Next.js Route Handlers)
 
 **Goal:** Reimplement all Express routes as Next.js API route handlers with Zod validation, DAL calls, and consistent error handling. Replace in-memory search with FTS5.
 
 **Backend tasks:**
 
 Route structure under `src/app/api/`:
+
 - [x] `products/route.ts` — `GET` (list with `category`, `farmId`, `page`, `limit` query params) · `POST` (create, auth required)
 - [x] `products/[id]/route.ts` — `GET` (single) · `PATCH` (update, auth + ownership) · `DELETE` (soft delete, auth + ownership)
 - [x] `products/[id]/reviews/route.ts` — `POST` (create, auth required)
@@ -214,6 +226,7 @@ Route structure under `src/app/api/`:
 - [x] `categories/route.ts` — `GET` returns the enum list
 
 **Every route handler must:**
+
 - [x] Parse and validate input with the corresponding Zod schema
 - [x] Delegate all DB access to DAL (no `db.` calls in route files directly)
 - [x] Return `{ data }` on success, `{ error, message, statusCode }` on failure
@@ -228,11 +241,12 @@ Route structure under `src/app/api/`:
 
 ---
 
-### Phase 5 — Authentication & Authorization 
+### Phase 5 — Authentication & Authorization
 
 **Goal:** Add GitHub OAuth via Auth.js v5. Protect all mutation routes. Store sessions and users in Turso.
 
 **Backend tasks:**
+
 - [x] Install: `bun add next-auth@beta` + the Auth.js Drizzle adapter
 - [x] Create `src/lib/auth.ts` — configure GitHub provider, Drizzle adapter pointing at Turso, session strategy (`jwt` preferred for edge)
 - [x] Add Auth.js tables to Drizzle schema (`accounts`, `sessions`, `verificationTokens`) + migrate
@@ -242,6 +256,7 @@ Route structure under `src/app/api/`:
 - [x] Apply ownership checks in: farm update/delete, product update/delete, review delete
 
 **Frontend tasks:**
+
 - [x] Create `src/app/auth/signin/page.tsx` — GitHub sign-in button, redirect back to previous page on success
 - [x] Add auth state to `Header` component — show user avatar + sign-out when authenticated, sign-in button when not
 - [x] Conditionally render edit/delete controls in product and farm detail pages based on session ownership
@@ -252,13 +267,14 @@ Route structure under `src/app/api/`:
 
 ---
 
-### Phase 6 — Frontend Rebuild 
+### Phase 6 — Frontend Rebuild
 
 **Goal:** Replace all EJS templates with React Server Components and Client Components. Implement full UI per design token system.
 
 **Frontend tasks:**
 
 **Shared UI primitives (`src/components/ui/`):**
+
 - [x] `Button` — variants: `primary`, `secondary`, `destructive`, `ghost`; sizes: `sm`, `md`, `lg`; loading state
 - [x] `Card` — `CardHeader`, `CardBody`, `CardFooter`
 - [x] `Input`, `Textarea`, `Select`, `Label` — all with error state display
@@ -268,6 +284,7 @@ Route structure under `src/app/api/`:
 - [x] `ThemeToggle` — light/dark/system switcher
 
 **Page components (Server Components by default):**
+
 - [x] `src/app/page.tsx` — hero + featured products grid + category quick-links
 - [x] `src/app/products/page.tsx` — full product listing with category filter tabs, pagination
 - [x] `src/app/products/[id]/page.tsx` — product detail, farm attribution, review list + `ReviewForm` (client)
@@ -281,15 +298,18 @@ Route structure under `src/app/api/`:
 - [x] `src/app/search/page.tsx` — search bar (client), results grid (server, via `searchParams`)
 
 **Data loading:**
+
 - [x] Use `<Suspense>` with skeleton fallbacks for product/farm grids and review lists
 - [x] **Claude:** Use `generateStaticParams` on `products/[id]` and `farms/[id]` for ISR — both pages now export async functions that call DAL ID queries
 - [x] All `next/image` usage: set `sizes`, `priority` on above-the-fold images, `quality={85}`, `format="webp"` (Cloudinary URLs already WebP)
 
 **Forms:**
+
 - [x] Implement create/edit forms using Server Actions (`src/server/actions/`) — farm actions, product actions, review actions
 - [x] Use `useActionState` (React 19) for optimistic feedback and error display in client forms
 
 **Accessibility:**
+
 - [x] Semantic HTML throughout (`<nav>`, `<main>`, `<article>`, `<section>`, `<header>`, `<footer>`)
 - [x] All interactive elements keyboard-navigable with visible focus indicators
 - [x] All images have meaningful `alt` text (or `alt=""` for decorative)
@@ -298,9 +318,11 @@ Route structure under `src/app/api/`:
 - [x] **Gemini Pro 3.1 (browser):** 4.5:1 contrast ratio audit completed on localhost across target routes/themes. Findings captured in external `qa_audit_report.md` artifact; Claude applied token fixes in `src/app/globals.css` (`--color-text-muted` light/dark adjustments) and raised affected control/placeholder contrast.
 
 **Responsive design:**
+
 - [x] **Gemini Pro 3.1 (browser):** Mobile responsiveness audit completed on localhost at 375px/768px/1280px/1440px with screenshot evidence. Claude applied P0/P1 follow-up fixes: mobile hamburger nav, 44px tap targets for header/filter controls, mobile search form stacking, horizontal scrolling for category pills, breadcrumb wrapping, and farm hero image fallback.
 
 **Backend tasks:**
+
 - [x] Create Server Actions in `src/server/actions/`: `createFarm`, `updateFarm`, `deleteFarm`, `createProduct`, `updateProduct`, `deleteProduct`, `createReview`, `deleteReview`
 - [x] Configure `next.config.ts` security headers: `Content-Security-Policy`, `Strict-Transport-Security`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`
 - [x] Add Cloudinary domain to `next.config.ts` `images.remotePatterns`
@@ -318,6 +340,7 @@ Route structure under `src/app/api/`:
 > **Assignment key:** 🟡 = Gemini Flash 2.0 · 🟠 = Gemini Pro 3.1 (browser) · unmarked = Claude
 
 **Frontend tasks:**
+
 - [x] 🟡 **Gemini Flash:** Add `export const metadata: Metadata` / `generateMetadata` to every page — all pages have metadata: `page.tsx`, `products/page.tsx`, `farms/page.tsx`, `search/page.tsx`, `auth/signin/page.tsx`, `products/[id]/page.tsx`, `farms/[id]/page.tsx`, `categories/[category]/page.tsx`
 - [x] 🟡 **Gemini Flash:** Root layout `metadataBase` — already set to `new URL(process.env["NEXTAUTH_URL"] ?? "http://localhost:3000")` in `src/app/layout.tsx`
 - [x] 🟡 **Gemini Flash:** Create `src/app/sitemap.ts` — dynamic sitemap with all farms and products.
@@ -334,7 +357,7 @@ Route structure under `src/app/api/`:
 
 ---
 
-### Phase 8 — Testing & CI/CD 
+### Phase 8 — Testing & CI/CD
 
 **Goal:** Add test coverage and a fully automated GitHub Actions pipeline with deploy to Vercel.
 
@@ -362,13 +385,14 @@ Route structure under `src/app/api/`:
 
 ---
 
-### Phase 9 — Cleanup & Decommission 
+### Phase 9 — Cleanup & Decommission
 
 **Goal:** Remove all legacy Express/EJS code and finalize the migration.
 
 > **Assignment key:** 🟡 = Gemini Flash 2.0 · 🟠 = Gemini Pro 3.1 (browser) · unmarked = Claude
 
 **Backend tasks:**
+
 - [x] **Claude:** Remove legacy directories and dependencies — completed after reference audit:
   - Remove `dev/` directory (Express TypeScript source)
   - Remove `scripts/` directory (compiled JS output)
@@ -381,6 +405,7 @@ Route structure under `src/app/api/`:
 - [x] 🟡 **Gemini Flash:** Update `README.md` — rewritten for the new Next.js stack. Concise, no badges.
 
 **Frontend tasks:**
+
 - [ ] 🟠 **Gemini Pro 3.1 (browser):** Lighthouse audit — after the app is deployed to Vercel, run Lighthouse on these routes: `/`, `/products`, `/products/[id]` (pick one), `/farms`, `/farms/[id]` (pick one), `/search`, `/categories/vegetables`. Target: ≥ 90 Performance, ≥ 90 Accessibility, 100 Best Practices, ≥ 90 SEO. Report each score per route and list specific failing audits with recommended fixes.
 - [ ] 🟠 **Gemini Pro 3.1 (browser):** Core Web Vitals verification — on the deployed Vercel app, check LCP < 2.5s, INP < 200ms, CLS < 0.1 on the home page and product listing page. Use Chrome DevTools Performance tab or web.dev/measure. Report actual values.
 - [ ] 🟠 **Gemini Pro 3.1 (browser):** Cross-browser test — verify the deployed app renders correctly in Chrome, Firefox, and Safari (if accessible). Check: layout integrity, theme toggle works, forms submit, images load, navigation works. Report any browser-specific rendering issues.
@@ -423,17 +448,17 @@ UPSTASH_REDIS_REST_TOKEN=
 
 ## Phase Summary
 
-| Phase | Focus | Risk | Status | AI Split |
-|---|---|---|---|---|
-| 1 | Security triage | Low | Complete | — |
-| 2 | Project scaffolding | Low | Complete | — |
-| 3 | Turso schema + DAL + image service | Medium | Complete | — |
-| 4 | API route handlers | Medium | Complete (mutation endpoint rate limiting implemented) | — |
-| 5 | Auth.js + GitHub OAuth | Medium | Complete | — |
-| 6 | React frontend rebuild | Medium-High | Complete | Localhost Pro audits complete; deploy-dependent browser checks remain in Phase 9 |
-| 7 | SEO + metadata | Low | Complete | — |
-| 8 | Tests + CI/CD | Low | Complete in-repo (CI + security + rate limiting + deploy workflow) | — |
-| 9 | Cleanup + decommission | Low | In progress — backend cleanup complete; deploy-dependent browser QA pending | Remaining: 3 tasks → Pro |
+| Phase | Focus                              | Risk        | Status                                                                      | AI Split                                                                         |
+| ----- | ---------------------------------- | ----------- | --------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| 1     | Security triage                    | Low         | Complete                                                                    | —                                                                                |
+| 2     | Project scaffolding                | Low         | Complete                                                                    | —                                                                                |
+| 3     | Turso schema + DAL + image service | Medium      | Complete                                                                    | —                                                                                |
+| 4     | API route handlers                 | Medium      | Complete (mutation endpoint rate limiting implemented)                      | —                                                                                |
+| 5     | Auth.js + GitHub OAuth             | Medium      | Complete                                                                    | —                                                                                |
+| 6     | React frontend rebuild             | Medium-High | Complete                                                                    | Localhost Pro audits complete; deploy-dependent browser checks remain in Phase 9 |
+| 7     | SEO + metadata                     | Low         | Complete                                                                    | —                                                                                |
+| 8     | Tests + CI/CD                      | Low         | Complete in-repo (CI + security + rate limiting + deploy workflow)          | —                                                                                |
+| 9     | Cleanup + decommission             | Low         | In progress — backend cleanup complete; deploy-dependent browser QA pending | Remaining: 3 tasks → Pro                                                         |
 
 ---
 

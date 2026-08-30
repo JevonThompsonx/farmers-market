@@ -1,10 +1,7 @@
 import { z } from "zod";
 
 export const CreateReviewSchema = z.object({
-  body: z
-    .string()
-    .min(10, "Review must be at least 10 characters")
-    .max(1000),
+  body: z.string().min(10, "Review must be at least 10 characters").max(1000),
   rating: z.coerce
     .number()
     .int("Rating must be a whole number")

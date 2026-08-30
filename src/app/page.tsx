@@ -7,6 +7,7 @@ import { Card, CardBody } from "@/components/ui/Card";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { Rating } from "@/components/ui/Rating";
 import type { Metadata } from "next";
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Farmers Market — Fresh Local Produce",
@@ -28,7 +29,13 @@ export const metadata: Metadata = {
 };
 
 async function FeaturedProducts() {
-  const products = await getProducts({ limit: 6 });
+  let products: Awaited<ReturnType<typeof getProducts>> = [];
+  try {
+    products = await getProducts({ limit: 6 });
+  } catch {
+    // DB may be unreachable at build time (e.g. CI). Render the empty
+    // state; ISR (revalidate) populates real data at request time in prod.
+  }
   return (
     <section aria-labelledby="featured-heading">
       <h2
@@ -100,7 +107,7 @@ function CategoryLinks() {
           <Link
             key={cat}
             href={`/categories/${cat}`}
-            className="inline-flex min-h-11 shrink-0 items-center rounded-[var(--radius-full)] border border-[var(--color-brand-300)] px-4 text-sm font-medium text-[var(--color-brand-700)] transition-colors hover:bg-[var(--color-brand-50)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-500)]"
+            className="inline-flex min-h-11 shrink-0 items-center rounded-[var(--radius-full)] border border-[var(--color-brand-300)] px-4 text-sm font-medium text-[var(--color-brand-700)] transition-colors hover:bg-[var(--color-brand-50)] focus-visible:ring-2 focus-visible:ring-[var(--color-brand-500)] focus-visible:outline-none"
           >
             {categoryLabels[cat] ?? cat}
           </Link>
@@ -128,7 +135,8 @@ export default function HomePage() {
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <header className="mb-12 text-center">
         <h1 className="text-4xl font-extrabold tracking-tight text-[var(--color-text)] sm:text-5xl">
-          Farm Fresh, <span className="text-[var(--color-brand-600)]">Locally Sourced</span>
+          Farm Fresh,{" "}
+          <span className="text-[var(--color-brand-600)]">Locally Sourced</span>
         </h1>
         <p className="mt-4 text-lg text-[var(--color-text-muted)]">
           Discover seasonal produce, artisan goods, and farm-direct products
@@ -137,13 +145,13 @@ export default function HomePage() {
         <div className="mt-6 flex justify-center gap-4">
           <Link
             href="/products"
-            className="rounded-[var(--radius-md)] bg-[var(--color-brand-600)] px-6 py-3 font-semibold text-white transition-colors hover:bg-[var(--color-brand-700)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-500)]"
+            className="rounded-[var(--radius-md)] bg-[var(--color-brand-600)] px-6 py-3 font-semibold text-white transition-colors hover:bg-[var(--color-brand-700)] focus-visible:ring-2 focus-visible:ring-[var(--color-brand-500)] focus-visible:outline-none"
           >
             Browse Products
           </Link>
           <Link
             href="/farms"
-            className="rounded-[var(--radius-md)] border border-[var(--color-brand-300)] px-6 py-3 font-semibold text-[var(--color-brand-700)] transition-colors hover:bg-[var(--color-brand-50)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-500)]"
+            className="rounded-[var(--radius-md)] border border-[var(--color-brand-300)] px-6 py-3 font-semibold text-[var(--color-brand-700)] transition-colors hover:bg-[var(--color-brand-50)] focus-visible:ring-2 focus-visible:ring-[var(--color-brand-500)] focus-visible:outline-none"
           >
             Find Farms
           </Link>

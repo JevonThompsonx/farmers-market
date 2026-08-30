@@ -39,9 +39,7 @@ export async function deleteReview(id: string) {
   await db.delete(reviews).where(eq(reviews.id, id));
 }
 
-export async function getAverageRatingForFarm(
-  farmId: string,
-): Promise<number> {
+export async function getAverageRatingForFarm(farmId: string): Promise<number> {
   const result = await db
     .select({ avg: avg(reviews.rating) })
     .from(reviews)

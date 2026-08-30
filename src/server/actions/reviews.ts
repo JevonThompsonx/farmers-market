@@ -22,7 +22,8 @@ export async function createReview(
   formData: FormData,
 ) {
   const session = await auth();
-  if (!session?.user?.id) throw new UnauthorizedError("Sign in to leave a review");
+  if (!session?.user?.id)
+    throw new UnauthorizedError("Sign in to leave a review");
 
   const raw = {
     body: formData.get("body"),

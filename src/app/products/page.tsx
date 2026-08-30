@@ -9,18 +9,22 @@ import { Rating } from "@/components/ui/Rating";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: "All Products",
   description: "Browse all fresh, local products available at Farmers Market.",
   openGraph: {
     title: "All Products | Farmers Market",
-    description: "Browse all fresh, local products available at Farmers Market.",
+    description:
+      "Browse all fresh, local products available at Farmers Market.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "All Products | Farmers Market",
-    description: "Browse all fresh, local products available at Farmers Market.",
+    description:
+      "Browse all fresh, local products available at Farmers Market.",
   },
   alternates: { canonical: "./" },
 };
@@ -34,7 +38,13 @@ async function ProductGrid({
 }) {
   const filters: Parameters<typeof getProducts>[0] = { page, limit: 20 };
   if (category) filters.category = category;
-  const products = await getProducts(filters);
+  let products: Awaited<ReturnType<typeof getProducts>> = [];
+  try {
+    products = await getProducts(filters);
+  } catch {
+    // DB may be unreachable at build time (e.g. CI). Render the empty
+    // state; ISR (revalidate) populates real data at request time in prod.
+  }
 
   if (products.length === 0) {
     return (

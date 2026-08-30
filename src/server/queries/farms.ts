@@ -1,48 +1,53 @@
 import "server-only";
 import { eq, isNull, desc } from "drizzle-orm";
+import { unstable_cache } from "next/cache";
 import { db } from "../db";
 import { farms, type NewFarm } from "../db/schema";
 import { NotFoundError } from "@/lib/errors";
 import { normalizeImageUrl } from "./image-url";
 
-export async function getFarms() {
-  const rows = await db
-    .select({
-      id: farms.id,
-      name: farms.name,
-      city: farms.city,
-      state: farms.state,
-      description: farms.description,
-      image: farms.image,
-      rating: farms.rating,
-      createdAt: farms.createdAt,
-    })
-    .from(farms)
-    .where(isNull(farms.deletedAt))
-    .orderBy(desc(farms.createdAt));
+export const getFarms = unstable_cache(
+  async () => {
+    const rows = await db
+      .select({
+        id: farms.id,
+        name: farms.name,
+        city: farms.city,
+        state: farms.state,
+        description: farms.description,
+        image: farms.image,
+        rating: farms.rating,
+        createdAt: farms.createdAt,
+      })
+      .from(farms)
+      .where(isNull(farms.deletedAt))
+      .orderBy(desc(farms.createdAt));
 
-  return rows.map((farm) => ({
-    ...farm,
-    image: normalizeImageUrl(farm.image),
-  }));
-}
+    return rows.map((farm) => ({
+      ...farm,
+      image: normalizeImageUrl(farm.image),
+    }));
+  },
+  ["getFarms"],
+  { revalidate: 300, tags: ["farms"] },
+);
 
-export async function getFarmById(id: string) {
-  const rows = await db
-    .select()
-    .from(farms)
-    .where(eq(farms.id, id))
-    .limit(1);
+export const getFarmById = unstable_cache(
+  async (id: string) => {
+    const rows = await db.select().from(farms).where(eq(farms.id, id)).limit(1);
 
-  const farm = rows[0];
-  if (!farm || farm.deletedAt !== null) {
-    throw new NotFoundError(`Farm ${id} not found`);
-  }
-  return {
-    ...farm,
-    image: normalizeImageUrl(farm.image),
-  };
-}
+    const farm = rows[0];
+    if (!farm || farm.deletedAt !== null) {
+      throw new NotFoundError(`Farm ${id} not found`);
+    }
+    return {
+      ...farm,
+      image: normalizeImageUrl(farm.image),
+    };
+  },
+  ["getFarmById"],
+  { revalidate: 300, tags: ["farms"] },
+);
 
 export async function createFarm(data: NewFarm) {
   await db.insert(farms).values(data);
@@ -61,7 +66,12 @@ export async function createFarm(data: NewFarm) {
 
 export async function updateFarm(
   id: string,
-  data: Partial<Pick<NewFarm, "name" | "city" | "state" | "description" | "email" | "website" | "image">>,
+  data: Partial<
+    Pick<
+      NewFarm,
+      "name" | "city" | "state" | "description" | "email" | "website" | "image"
+    >
+  >,
 ) {
   await db
     .update(farms)
@@ -77,10 +87,7 @@ export async function softDeleteFarm(id: string) {
 }
 
 export async function getAllFarmIds() {
-  return db
-    .select({ id: farms.id })
-    .from(farms)
-    .where(isNull(farms.deletedAt));
+  return db.select({ id: farms.id }).from(farms).where(isNull(farms.deletedAt));
 }
 
 export async function updateFarmRating(farmId: string, rating: number) {

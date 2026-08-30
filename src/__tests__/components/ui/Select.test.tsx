@@ -17,7 +17,14 @@ describe("Select", () => {
 
   it("fires onChange on selection", () => {
     const handleChange = vi.fn();
-    render(<Select options={options} label="Choice" id="choice" onChange={handleChange} />);
+    render(
+      <Select
+        options={options}
+        label="Choice"
+        id="choice"
+        onChange={handleChange}
+      />,
+    );
     const select = screen.getByLabelText("Choice");
     fireEvent.change(select, { target: { value: "2" } });
     expect(handleChange).toHaveBeenCalled();

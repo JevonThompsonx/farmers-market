@@ -20,7 +20,7 @@ export function Input({ label, error, className, id, ...props }: InputProps) {
       <input
         id={id}
         className={cn(
-          "rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)] disabled:cursor-not-allowed disabled:opacity-50",
+          "rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:ring-2 focus:ring-[var(--color-brand-500)] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
           error ? "border-red-500 focus:ring-red-500" : "",
           className,
         )}
@@ -43,7 +43,9 @@ export function Textarea({
   className,
   id,
   ...props
-}: InputProps & { rows?: number } & React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
+}: InputProps & {
+  rows?: number;
+} & React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <div className="flex flex-col gap-1">
       {label ? (
@@ -57,7 +59,7 @@ export function Textarea({
       <textarea
         id={id}
         className={cn(
-          "rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-500)] disabled:cursor-not-allowed disabled:opacity-50",
+          "rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:ring-2 focus:ring-[var(--color-brand-500)] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
           error ? "border-red-500 focus:ring-red-500" : "",
           className,
         )}

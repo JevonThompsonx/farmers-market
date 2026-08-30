@@ -8,34 +8,59 @@ import {
 import { UpdateProductSchema } from "@/schemas/product.schema";
 import { ValidationError } from "@/lib/errors";
 import { assertRateLimit } from "@/lib/rate-limit";
+import { getUserId, assertOwnership } from "@/lib/auth";
+import { getFarmById } from "@/server/queries/farms";
+import { CACHE_CONTROL_MEDIUM } from "@/lib/cache";
 
 type Params = { params: Promise<{ id: string }> };
 
 export const GET = apiHandler(async (_req: NextRequest, { params }: Params) => {
   const { id } = await params;
   const data = await getProductById(id);
-  return NextResponse.json({ data });
+  return NextResponse.json(
+    { data },
+    { headers: { "Cache-Control": CACHE_CONTROL_MEDIUM } },
+  );
 });
 
-export const PATCH = apiHandler(async (req: NextRequest, { params }: Params) => {
-  await assertRateLimit(req, "api:products:update");
+export const PATCH = apiHandler(
+  async (req: NextRequest, { params }: Params) => {
+    await assertRateLimit(req, "api:products:update");
 
-  const { id } = await params;
-  const body: unknown = await req.json();
-  const parsed = UpdateProductSchema.safeParse(body);
-  if (!parsed.success) {
-    throw new ValidationError(
-      parsed.error.flatten().fieldErrors.toString(),
+    const userId = await getUserId();
+    const { id } = await params;
+
+    const product = await getProductById(id);
+    const farm = await getFarmById(product.farmId);
+    assertOwnership(userId, farm.ownerId);
+
+    const body: unknown = await req.json();
+    const parsed = UpdateProductSchema.safeParse(body);
+    if (!parsed.success) {
+      throw new ValidationError(parsed.error.flatten().fieldErrors.toString());
+    }
+    await updateProduct(
+      id,
+      Object.fromEntries(
+        Object.entries(parsed.data).filter(([, v]) => v !== undefined),
+      ) as Parameters<typeof updateProduct>[1],
     );
-  }
-  await updateProduct(id, Object.fromEntries(Object.entries(parsed.data).filter(([, v]) => v !== undefined)) as Parameters<typeof updateProduct>[1]);
-  return NextResponse.json({ data: { updated: true } });
-});
+    return NextResponse.json({ data: { updated: true } });
+  },
+);
 
-export const DELETE = apiHandler(async (req: NextRequest, { params }: Params) => {
-  await assertRateLimit(req, "api:products:delete");
+export const DELETE = apiHandler(
+  async (req: NextRequest, { params }: Params) => {
+    await assertRateLimit(req, "api:products:delete");
 
-  const { id } = await params;
-  await softDeleteProduct(id);
-  return NextResponse.json({ data: { deleted: true } });
-});
+    const userId = await getUserId();
+    const { id } = await params;
+
+    const product = await getProductById(id);
+    const farm = await getFarmById(product.farmId);
+    assertOwnership(userId, farm.ownerId);
+
+    await softDeleteProduct(id);
+    return NextResponse.json({ data: { deleted: true } });
+  },
+);
