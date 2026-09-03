@@ -99,7 +99,7 @@ Open `http://localhost:3000`.
 - `bun run type-check` — TypeScript `tsc --noEmit`
 - `bun run test` — Vitest unit/integration tests
 - `bun run test:watch` — Vitest watch mode
-- `bun run test:e2e` — Playwright E2E tests
+- `bun run test:e2e` — Playwright E2E tests (note: `e2e/authenticated.spec.ts` uses a placeholder session token and needs a real signed JWT to pass — see `docs/handoff.md`)
 - `bun run db:generate` — Drizzle migration generation
 - `bun run db:migrate` — apply Drizzle migrations
 - `bun run db:seed` — seed farms/products/reviews
