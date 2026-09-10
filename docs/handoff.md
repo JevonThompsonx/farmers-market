@@ -168,4 +168,10 @@ e2e/
 .github/workflows/
   ci.yml                          — type-check → lint → test → build
   security.yml                    — gitleaks + trivy + semgrep
+
+## 2026-09-09 — First production deploy live
+- Merged `fix/vite-patch-2026-09-03` (vite 6.4.1→6.4.3, CVE-2026-53571) to `main`; CI + Security green.
+- Root-fixed Deploy workflow: `NEXTAUTH_URL` in Vercel env was literal `[SENSITIVE]` placeholder (Secret type also breaks `vercel pull`); re-stored as plaintext `https://farmers-market-alpha.vercel.app`.
+- Deploy run 34433069098 success; live URL returns HTTP 200.
+- Follow-ups: `bun run db:migrate` against production Turso DB (verify `products_fts` active); deploy-dependent QA (Lighthouse/CWV/cross-browser) still pending.
 ```
