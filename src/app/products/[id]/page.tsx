@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/Button";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { Rating } from "@/components/ui/Rating";
 import { ReviewForm } from "@/components/ReviewForm";
+import { SITE_URL } from "@/lib/site-url";
 import type { Metadata } from "next";
 
 export async function generateStaticParams() {
@@ -147,13 +148,13 @@ export default async function ProductDetailPage({ params }: Props) {
         "@type": "ListItem",
         position: 1,
         name: "Products",
-        item: "https://farmers-market.vercel.app/products",
+        item: `${SITE_URL}/products`,
       },
       {
         "@type": "ListItem",
         position: 2,
         name: product.name,
-        item: `https://farmers-market.vercel.app/products/${id}`,
+        item: `${SITE_URL}/products/${id}`,
       },
     ],
   };

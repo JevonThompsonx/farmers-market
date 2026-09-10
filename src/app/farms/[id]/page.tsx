@@ -12,6 +12,7 @@ import { Card, CardBody } from "@/components/ui/Card";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { Rating } from "@/components/ui/Rating";
 import { ReviewForm } from "@/components/ReviewForm";
+import { SITE_URL } from "@/lib/site-url";
 import type { Metadata } from "next";
 
 export const revalidate = 300;
@@ -199,13 +200,13 @@ export default async function FarmDetailPage({ params }: Props) {
         "@type": "ListItem",
         position: 1,
         name: "Farms",
-        item: "https://farmers-market.vercel.app/farms",
+        item: `${SITE_URL}/farms`,
       },
       {
         "@type": "ListItem",
         position: 2,
         name: farm.name,
-        item: `https://farmers-market.vercel.app/farms/${id}`,
+        item: `${SITE_URL}/farms/${id}`,
       },
     ],
   };

@@ -1,8 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getFarms } from "@/server/queries/farms";
 import { getProducts } from "@/server/queries/products";
-
-const BASE = "https://farmers-market.vercel.app";
+import { SITE_URL as BASE } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
 
