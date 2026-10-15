@@ -53,7 +53,7 @@
 
 ---
 
-_Priority order: fix the auth-less API routes and `pino-pretty` crash first (functional/security blockers), then caching/ISR (efficiency+speed), then DX polish._
+_Priority order: fix the auth-less API routes first (functional/security blockers), then caching/ISR (efficiency+speed), then DX polish. (`pino-pretty` crash resolved Wave 2 — `pino-pretty@13.1.3` devDep; 2026-09-03.)_
 
 ---
 
@@ -72,7 +72,7 @@ _Priority order: fix the auth-less API routes and `pino-pretty` crash first (fun
 
 **NOT done in Wave 1 (still open — see Wave 2):**
 
-- `pino-pretty` still absent from `package.json` (dev crash on `next dev` remains).
+- ~~`pino-pretty` still absent from `package.json`~~ — RESOLVED Wave 2: `pino-pretty@13.1.3` in devDependencies (2026-09-03; Wave 1 status note now stale).
 - TS 6 ↔ `@typescript-eslint` 8 peer conflict (`npm install` ERESOLVE; needs `--legacy-peer-deps` or typescript-eslint v9) — not yet resolved.
 - Test files (17 TS errors) still block `next build` — `src/__tests__/components/ui/*.test.tsx` not yet fixed or excluded.
 - No `.env*` scaffold exists; security/auth/caching/efficiency items untouched.
@@ -97,7 +97,7 @@ The original TODO under-reported the DX/toolchain collapse; these refine the rec
 
 **Unblock CI first (the repo cannot type-check / lint / test / build on clean `main`):**
 
-1. **HIGH — Make it buildable/testable:** fix `eslint.config.mjs` (done W1), add `@testing-library/dom` (done W1), resolve TS6/`@typescript-eslint` 8 conflict (upgrade typescript-eslint v9 or pin TS<6), fix the 9 test files (RTL `screen`/`fireEvent` import from `@testing-library/dom` + add `bfcacheId` to router mock) or exclude `src/__tests__` from the build type-check, add `pino-pretty` devDep.
+1. **HIGH — Make it buildable/testable:** fix `eslint.config.mjs` (done W1), add `@testing-library/dom` (done W1), resolve TS6/`@typescript-eslint` 8 conflict (upgrade typescript-eslint v9 or pin TS<6), fix the 9 test files (RTL `screen`/`fireEvent` import from `@testing-library/dom` + add `bfcacheId` to router mock) or exclude `src/__tests__` from the build type-check, add `pino-pretty` devDep (done Wave 2 — `pino-pretty@13.1.3`).
 
 **Security blockers:** 2. **HIGH — Add `auth()` (+ ownership) to all 8 API mutation routes**; replace placeholder `ownerId`/`authorId` with real session IDs; middleware cannot secure JSON endpoints (enforce in handlers). 3. **HIGH — Add CSP** to `next.config.ts`; **remove/fence `allowDangerousEmailAccountLinking`** in `src/lib/auth.ts`. 4. **MED — Fix `getClientKey` IP spoof** (trust rightmost proxy hop). (Second Audit 1.7.) 5. **MED — Enforce `auth()` / rate-limit on Server Actions; fail closed on in-memory rate-limit fallback** (Upstash unset → no real protection on serverless).
 
