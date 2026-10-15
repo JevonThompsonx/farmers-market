@@ -12,14 +12,20 @@ Before changing code, read these docs in order:
 
 1. `docs/fullstack.md` (priority rules and engineering standards)
 2. `docs/handoff.md` (current project status and pending work)
-3. `docs/engineering-backend-architect.md` (backend expectations)
-4. `docs/engineering-frontend-developer.md` (frontend expectations)
+3. `docs/plan.md` (migration plan and phase history)
+4. `docs/engineering-backend-architect.md` (backend expectations)
+5. `docs/engineering-frontend-developer.md` (frontend expectations)
+6. `docs/engineering-security-engineer.md` (security expectations)
+7. `MODERNIZATION_TODO.md` (modernization backlog and wave status)
+
+Note: `docs/prompt.md` is an unrelated prompt-engineering ruleset (PowerShell/RMM) that does not describe this repo. Do not apply it here.
 
 ## Project Snapshot
 
 - Stack: Next.js 16 App Router, TypeScript, Tailwind CSS 4, Drizzle ORM, Turso (LibSQL), Auth.js v4 (next-auth 4.24.15)
+- Package manager: `bun` (lockfile `bun.lock` committed); Node 20 per `.nvmrc`
 - Testing: Vitest (unit/integration), Playwright (E2E)
-- CI/CD: GitHub Actions (`ci.yml`, `security.yml`, `deploy.yml`)
+- CI/CD: GitHub Actions (`ci.yml`, `security.yml`, `deploy.yml`) — `ci.yml` also enforces `format:check`
 
 ## Non-Negotiable Rules
 
@@ -54,6 +60,7 @@ These are adapted from `docs/fullstack.md` priority rules.
 
 Run the smallest relevant checks first, then broader checks:
 
+- `bun run format:check`
 - `bun run type-check`
 - `bun run lint`
 - `bun run test`
@@ -62,16 +69,25 @@ Run the smallest relevant checks first, then broader checks:
 
 ## Deployment Notes
 
-Based on current handoff status:
+Production deploy is live at `https://farmers-market-alpha.vercel.app` (see `docs/handoff.md`, 2026-09-09). Remaining rollout work:
 
-- Ensure migrations are applied in non-local environments: `bun run db:migrate`
+- Ensure migrations are applied in non-local environments, including production Turso: `bun run db:migrate`
 - Required deploy secrets: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`
-- Do not run deploy-dependent QA (Lighthouse/CWV/cross-browser on live URL) until deployment is confirmed
+- Set `NEXT_PUBLIC_SITE_URL` on Vercel (production + preview) — `src/lib/site-url.ts` derives sitemap/robots/JSON-LD URLs from it
+- Deploy-dependent QA (Lighthouse/CWV/cross-browser on the live URL) is still queued in `docs/handoff.md`
+
+## Gotchas
+
+- API mutation routes are **not** gated by `middleware.ts` (its matcher excludes `api/auth`, and auth is enforced inside each handler). Never rely on middleware to protect an endpoint.
+- `.env.local` is the local env file. No `.env.example` is committed, so onboard others by copying the variable list from `README.md`.
+- E2E auth tests need a real signed JWT in the `next-auth.session-token` cookie — see `docs/handoff.md`.
+- In-memory rate limiting is per-instance; treat Upstash as required for meaningful protection on serverless.
+- `playwright-report/` and `test-results/` are generated artifacts; they are tracked in git, so do not assume a clean `git status` means no test output changed.
 
 ## Current Known Caveats
 
 - `e2e/authenticated.spec.ts` uses a placeholder session token and needs a real signed JWT to pass.
-- Legacy Express/EJS cleanup is pending; do not remove legacy assets/dependencies unless explicitly requested.
+- Legacy Express/EJS cleanup is complete (`dev/`, `scripts/`, `views/`, `css/`, `images/`, `.eslintrc.json`, and `Dockerfile` were removed). Do not add back legacy assets.
 
 ## Definition of Done
 

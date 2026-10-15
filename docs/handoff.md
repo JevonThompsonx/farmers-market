@@ -168,10 +168,20 @@ e2e/
 .github/workflows/
   ci.yml                          — type-check → lint → test → build
   security.yml                    — gitleaks + trivy + semgrep
+```
 
 ## 2026-09-09 — First production deploy live
+
 - Merged `fix/vite-patch-2026-09-03` (vite 6.4.1→6.4.3, CVE-2026-53571) to `main`; CI + Security green.
 - Root-fixed Deploy workflow: `NEXTAUTH_URL` in Vercel env was literal `[SENSITIVE]` placeholder (Secret type also breaks `vercel pull`); re-stored as plaintext `https://farmers-market-alpha.vercel.app`.
 - Deploy run 34433069098 success; live URL returns HTTP 200.
 - Follow-ups: `bun run db:migrate` against production Turso DB (verify `products_fts` active); deploy-dependent QA (Lighthouse/CWV/cross-browser) still pending.
-```
+
+## 2026-10-15 — Documentation pass
+
+- `README.md` corrected and expanded: `.env.example` no longer referenced (none is committed — create `.env.local` by hand); `NEXT_PUBLIC_SITE_URL` documented; `format`/`format:check` and Node 20 added to scripts/prereqs; Validation Workflow now includes the CI format gate; Deployment Notes updated to reflect the live Vercel deploy; Key Paths extended (`middleware.ts`, `e2e/`, `src/server/db/migrations/`, `src/lib/site-url.ts`, `src/lib/rate-limit.ts`); rate-limit caveat added.
+- `AGENTS.md` corrected: legacy Express/EJS cleanup is **complete** (was "pending"); deploy notes no longer say "wait until deployment is confirmed" (deploy is live); Read First now lists `docs/plan.md`, `docs/engineering-security-engineer.md`, and `MODERNIZATION_TODO.md`, and flags `docs/prompt.md` as unrelated; new Gotchas section (middleware does not gate `/api/*`, `.env.local` convention, E2E JWT, per-instance rate limiting, tracked test artifacts).
+- `docs/README.md` added as the docs index, with a keep-current classification per doc.
+- `docs/plan.md` header annotated: shipped stack is Next.js 16 + Auth.js v4, not the planned Next.js 15 + Auth.js v5.
+- `MODERNIZATION_TODO.md`: dependency-pinning item marked resolved (all deps now exact-pinned), `.env*` item refined, README/docs-drift item marked largely resolved.
+- Verification run during the pass: `tsc --noEmit` exit 0, `eslint src --max-warnings 0` exit 0, `vitest run` 22 files / 144 tests passed, `prettier --check` clean on all docs.

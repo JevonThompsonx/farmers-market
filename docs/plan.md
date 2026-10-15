@@ -1,7 +1,8 @@
 # Farmers Market — Migration Plan
 
 > **Status:** Phase 8 implementation is complete in-repo — CI, security, rate limiting, and deploy workflow are all in place. `products_fts` follow-up migration is committed and applied locally; run migrations in remaining target environments as part of release rollout. Gemini Pro localhost QA audits (contrast + responsive) are complete, P0 UI fixes are applied, and a focused mobile smoke pass is passing. Phase 9 backend legacy cleanup is complete (`dev/`, `scripts/`, `views/`, `css/`, `images/`, `.eslintrc.json`, and `Dockerfile` removed; legacy Express/EJS dependencies already absent from `package.json`). Remaining work is deploy rollout and deploy-dependent Phase 9 browser QA.
-> **Target stack:** Next.js (App Router) · Turso (LibSQL) · Drizzle ORM · Auth.js v5 · Tailwind CSS 4 · Cloudinary · Vercel · bun
+> **Target stack:** Next.js (App Router) · Turso (LibSQL) · Drizzle ORM · Auth.js v4 (next-auth 4.24.15 — downgraded from the planned v5 beta during the Trivy CVE remediation wave) · Tailwind CSS 4 · Cloudinary · Vercel · bun
+> **Note:** this document is a historical migration plan. The "Current" column describes the pre-migration Express/EJS codebase and the "Target" column values (e.g. "Next.js 15", "Auth.js v5") predate delivery — the shipped stack is Next.js 16 + Auth.js v4. Use `../README.md` and `handoff.md` for the actual current state.
 
 ---
 
