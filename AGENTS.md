@@ -1,5 +1,13 @@
 # AGENTS.md
 
+> **Cloudflare hosting (2026-10-30).** **NOT DEPLOYED.** Vercel is suspended
+> (HTTP 402) and its deployments are dead. Everything is prepared on branch
+> `feat/cloudflare-workers`; deploy with `bun run deploy:cf`.
+> Detail: [`CLOUDFLARE.md`](./CLOUDFLARE.md).
+>
+> **Pending (blocker):** `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`,
+> `UNSPLASH_ACCESS_KEY` — the env schema refuses to boot without them.
+
 Guidance for AI coding agents working in this repository.
 
 ## Scope
