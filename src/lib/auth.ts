@@ -1,6 +1,6 @@
-import NextAuth from "next-auth";
+import NextAuthModule from "next-auth";
 import type { NextAuthOptions } from "next-auth";
-import GithubProvider from "next-auth/providers/github";
+import GithubProviderModule from "next-auth/providers/github";
 import type { DefaultSession } from "next-auth";
 import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
@@ -13,6 +13,24 @@ import {
   verificationTokens,
 } from "@/server/db/schema";
 import { ForbiddenError, UnauthorizedError } from "./errors";
+import { env } from "@/lib/env";
+
+// CJS/ESM interop: under Vite/vinext the provider can arrive wrapped in one or
+// two `.default` layers. Resolve all shapes so Next.js and vinext agree.
+const githubProviderNamespace = GithubProviderModule as unknown as {
+  default?: unknown;
+};
+const GithubProvider: typeof GithubProviderModule =
+  typeof GithubProviderModule === "function"
+    ? GithubProviderModule
+    : typeof githubProviderNamespace.default === "function"
+      ? (githubProviderNamespace.default as typeof GithubProviderModule)
+      : typeof (
+            githubProviderNamespace.default as { default?: unknown } | undefined
+          )?.default === "function"
+        ? ((githubProviderNamespace.default as { default: unknown })
+            .default as typeof GithubProviderModule)
+        : GithubProviderModule;
 
 // Schema tables have slight column differences from the adapter's expected types
 // due to exactOptionalPropertyTypes strictness — cast via unknown to satisfy adapter.
@@ -30,8 +48,8 @@ export const authOptions: NextAuthOptions = {
   adapter,
   providers: [
     GithubProvider({
-      clientId: process.env["GITHUB_CLIENT_ID"] ?? "",
-      clientSecret: process.env["GITHUB_CLIENT_SECRET"] ?? "",
+      clientId: env.GITHUB_CLIENT_ID,
+      clientSecret: env.GITHUB_CLIENT_SECRET,
       // Account-takeover risk: see MODERNIZATION_TODO. Linking is handled
       // explicitly via the `linkAccount` callback instead of auto-linking by email.
       allowDangerousEmailAccountLinking: false,
@@ -79,12 +97,31 @@ export const auth = () => getServerSession(authOptions);
 
 // App Router endpoint handler (used by src/app/api/auth/[...nextauth]/route.ts).
 // next-auth v4's default export returns `any`; type it explicitly for the
+/**
+ * next-auth v4 ships CommonJS. Depending on the bundler interop the default
+ * import can be the NextAuth function, a namespace whose `.default` is the
+ * function, or a nested CJS wrapper. Resolve all shapes so Next.js and vinext
+ * behave the same.
+ */
+function resolveNextAuth(
+  moduleValue: unknown,
+): (options: NextAuthOptions) => unknown {
+  const namespace = moduleValue as Record<string, unknown>;
+  if (typeof moduleValue === "function") return moduleValue as never;
+  const first = namespace.default;
+  if (typeof first === "function") return first as never;
+  const second = (first as Record<string, unknown> | undefined)?.default;
+  if (typeof second === "function") return second as never;
+  const viaCjs = namespace["module.exports"];
+  if (typeof viaCjs === "function") return viaCjs as never;
+  throw new Error("Unable to resolve the next-auth default export");
+}
+
 // App Router route signature so callers receive a properly-typed handler.
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 export const handler: (
   req: import("next/server").NextRequest,
   ctx: { params: Promise<{ nextauth: string[] }> },
-) => Promise<Response> = NextAuth(authOptions);
+) => Promise<Response> = resolveNextAuth(NextAuthModule)(authOptions) as never;
 
 /**
  * Server-side sign-in helper for Server Actions.

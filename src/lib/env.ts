@@ -24,7 +24,17 @@ const envSchema = z.object({
     .default("development"),
 });
 
-const parsed = envSchema.safeParse(process.env);
+// On Cloudflare Workers `process.env` is a frozen proxy that carries plain vars
+// only — Worker secrets never appear there. `worker-entry.ts` publishes the full
+// binding set on `globalThis.__RUNTIME_ENV__` before the app loads.
+const runtimeBridge = (
+  globalThis as unknown as { __RUNTIME_ENV__?: Record<string, string> }
+).__RUNTIME_ENV__;
+const envSource: NodeJS.ProcessEnv = runtimeBridge
+  ? { ...process.env, ...runtimeBridge }
+  : process.env;
+
+const parsed = envSchema.safeParse(envSource);
 
 if (!parsed.success) {
   console.error(

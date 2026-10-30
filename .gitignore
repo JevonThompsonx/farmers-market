@@ -25,3 +25,9 @@ tsconfig.tsbuildinfo
 *.tsbuildinfo
 .vercel
 .env*
+/dist/
+.vinext/
+.cloudflare/
+
+# local env backups (never commit)
+.env.bak-*
