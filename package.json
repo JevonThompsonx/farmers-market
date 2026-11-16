@@ -36,7 +36,7 @@
     "server-only": "0.0.1",
     "sharp": "0.35.4",
     "tailwind-merge": "3.6.0",
-    "zod": "4.5.4"
+    "zod": "4.6.6"
   },
   "devDependencies": {
     "@playwright/test": "1.62.1",
