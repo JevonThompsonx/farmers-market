@@ -4,11 +4,12 @@
 # Dependency CVEs: weekly only. Scanning every push made every repo red for
 # advisories unrelated to the change, which trains people to ignore the tick.
 name: security
+# Post-merge secret scan plus a weekly dependency sweep. Secrets are caught
+# before they can spread; CVE advisories arrive as one scheduled report instead
+# of painting every merge red.
 on:
   push:
     branches: [main, master]
-  pull_request:
-    types: [opened, synchronize, reopened]
   schedule:
     - cron: "0 6 * * 1"
   workflow_dispatch:
