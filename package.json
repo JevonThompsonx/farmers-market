@@ -22,7 +22,7 @@
   "dependencies": {
     "@auth/drizzle-adapter": "1.11.3",
     "@libsql/client": "0.18.0",
-    "@upstash/ratelimit": "2.0.8",
+    "@upstash/ratelimit": "2.2.1",
     "@upstash/redis": "1.38.3",
     "cloudinary": "2.11.0",
     "clsx": "2.1.1",
